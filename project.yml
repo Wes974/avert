@@ -1,0 +1,54 @@
+name: Impostor
+options:
+  bundleIdPrefix: com.ouweis
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "26.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+    GENERATE_INFOPLIST_FILE: true
+
+targets:
+  Impostor:
+    type: application
+    platform: iOS
+    sources:
+      - App
+      - Shared
+    dependencies:
+      - target: ImpostorExtension
+        embed: true
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: Impostor
+        UILaunchScreen: {}
+        ITSAppUsesNonExemptEncryption: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.impostor
+
+  ImpostorExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - Extension/Swift
+      - Shared
+      - path: Extension/Resources
+        buildPhase: resources
+    info:
+      path: Extension/Info.plist
+      properties:
+        CFBundleDisplayName: Impostor
+        # XcodeGen ne génère pas le bloc NSExtension : obligatoire à la main.
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.Safari.web-extension
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).SafariWebExtensionHandler
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.impostor.extension

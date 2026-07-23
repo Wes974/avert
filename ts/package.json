@@ -1,0 +1,8 @@
+{
+  "name": "impostor-ts",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  }
+}

@@ -1,0 +1,13 @@
+# XcodeGen output — regenerate with `xcodegen generate`
+*.xcodeproj
+
+# Build artifacts
+.build/
+DerivedData/
+
+# Never in iCloud
+node_modules/
+
+# macOS noise
+.DS_Store
+._*
