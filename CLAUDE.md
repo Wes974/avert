@@ -1,36 +1,52 @@
-# Impostor — Safari anti-phishing extension (on-device)
+# CLAUDE.md — Impostor
 
-Spec complète : `PLAN.md` (version amendée 2026-07-23, source de vérité).
+Extension Safari anti-phishing iOS, 100 % on-device. Spec complète : [PLAN.md](PLAN.md).
+Principe : détecter **l'incohérence d'identité** (« la page ment-elle sur son identité ? »), pas la réputation.
 
 ## Architecture
 
-- `project.yml` (XcodeGen) → `Impostor.xcodeproj` **généré, jamais commité**. Relancer `xcodegen generate` après tout ajout/suppression de fichier source.
-- Targets : `Impostor` (app SwiftUI iOS, réglages/onboarding) + `ImpostorExtension` (Safari Web Extension). Le moteur (registre, score, FoundationModels) vit dans l'**extension** — sur iOS le native messaging aboutit dans le process appex, pas dans l'app.
-- `Shared/` compilé en sources directes dans les deux targets (pas de framework). Foundation only.
-- `ts/` : content script + background en TypeScript, bundlés en IIFE par `bun build` vers `Extension/Resources/*.js` (les `.js` générés sont commités pour que le build Xcode ne dépende pas de bun).
+- **`ts/`** — content script (TypeScript, bundlé par bun, zéro dépendance runtime).
+  - `l0.ts` déclencheur point-de-capture · `l1.ts` heuristiques URL · `l2.ts` DOM · `banner.ts` UI (bandeau + interstitiel shadow-DOM) · `content.ts` orchestration · `background.ts` relais native.
+  - **Source unique** du registre : `registry/brands.json` → `ts/src/generated/brands.ts` (généré au build).
+- **`Shared/`** — compilé dans l'app ET l'extension : `PageDossier` (miroir de `ts/src/types.ts`), `ScoreEngine`, `BrandRegistry`, `L3Extractor`.
+- **`Extension/Swift/SafariWebExtensionHandler.swift`** — reçoit le dossier, appelle moteur + L3, renvoie le verdict. **Sur iOS tout le moteur vit dans le process de l'extension**, pas l'app.
+- **`App/`** — app conteneur SwiftUI : accueil, écran des limites, réglages.
 
-## Commandes
+## Build & test
 
-```sh
-./scripts/build-js.sh        # typecheck (tsc) + bundle TS → Extension/Resources/
-xcodegen generate            # régénère le .xcodeproj
-# DerivedData OBLIGATOIREMENT hors iCloud : un -derivedDataPath dans le repo
-# fait échouer codesign (« resource fork, Finder information, or similar
-# detritus ») à cause des xattrs iCloud sur les produits copiés.
+DerivedData **hors iCloud** obligatoire (sinon codesign échoue sur les xattrs) :
+
+```bash
+./scripts/build-js.sh   # typecheck + 34 tests bun + bundle → Extension/Resources/
+xcodegen generate
 xcodebuild -project Impostor.xcodeproj -scheme Impostor \
   -destination 'generic/platform=iOS Simulator' \
   -derivedDataPath /tmp/claude-501/impostor-dd build
 ```
 
-## Contraintes d'environnement (durement apprises)
+Ajout/suppression de fichier source Swift → **relancer `xcodegen generate`** (erreur « cannot find X in scope » sur un fichier neuf = membership de target, pas le code).
 
-- **Repo dans iCloud Drive** : jamais de `node_modules` ici. `build-js.sh` copie `ts/` dans `$TMPDIR`, installe et bundle là-bas, ne rapatrie que les `.js`.
-- **Sandbox Claude Code** : les écritures `.git` et les XPC CoreSimulator sont bloqués en sandbox → commandes `git`, `simctl`, `xcodebuild` (destination simulateur) passent hors sandbox.
-- **Mac Intel** : Apple Intelligence indisponible (Mac ET simulateur) → L3 (`FoundationModels`) compile mais ne s'exécute que sur iPhone physique compatible (référence : iPhone 17 Pro). Le chemin de fallback L0–L2 est un chemin de production.
-- Outils MCP XcodeBuildMCP : UI automation OK, mais build/install/launch timeout sur Intel → utiliser bash.
+## Contraintes environnement (Mac Intel + iCloud)
 
-## Conventions
+- **git** : le repo est dans iCloud → sandbox bloque les écritures `.git`. Toute commande git passe par `dangerouslyDisableSandbox`.
+- **bun** : `TMPDIR`/cache redirigés dans le scratch (géré par `scripts/build-js.sh`).
+- **Thermique** : MacBook Pro 16" 2019 throttle fort. Le simulateur iOS 26 lance `mediaanalysisd` (CPU 300 %+) qui **affame Safari → les content scripts ne s'injectent plus** (ressemble à « extension cassée »). Avant tout diagnostic, vérifier `pmset -g therm` et `uptime`. Un seul simulateur booté, préférer la page de test locale aux gros sites.
+- **Safari démarré à froid** charge la page avant d'activer l'extension : préchauffer sur une page neutre puis naviguer.
 
-- Zéro appel réseau (hors PCC, M7) — pas même « temporaire pour debug ».
-- Chaque niveau de cascade testable isolément sur un « dossier de page » JSON (`ts/src/types.ts` ↔ `Shared/PageDossier.swift`, à garder en miroir).
-- Tests TS : `bun test` depuis la copie `$TMPDIR` (le script s'en charge).
+## L3 (FoundationModels)
+
+- `SystemLanguageModel` + guided generation (`@Generable`). Rôle **borné** : extraire l'identité revendiquée + l'intention, jamais juger. Le verdict d'identité est une comparaison factuelle registre (`BrandRegistry.identityMismatch`).
+- **Indisponible sur Mac Intel et dans le simulateur** (pas d'Apple Intelligence). `availability` peut mentir `.available` puis échouer à la génération (`ModelManagerError 1026`) → kill-switch `disabledAfterFailure` pour ne pas payer ~6 s par page. Fallback L1+L2 = chemin de production.
+- **Test réel : uniquement sur iPhone 17 Pro physique.**
+- PCC (`PrivateCloudComputeLanguageModel`) = M7 optionnel : iOS 27 + entitlement managé Apple. Réglage prêt, non branché.
+
+## Règles produit non négociables (cf. PLAN §5–7)
+
+- Jamais d'alerte forte sur un signal unique (règle de convergence dans `ScoreEngine`).
+- Toujours un « Continuer quand même ». Toujours expliquer le raisonnement.
+- L'écran des limites (`App/LimitsView.swift`) énonce franchement ce que l'extension ne voit pas — ne jamais l'édulcorer.
+- Aucun appel réseau hors PCC, même temporaire pour debug.
+
+## État
+
+M0→M5 faits (voir tâches / git log). Reste : **validation L3 réelle sur iPhone** (M4, présence utilisateur requise) et **M6 durcissement** (corpus de test, calibration des seuils, batterie, repasser en Swift 6 — actuellement mode 5 à cause d'un bug du checker d'isolation Xcode 26.5 sur le pattern Task+NSExtensionContext, Keychain pour l'option historique, signalement de faux positif).

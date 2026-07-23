@@ -2,7 +2,7 @@ import { detectCapturePoints } from "./l0";
 import { analyzeUrl } from "./l1";
 import { analyzePage } from "./l2";
 import { BRANDS } from "./generated/brands";
-import { showBanner } from "./banner";
+import { renderVerdict } from "./banner";
 import type { PageDossier } from "./types";
 
 // Content script. L0 gate: no capture point → do strictly nothing (silence by
@@ -32,10 +32,7 @@ async function run(): Promise<void> {
   if ("type" in response && response.type === "verdict") {
     // DOM marker kept for UI-automation assertions.
     document.documentElement.dataset["impostor"] = response.verdict.action;
-    if (response.verdict.action === "banner" || response.verdict.action === "interstitial") {
-      // Interstitial UI lands in M5; until then it renders as the banner too.
-      showBanner(response.verdict);
-    }
+    renderVerdict(response.verdict);
     await browser.runtime.sendMessage({
       type: "ack",
       echoHost: response.verdict.echoHost ?? "",

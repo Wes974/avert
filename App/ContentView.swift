@@ -2,25 +2,36 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
+        TabView {
+            HomeView()
+                .tabItem { Label("Impostor", systemImage: "shield.lefthalf.filled") }
+            LimitsView()
+                .tabItem { Label("Limites", systemImage: "eye.slash") }
+            SettingsView()
+                .tabItem { Label("Réglages", systemImage: "gearshape") }
+        }
+    }
+}
+
+private struct HomeView: View {
+    var body: some View {
         NavigationStack {
             List {
-                Section {
-                    Label {
-                        Text("Activez l'extension dans Réglages → Apps → Safari → Extensions, puis autorisez-la sur tous les sites.")
-                    } icon: {
-                        Image(systemName: "puzzlepiece.extension")
-                    }
-                } header: {
-                    Text("Activation")
+                Section("Activation") {
+                    Label(
+                        "Activez Impostor dans Réglages → Apps → Safari → Extensions, puis autorisez-la sur tous les sites.",
+                        systemImage: "puzzlepiece.extension"
+                    )
                 }
-
-                Section {
-                    // M5 : remplacé par le vrai contenu (limites de couverture, réglages).
-                    Text("Impostor n'alerte que lorsqu'une page réclame une identité qui ne correspond pas à son domaine. Il ne voit pas tout — l'écran des limites arrive en M5.")
-                        .font(.footnote)
+                Section("Principe") {
+                    Text("Impostor n'alerte pas parce qu'un site figure sur une liste noire — il n'en utilise aucune. Il repère quand une page **réclame une identité** (une marque, une banque) qui ne correspond pas au domaine qui l'héberge.")
+                    Text("La plupart des pages ne déclenchent rien : l'analyse ne démarre que sur une page qui demande un mot de passe, un paiement, un code ou une phrase de récupération.")
                         .foregroundStyle(.secondary)
-                } header: {
-                    Text("Ce que fait Impostor")
+                        .font(.footnote)
+                }
+                Section("Confidentialité") {
+                    Label("Aucune donnée de page ne quitte votre appareil.", systemImage: "lock.shield")
+                    Label("Aucune télémétrie, aucun compte.", systemImage: "person.crop.circle.badge.xmark")
                 }
             }
             .navigationTitle("Impostor")
