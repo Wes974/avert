@@ -8,6 +8,17 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SCRATCH="${TMPDIR:-/tmp}/impostor-js"
 
+# Single source of truth for the brand registry: registry/brands.json.
+# The TS side consumes a generated (and committed) module.
+mkdir -p "$ROOT/ts/src/generated"
+{
+  echo "// GENERATED from registry/brands.json by scripts/build-js.sh — do not edit."
+  echo 'import type { BrandEntry } from "../l1";'
+  printf 'export const BRANDS: BrandEntry[] = '
+  cat "$ROOT/registry/brands.json"
+  echo ';'
+} > "$ROOT/ts/src/generated/brands.ts"
+
 mkdir -p "$SCRATCH"
 rsync -a --delete --exclude node_modules "$ROOT/ts/" "$SCRATCH/"
 
@@ -19,6 +30,7 @@ export BUN_INSTALL_CACHE_DIR="$SCRATCH/.buncache"
 mkdir -p "$TMPDIR" "$BUN_INSTALL_CACHE_DIR"
 bun install --silent
 bunx tsc --noEmit
+bun test
 
 for entry in content background; do
   bun build "src/$entry.ts" --format=iife --target=browser \

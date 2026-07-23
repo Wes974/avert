@@ -1,4 +1,8 @@
 import { detectCapturePoints } from "./l0";
+import { analyzeUrl } from "./l1";
+import { analyzePage } from "./l2";
+import { BRANDS } from "./generated/brands";
+import { showBanner } from "./banner";
 import type { PageDossier } from "./types";
 
 // Content script. L0 gate: no capture point → do strictly nothing (silence by
@@ -14,6 +18,8 @@ async function run(): Promise<void> {
     url: window.location.href,
     host: window.location.host,
     capturePoints,
+    l1Signals: analyzeUrl(window.location.href, BRANDS),
+    l2Signals: analyzePage(document, window.location.host, capturePoints, BRANDS),
   };
 
   const response = await browser.runtime.sendMessage({
@@ -22,9 +28,12 @@ async function run(): Promise<void> {
   });
 
   if ("type" in response && response.type === "verdict") {
-    // M0 round-trip proof: ack back to native, and leave a DOM marker that
-    // UI-automation tests can assert on. M2 replaces this with the banner.
+    // DOM marker kept for UI-automation assertions.
     document.documentElement.dataset["impostor"] = response.verdict.action;
+    if (response.verdict.action === "banner" || response.verdict.action === "interstitial") {
+      // Interstitial UI lands in M5; until then it renders as the banner too.
+      showBanner(response.verdict);
+    }
     await browser.runtime.sendMessage({
       type: "ack",
       echoHost: response.verdict.echoHost ?? "",
@@ -32,8 +41,17 @@ async function run(): Promise<void> {
   }
 }
 
+function runReporting(): void {
+  run().catch((err: unknown) => {
+    void browser.runtime.sendMessage({
+      type: "jsError",
+      detail: err instanceof Error ? `${err.name}: ${err.message}` : String(err),
+    });
+  });
+}
+
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => void run());
+  document.addEventListener("DOMContentLoaded", runReporting);
 } else {
-  void run();
+  runReporting();
 }

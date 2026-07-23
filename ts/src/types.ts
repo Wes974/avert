@@ -15,11 +15,16 @@ export interface CapturePoint {
   crossOriginActionHost: string | null;
 }
 
+import type { L1Signal } from "./l1";
+import type { L2Signal } from "./l2";
+
 export interface PageDossier {
   version: 1;
   url: string;
   host: string;
   capturePoints: CapturePoint[];
+  l1Signals: L1Signal[];
+  l2Signals: L2Signal[];
 }
 
 export type VerdictAction = "silent" | "banner" | "interstitial";
@@ -35,7 +40,10 @@ export interface Verdict {
 // Messages between content script and background.
 export type ContentToBackground =
   | { type: "dossier"; dossier: PageDossier }
-  | { type: "ack"; echoHost: string };
+  | { type: "ack"; echoHost: string }
+  // Content-script exceptions are invisible on iOS (no console); forward them
+  // so the native handler can put them in the unified log.
+  | { type: "jsError"; detail: string };
 
 export type NativeResponse =
   | { type: "verdict"; verdict: Verdict }

@@ -18,11 +18,25 @@ struct CapturePoint: Codable, Sendable {
     let crossOriginActionHost: String?
 }
 
+struct L1Signal: Codable, Sendable {
+    let id: String
+    let detail: String?
+    let brand: String?
+}
+
+struct L2Signal: Codable, Sendable {
+    let id: String
+    let detail: String?
+    let brand: String?
+}
+
 struct PageDossier: Codable, Sendable {
     let version: Int
     let url: String
     let host: String
     let capturePoints: [CapturePoint]
+    let l1Signals: [L1Signal]
+    let l2Signals: [L2Signal]
 }
 
 enum VerdictAction: String, Codable, Sendable {

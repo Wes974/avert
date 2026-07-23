@@ -15,6 +15,10 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         switch message?["type"] as? String {
         case "dossier":
             responsePayload = handleDossier(message?["dossier"])
+        case "jsError":
+            let detail = (message?["detail"] as? String) ?? "?"
+            Self.log.error("content script error: \(detail, privacy: .public)")
+            responsePayload = ["ok": true]
         case "ack":
             // Second leg of the M0 round-trip proof: JS confirming it received
             // our verdict. Log only, empty response.
@@ -41,7 +45,8 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             return ["error": "bad dossier"]
         }
 
-        Self.log.info("dossier received: host=\(dossier.host, privacy: .public) capturePoints=\(dossier.capturePoints.count)")
+        let signalIds = dossier.l1Signals.map(\.id).joined(separator: ",")
+        Self.log.info("dossier received: host=\(dossier.host, privacy: .public) capturePoints=\(dossier.capturePoints.count) l1=[\(signalIds, privacy: .public)]")
 
         let verdict = ScoreEngine().evaluate(dossier)
         guard let verdictData = try? JSONEncoder().encode(verdict),
