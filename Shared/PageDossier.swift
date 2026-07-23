@@ -34,6 +34,9 @@ struct PageDossier: Codable, Sendable {
     let version: Int
     let url: String
     let host: String
+    /// For L3 identity extraction only; ephemeral, never persisted.
+    let title: String
+    let textExcerpt: String
     let capturePoints: [CapturePoint]
     let l1Signals: [L1Signal]
     let l2Signals: [L2Signal]

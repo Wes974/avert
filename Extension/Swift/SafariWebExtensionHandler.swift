@@ -1,54 +1,89 @@
 import SafariServices
 import os.log
 
+/// Wrapper so the non-Sendable NSExtensionContext can cross into the Task
+/// that runs the async L3 path. Safe: the context is only touched once, to
+/// complete the request.
+private struct UncheckedSendable<T>: @unchecked Sendable {
+    let value: T
+}
+
 /// Receives native messages from the extension's background script.
 /// On iOS this runs in the app-extension process — the whole engine
-/// (registry, scoring, later FoundationModels) is called from here.
+/// (registry, scoring, FoundationModels) is called from here.
 final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     private static let log = Logger(subsystem: "com.ouweis.impostor", category: "native")
 
     func beginRequest(with context: NSExtensionContext) {
         let item = context.inputItems.first as? NSExtensionItem
         let message = item?.userInfo?[SFExtensionMessageKey] as? [String: Any]
+        let ctx = UncheckedSendable(value: context)
 
-        let responsePayload: [String: Any]
         switch message?["type"] as? String {
         case "dossier":
-            responsePayload = handleDossier(message?["dossier"])
+            // Serialize to Data before crossing into the Task: [String: Any]
+            // is not Sendable, Data is.
+            let rawData = (message?["dossier"] as? [String: Any])
+                .flatMap { try? JSONSerialization.data(withJSONObject: $0) }
+            Task {
+                let payload = await Self.handleDossier(rawData)
+                Self.complete(ctx, with: payload)
+            }
         case "jsError":
             let detail = (message?["detail"] as? String) ?? "?"
             Self.log.error("content script error: \(detail, privacy: .public)")
-            responsePayload = ["ok": true]
+            Self.complete(ctx, with: ["ok": true])
         case "ack":
-            // Second leg of the M0 round-trip proof: JS confirming it received
-            // our verdict. Log only, empty response.
+            // Second leg of the round-trip proof: JS confirming it received
+            // our verdict. Log only.
             let host = (message?["echoHost"] as? String) ?? "?"
             Self.log.info("round-trip ack from JS for host \(host, privacy: .public)")
-            responsePayload = ["ok": true]
+            Self.complete(ctx, with: ["ok": true])
         default:
             Self.log.error("unknown native message type")
-            responsePayload = ["error": "unknown message type"]
+            Self.complete(ctx, with: ["error": "unknown message type"])
         }
-
-        let response = NSExtensionItem()
-        response.userInfo = [SFExtensionMessageKey: responsePayload]
-        context.completeRequest(returningItems: [response])
     }
 
-    private func handleDossier(_ raw: Any?) -> [String: Any] {
+    private static func complete(_ ctx: UncheckedSendable<NSExtensionContext>, with payload: [String: Any]) {
+        let response = NSExtensionItem()
+        response.userInfo = [SFExtensionMessageKey: payload]
+        ctx.value.completeRequest(returningItems: [response])
+    }
+
+    private static func handleDossier(_ raw: Data?) async -> [String: Any] {
         // Defensive parsing: JS input is untrusted by construction.
-        guard let dict = raw as? [String: Any],
-              let data = try? JSONSerialization.data(withJSONObject: dict),
+        guard let data = raw,
               let dossier = try? JSONDecoder().decode(PageDossier.self, from: data)
         else {
-            Self.log.error("dossier failed to decode")
+            log.error("dossier failed to decode")
             return ["error": "bad dossier"]
         }
 
-        let signalIds = dossier.l1Signals.map(\.id).joined(separator: ",")
-        Self.log.info("dossier received: host=\(dossier.host, privacy: .public) capturePoints=\(dossier.capturePoints.count) l1=[\(signalIds, privacy: .public)]")
+        let l1Ids = dossier.l1Signals.map(\.id).joined(separator: ",")
+        log.info("dossier received: host=\(dossier.host, privacy: .public) capturePoints=\(dossier.capturePoints.count) l1=[\(l1Ids, privacy: .public)]")
 
-        let verdict = ScoreEngine().evaluate(dossier)
+        let engine = ScoreEngine()
+        let signalMismatch = ScoreEngine.signalIdentityMismatch(dossier)
+        var verdict = engine.evaluate(dossier, identityMismatch: signalMismatch)
+
+        // L3 gate: only above the wake threshold, only when the model exists.
+        if verdict.score >= ScoreEngine.l3WakeThreshold,
+           let extraction = await L3Extractor.extract(from: dossier) {
+            let l3Mismatch = extraction.confidence >= 0.6
+                && BrandRegistry.shared.identityMismatch(
+                    claimedBrand: extraction.claimedBrand,
+                    host: dossier.host
+                )
+            verdict = engine.evaluate(
+                dossier,
+                identityMismatch: signalMismatch || l3Mismatch,
+                l3: extraction
+            )
+        }
+
+        log.info("verdict: action=\(verdict.action.rawValue, privacy: .public) score=\(verdict.score)")
+
         guard let verdictData = try? JSONEncoder().encode(verdict),
               let verdictDict = try? JSONSerialization.jsonObject(with: verdictData) as? [String: Any]
         else {

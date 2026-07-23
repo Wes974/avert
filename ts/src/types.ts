@@ -22,6 +22,10 @@ export interface PageDossier {
   version: 1;
   url: string;
   host: string;
+  /** Page title + visible-text excerpt, for L3 identity extraction only.
+   *  Collected solely when L0 found a capture point; never persisted. */
+  title: string;
+  textExcerpt: string;
   capturePoints: CapturePoint[];
   l1Signals: L1Signal[];
   l2Signals: L2Signal[];

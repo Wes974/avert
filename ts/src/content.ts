@@ -17,6 +17,8 @@ async function run(): Promise<void> {
     version: 1,
     url: window.location.href,
     host: window.location.host,
+    title: document.title.slice(0, 200),
+    textExcerpt: (document.body?.innerText ?? "").replace(/\s+/g, " ").slice(0, 1500),
     capturePoints,
     l1Signals: analyzeUrl(window.location.href, BRANDS),
     l2Signals: analyzePage(document, window.location.host, capturePoints, BRANDS),

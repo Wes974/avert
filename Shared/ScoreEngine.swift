@@ -27,10 +27,28 @@ struct ScoreEngine {
 
     static let bannerThreshold = 40
     static let interstitialThreshold = 70
+    /// Below this base score, L3 never wakes up (PLAN.md §3: cost control).
+    static let l3WakeThreshold = 20
 
-    /// `identityMismatch` is set by the identity comparison (registry, M3) or
-    /// L3 extraction (M4): the page claims a brand whose domains don't match.
-    func evaluate(_ dossier: PageDossier, identityMismatch: Bool = false) -> Verdict {
+    /// Signals that implicate a brand by construction on a non-owned host:
+    /// they are themselves an identity claim contradicted by the domain.
+    static let identitySignalIds: Set<String> = [
+        "l1.homograph", "l1.typosquat", "l1.brand-subdomain", "l2.borrowed-brand-assets",
+    ]
+
+    static func signalIdentityMismatch(_ dossier: PageDossier) -> Bool {
+        dossier.l1Signals.contains { $0.brand != nil && identitySignalIds.contains($0.id) }
+            || dossier.l2Signals.contains { $0.brand != nil && identitySignalIds.contains($0.id) }
+    }
+
+    /// `identityMismatch` comes from the signal-based check above and/or the
+    /// L3 claimed-brand vs registry comparison (M4). `l3` adds the model's
+    /// content findings to the score.
+    func evaluate(
+        _ dossier: PageDossier,
+        identityMismatch: Bool = false,
+        l3: PageIdentityExtraction? = nil
+    ) -> Verdict {
         var score = 0
         var contributing: [(id: String, weight: Int, brand: String?)] = []
 
@@ -43,6 +61,20 @@ struct ScoreEngine {
             let w = Self.weights[signal.id] ?? 0
             score += w
             if w > 0 { contributing.append((signal.id, w, signal.brand)) }
+        }
+
+        if let l3 {
+            if !l3.urgencyMarkers.isEmpty {
+                score += 10
+                contributing.append(("l3.urgency", 10, nil))
+            }
+            if !l3.genericScamPatterns.isEmpty {
+                score += 10
+                contributing.append(("l3.scam-patterns", 10, nil))
+            }
+            if identityMismatch, !l3.claimedBrand.isEmpty {
+                contributing.append(("l3.identity-mismatch", 0, l3.claimedBrand))
+            }
         }
 
         if identityMismatch {

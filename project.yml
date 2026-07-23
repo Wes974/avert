@@ -7,7 +7,10 @@ options:
 
 settings:
   base:
-    SWIFT_VERSION: "6.0"
+    # Mode langage 5 : le checker d'isolation Swift 6 (Xcode 26.5) plante sur
+    # le pattern Task+NSExtensionContext du handler (« please file a bug »).
+    # À retenter en 6.0 lors du durcissement M6.
+    SWIFT_VERSION: "5.0"
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
     CODE_SIGN_STYLE: Automatic
@@ -40,6 +43,8 @@ targets:
       - Extension/Swift
       - Shared
       - path: Extension/Resources
+        buildPhase: resources
+      - path: registry/brands.json
         buildPhase: resources
     info:
       path: Extension/Info.plist
