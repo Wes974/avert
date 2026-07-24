@@ -27,6 +27,10 @@ struct ScoreEngine {
         "l2.capture-in-thirdparty-iframe": 15,
         "l2.anti-inspection": 10,
         "l2.borrowed-brand-assets": 25,
+        // A brand's logo copied pixel-for-pixel onto a host it doesn't own. Same
+        // weight as a hotlinked one: the claim is identical, only the delivery
+        // differs — and a self-hosted copy is if anything more deliberate.
+        "l2.brand-logo-copy": 25,
         "history.unseen-domain": 10,
     ]
 
@@ -38,7 +42,8 @@ struct ScoreEngine {
     /// Signals that implicate a brand by construction on a non-owned host:
     /// they are themselves an identity claim contradicted by the domain.
     static let identitySignalIds: Set<String> = [
-        "l1.homograph", "l1.typosquat", "l1.brand-subdomain", "l2.borrowed-brand-assets",
+        "l1.homograph", "l1.typosquat", "l1.brand-subdomain",
+        "l2.borrowed-brand-assets", "l2.brand-logo-copy",
     ]
 
     static func signalIdentityMismatch(_ dossier: PageDossier) -> Bool {

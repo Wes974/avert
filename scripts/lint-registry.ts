@@ -9,6 +9,7 @@
 // --strict turns them into errors.
 
 import registry from "../registry/brands.json" with { type: "json" };
+import { isDiscriminative } from "../ts/src/dhash";
 
 const STRICT = process.argv.includes("--strict");
 const SECTORS = new Set([
@@ -30,6 +31,7 @@ interface Entry {
   auth_delegates: string[];
   sector: string;
   region: string[];
+  logo_hashes?: string[];
 }
 
 const entries = registry as Entry[];
@@ -43,6 +45,7 @@ if (!Array.isArray(entries)) {
 // winner depend on file order.
 const names = new Map<string, string>();
 const domains = new Map<string, string>();
+const logoHashes = new Map<string, string>();
 
 for (const [i, entry] of entries.entries()) {
   const at = `#${i} ${entry?.brand ?? "(sans nom)"}`;
@@ -96,6 +99,25 @@ for (const [i, entry] of entries.entries()) {
     else domains.set(domain, at);
   }
 
+  // Logo references: a malformed or uninformative hash is worse than none. A bad
+  // one either matches nothing (silent miss) or, if near-uniform, matches every
+  // flat image — which is why `isDiscriminative` gates them at runtime too.
+  for (const hash of entry.logo_hashes ?? []) {
+    if (!/^[0-9a-f]{16}$/.test(hash)) {
+      errors.push(`${at}: empreinte de logo mal formée « ${hash} » (16 caractères hex minuscules)`);
+      continue;
+    }
+    if (!isDiscriminative(hash)) {
+      errors.push(`${at}: empreinte « ${hash} » trop uniforme — image quasi vide, elle matcherait n'importe quoi`);
+    }
+    const seen = logoHashes.get(hash);
+    if (seen && seen !== at) {
+      errors.push(`${at}: empreinte « ${hash} » déjà déclarée par ${seen} (marques indistinguables)`);
+    } else {
+      logoHashes.set(hash, at);
+    }
+  }
+
   for (const delegate of entry.auth_delegates) {
     const bare = delegate.startsWith("*.") ? delegate.slice(2) : delegate;
     if (!HOST.test(bare)) {
@@ -116,6 +138,7 @@ const failed = errors.length > 0 || (STRICT && warnings.length > 0);
 console.log(
   failed
     ? `registre invalide : ${errors.length} erreur(s), ${warnings.length} avertissement(s)`
-    : `registre OK : ${entries.length} marques, ${domains.size} domaines, ${warnings.length} avertissement(s)`,
+    : `registre OK : ${entries.length} marques, ${domains.size} domaines, ` +
+      `${logoHashes.size} empreinte(s) de logo, ${warnings.length} avertissement(s)`,
 );
 process.exit(failed ? 1 : 0);

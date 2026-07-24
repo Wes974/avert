@@ -13,12 +13,21 @@ hors du même Wi-Fi) :
 | Scénario | URL |
 |---|---|
 | Point de capture dans une iframe tierce | `http://<mac>:8787/iframe-capture/top.html?frame=http://<autre-hôte-du-mac>:8787/iframe-capture/frame.html&cb=1` |
+| Empreinte de logo : le navigateur doit produire les mêmes valeurs que le générateur | `http://<mac>:8787/logo-hash/index.html?cb=1` (ajouter `&grid=1` pour la grille de gris) |
 
 Les deux hôtes doivent différer (IP LAN vs IP Tailscale, ou `localhost` vs
 `127.0.0.1` dans le simulateur), sinon la frame est same-site et **exemptée** par
 `frameSignals` — ce qui est le comportement voulu, pas un bug.
 
-Oracle de vérification : le log natif (`subsystem == "com.ouweis.avert"`).
+La page `logo-hash` ne nécessite **pas** l'extension : elle calcule l'empreinte
+elle-même. Comparer avec le générateur, qui doit donner exactement la même chose :
+
+```bash
+bun run scripts/hash-logos.ts _ Tests/pages/logo-hash/mark-*.png Tests/pages/logo-hash/*.jpg
+```
+
+Oracle de vérification pour les autres scénarios : le log natif
+(`subsystem == "com.ouweis.avert"`).
 
 ```bash
 # simulateur

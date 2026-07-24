@@ -25,6 +25,14 @@ xcodebuild -project Avert.xcodeproj -scheme Avert \
   -derivedDataPath /tmp/claude-501/impostor-dd build
 ```
 
+## Empreinte perceptuelle des logos
+
+- `dhash.ts` (pur, testable) + `logo.ts` (glu DOM) + `scripts/hash-logos.ts` (générateur, `sips` comme décodeur). Signal `l2.brand-logo-copy`, poids 25, **signal d'identité** (multiplicateur ×2).
+- **Piège majeur** : ne jamais laisser le rasteriseur réduire l'image. Sur iOS 26, `drawImage` vers un canvas 9×8 **échantillonne au plus proche voisin** (grille = couleurs source exactes) alors que `sips` fait une moyenne d'aire → 17 bits d'écart sur le même fichier, et empreinte instable au moindre redimensionnement. Solution : blit 1:1 puis moyenne d'aire dans `grayFromRGBA`, **partagé** par le générateur et le navigateur → empreintes bit-pour-bit identiques (vérifié, `Tests/pages/logo-hash/`).
+- Seuil 12/64 bits, mesuré (transformations bénignes 4–9, marques différentes 21–27). Images quasi uniformes refusées (`isDiscriminative`) : elles matcheraient n'importe quel aplat.
+- Seules les images **même origine** ou `data:` sont hachées (canvas contaminé sinon, et re-télécharger = appel réseau interdit). Le logo hotlinké reste couvert par `l2.borrowed-brand-assets`.
+- Table de référence **vide** pour l'instant → signal inerte (défaut voulu). Remplir avec `bun run scripts/hash-logos.ts --write <marque> <images…>`, cf. `registry/README.md`.
+
 ## Localisation
 
 - Langue source **fr** (`options.developmentLanguage`), EN traduit. Un seul catalogue `Shared/Localizable.xcstrings` compilé dans les **deux** bundles (l'app pour son UI, l'extension parce que le texte du verdict est produit par `ScoreEngine`).

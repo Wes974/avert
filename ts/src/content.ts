@@ -9,6 +9,7 @@ import {
   synthesizeFramePoints,
   type FrameCapture,
 } from "./frames";
+import { logoSignals } from "./logo";
 import type { CapturePoint, PageDossier, VerdictAction } from "./types";
 
 // Content script. L0 gate: no capture point → do strictly nothing (silence by
@@ -136,6 +137,7 @@ async function evaluate(): Promise<void> {
     l2Signals: [
       ...analyzePage(document, window.location.hostname, capturePoints, BRANDS),
       ...frameSignals(reports, window.location.hostname, BRANDS),
+      ...logoSignals(document, window.location.hostname, BRANDS),
     ],
   };
   const jsMs = performance.now() - t0;

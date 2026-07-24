@@ -95,6 +95,16 @@ struct ScoreEngineTests {
         #expect(v.action == .interstitial)
     }
 
+    @Test("Un logo de marque recopié compte comme un signal d'identité")
+    func copiedLogoIsIdentitySignal() {
+        // Même traitement qu'un logo hotlinké : la revendication est identique,
+        // seule la livraison change. Le multiplicateur ×2 doit donc s'appliquer.
+        let d = dossier(l2: [l2("l2.brand-logo-copy", brand: "PayPal"), l2("l2.cross-origin-form")])
+        #expect(ScoreEngine.signalIdentityMismatch(d))
+        // (25 + 25) × 2 = 100 > 70 → interstitiel.
+        #expect(engine.evaluate(d, identityMismatch: true).action == .interstitial)
+    }
+
     @Test("Un verdict non-silencieux porte toujours une raison, résolue et située")
     func nonSilentHasReason() {
         let v = engine.evaluate(

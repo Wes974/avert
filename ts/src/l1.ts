@@ -8,6 +8,9 @@ export interface BrandEntry {
   auth_delegates: string[];
   sector: string;
   region: string[];
+  /** dHash references of the brand's logo (see dhash.ts). Optional: a brand with
+   *  none simply isn't checked visually. */
+  logo_hashes?: string[];
 }
 
 export interface L1Signal {

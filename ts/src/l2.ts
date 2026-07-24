@@ -13,7 +13,9 @@ export interface L2Signal {
     | "l2.anti-inspection"
     | "l2.borrowed-brand-assets"
     // Emitted by frames.ts on the top frame, not by analyzePage.
-    | "l2.capture-in-thirdparty-iframe";
+    | "l2.capture-in-thirdparty-iframe"
+    // Emitted by logo.ts (perceptual hash), not by analyzePage.
+    | "l2.brand-logo-copy";
   detail?: string;
   brand?: string;
 }

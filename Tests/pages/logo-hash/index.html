@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Vérification dHash — canvas vs sips</title>
+<style>
+  body { font: 16px -apple-system, system-ui, sans-serif; margin: 1.5rem; }
+  .hash { font: 700 1.6rem ui-monospace, Menlo, monospace; letter-spacing: .05em; margin: .2rem 0 1rem; }
+  img { border: 1px solid #ccc; image-rendering: pixelated; }
+  h2 { font-size: 1rem; margin: 1.2rem 0 .3rem; color: #555; }
+</style>
+</head>
+<body>
+<h1>dHash calculé par Safari</h1>
+
+<!--
+  Cross-check fixture for the logo perceptual hash.
+
+  `scripts/hash-logos.ts` rasterises with `sips`; the extension rasterises with
+  Safari's `drawImage`. Those are different resamplers, so a reference generated
+  on the Mac and a hash computed on the page will differ by a few bits — the
+  question is how many, because `dhash.MATCH_THRESHOLD` has to absorb it.
+
+  Run the generator on the same files, then open this page and compare:
+
+    bun run scripts/hash-logos.ts _ Tests/pages/logo-hash/*.png
+
+  The algorithm below deliberately mirrors `ts/src/dhash.ts` instead of importing
+  it: this page must run as plain HTML with no bundler and no extension involved,
+  so that what it measures is the rasteriser, not the plumbing.
+-->
+
+<div id="out"></div>
+
+<script>
+  const W = 9, H = 8;
+
+  // 1:1 blit, then average in JS — mirrors ts/src/dhash.ts `grayFromRGBA`.
+  // Letting drawImage do the shrink is what failed: on iOS 26 it point-samples.
+  function samples(img) {
+    const sw = img.naturalWidth, sh = img.naturalHeight;
+    const canvas = document.createElement("canvas");
+    canvas.width = sw; canvas.height = sh;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.drawImage(img, 0, 0);
+    const { data } = ctx.getImageData(0, 0, sw, sh);
+
+    const gray = [];
+    for (let ty = 0; ty < H; ty++) {
+      const y0 = Math.floor((ty * sh) / H);
+      const y1 = Math.max(y0 + 1, Math.floor(((ty + 1) * sh) / H));
+      for (let tx = 0; tx < W; tx++) {
+        const x0 = Math.floor((tx * sw) / W);
+        const x1 = Math.max(x0 + 1, Math.floor(((tx + 1) * sw) / W));
+        let sum = 0, count = 0;
+        for (let y = y0; y < y1; y++) {
+          for (let x = x0; x < x1; x++) {
+            const i = (y * sw + x) * 4;
+            const a = data[i + 3] / 255;
+            const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+            sum += lum * a + 255 * (1 - a);
+            count++;
+          }
+        }
+        gray.push(count ? sum / count : 255);
+      }
+    }
+    return gray;
+  }
+
+  function gridOf(img) {
+    const gray = samples(img);
+    let text = "";
+    for (let y = 0; y < H; y++) {
+      text += gray.slice(y * W, (y + 1) * W).map((v) => String(Math.round(v)).padStart(4)).join("") + "\n";
+    }
+    return text;
+  }
+
+  function hashOf(img) {
+    const gray = samples(img);
+    let hex = "";
+    for (let y = 0; y < H; y++) {
+      let bits = 0;
+      for (let x = 0; x < W - 1; x++) {
+        bits = (bits << 1) | (gray[y * W + x] > gray[y * W + x + 1] ? 1 : 0);
+      }
+      hex += bits.toString(16).padStart(2, "0");
+    }
+    return hex;
+  }
+
+  const files = new URLSearchParams(location.search).get("files");
+  const names = files ? files.split(",") : ["mark-a.png", "mark-b.png", "mark-transparent.png"];
+  const out = document.getElementById("out");
+
+  Promise.all(names.map((name) => new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve({ name, img });
+    img.onerror = () => resolve({ name, img: null });
+    img.src = name;
+  }))).then((loaded) => {
+    for (const { name, img } of loaded) {
+      const h = document.createElement("h2");
+      h.textContent = name;
+      const value = document.createElement("div");
+      value.className = "hash";
+      value.textContent = img ? hashOf(img) : "— image introuvable";
+      out.append(h, value);
+      if (img && new URLSearchParams(location.search).has("grid")) {
+        const g = document.createElement("pre");
+        g.style.font = "11px ui-monospace, monospace";
+        g.textContent = gridOf(img);
+        out.append(g);
+      }
+      if (img) { img.width = 72; img.height = 64; out.append(img); }
+    }
+  });
+</script>
+</body>
+</html>
