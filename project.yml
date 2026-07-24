@@ -64,3 +64,25 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.impostor.extension
+
+  ImpostorTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - Tests/Swift
+    dependencies:
+      - target: Impostor
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.impostor.tests
+        GENERATE_INFOPLIST_FILE: true
+
+schemes:
+  Impostor:
+    build:
+      targets:
+        Impostor: all
+    test:
+      targets:
+        - ImpostorTests
+    run: {}
