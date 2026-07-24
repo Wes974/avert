@@ -1,5 +1,6 @@
 import Foundation
 import FoundationModels
+import os
 import os.log
 
 /// L3 — on-device identity extraction (PLAN.md §3).
@@ -31,15 +32,17 @@ struct PageIdentityExtraction {
 enum L3Extractor {
     private static let log = Logger(subsystem: "com.ouweis.impostor", category: "l3")
 
-    /// `availability` can report `.available` while generation still fails
-    /// (seen in the simulator on an Intel host: ModelManagerError 1026, model
-    /// assets absent). After such a failure, stop paying the ~6 s attempt on
-    /// every page for the lifetime of this extension process.
-    private nonisolated(unsafe) static var disabledAfterFailure = false
+    /// Cross-Task state (multiple tabs/navigations run `extract` concurrently),
+    /// guarded by a lock so it isn't a data race.
+    /// - `disabledAfterFailure`: `availability` can report `.available` while
+    ///   generation still fails (simulator on Intel: ModelManagerError 1026).
+    ///   After such a failure, stop paying the ~6 s attempt for this process.
+    /// - `lastFailure`: bring-up diagnostic surfaced on-screen (os_log .info
+    ///   doesn't reach idevicesyslog).
+    private struct State { var disabledAfterFailure = false; var lastFailure: String? }
+    private static let state = OSAllocatedUnfairLock(initialState: State())
 
-    /// Bring-up diagnostic (removed in M6): concise summary of the last failure,
-    /// surfaced on-screen because os_log .info doesn't reach idevicesyslog.
-    nonisolated(unsafe) static var lastFailure: String?
+    static var lastFailure: String? { state.withLock { $0.lastFailure } }
 
     /// The default guardrails reject phishing page text outright
     /// (`guardrailViolation`) — the model's safety filter can't tell the
@@ -60,7 +63,7 @@ enum L3Extractor {
     }
 
     static func extract(from dossier: PageDossier) async -> PageIdentityExtraction? {
-        guard !disabledAfterFailure, isAvailable else {
+        guard !state.withLock({ $0.disabledAfterFailure }), isAvailable else {
             log.info("L3 skipped: model unavailable, falling back to L1+L2 verdict")
             return nil
         }
@@ -78,7 +81,7 @@ enum L3Extractor {
             """
 
         let prompt = """
-            Title: \(dossier.title)
+            Title: \(dossier.title.prefix(200))
 
             Visible text:
             \(dossier.textExcerpt.prefix(800))
@@ -94,15 +97,14 @@ enum L3Extractor {
             log.info("L3 extraction: brand=\(extraction.claimedBrand, privacy: .public) intent=\(extraction.pageIntent, privacy: .public) confidence=\(extraction.confidence)")
             return extraction
         } catch let error as LanguageModelSession.GenerationError {
-            lastFailure = Self.summarize(error)
-            log.error("L3 failed: \(String(describing: error), privacy: .public)")
             // A guardrail rejection is page-specific — don't disable L3 globally.
-            if case .guardrailViolation = error {} else { disabledAfterFailure = true }
+            let disable = { if case .guardrailViolation = error { return false } else { return true } }()
+            state.withLock { $0.lastFailure = Self.summarize(error); if disable { $0.disabledAfterFailure = true } }
+            log.error("L3 failed: \(String(describing: error), privacy: .public)")
             return nil
         } catch {
-            lastFailure = String(describing: error).prefix(120).description
+            state.withLock { $0.lastFailure = String(describing: error).prefix(120).description; $0.disabledAfterFailure = true }
             log.error("L3 failed: \(String(describing: error), privacy: .public)")
-            disabledAfterFailure = true
             return nil
         }
     }

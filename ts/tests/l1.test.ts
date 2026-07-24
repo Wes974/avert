@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   analyzeUrl,
+  CONFUSABLE_KEYS,
   levenshtein,
   normalizeConfusables,
   punycodeDecode,
@@ -27,6 +28,18 @@ describe("primitives", () => {
   test("confusable folding", () => {
     expect(normalizeConfusables("раураl")).toBe("paypal"); // Cyrillic р, а, у
     expect(normalizeConfusables("paypa1")).toBe("paypal");
+  });
+
+  test("every confusable key is exactly one code point", () => {
+    // A multi-code-point key can never match char-by-char folding — it would be
+    // a silently dead entry (this caught the ' һ' space-prefixed bug).
+    for (const key of CONFUSABLE_KEYS) {
+      expect([...key], `confusable key ${JSON.stringify(key)}`).toHaveLength(1);
+    }
+  });
+
+  test("cyrillic 'һ' folds to h (regression)", () => {
+    expect(normalizeConfusables("gitһub")).toBe("github");
   });
 
   test("registrable domain", () => {

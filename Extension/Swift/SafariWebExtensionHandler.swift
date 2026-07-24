@@ -80,10 +80,13 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
         // Bring-up diagnostic (removed in M6): surfaces L3 state on-screen
         // because os_log .info doesn't reach idevicesyslog.
-        var l3Debug = "l3=off(score<\(ScoreEngine.l3WakeThreshold))"
+        var l3Debug = signalMismatch ? "l3=off(signals already mismatch)" : "l3=off(score<\(ScoreEngine.l3WakeThreshold))"
 
-        // L3 gate: only above the wake threshold, only when the model exists.
-        if verdict.score >= ScoreEngine.l3WakeThreshold {
+        // L3 gate: wake the model (~2.3 s) only when it can still change the
+        // outcome — i.e. the page is suspicious enough (score ≥ threshold) AND
+        // the URL/DOM signals haven't already proven the identity mismatch.
+        // If they have, the verdict already reflects it and L3 is pure cost.
+        if !signalMismatch, verdict.score >= ScoreEngine.l3WakeThreshold {
             let t0 = Date()
             if let extraction = await L3Extractor.extract(from: dossier) {
                 let ms = Int(Date().timeIntervalSince(t0) * 1000)

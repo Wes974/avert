@@ -4,7 +4,7 @@ struct ContentView: View {
     var body: some View {
         TabView {
             HomeView()
-                .tabItem { Label("Impostor", systemImage: "shield.lefthalf.filled") }
+                .tabItem { Label("Accueil", systemImage: "house") }
             LimitsView()
                 .tabItem { Label("Limites", systemImage: "eye.slash") }
             SettingsView()

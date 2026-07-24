@@ -1,4 +1,5 @@
 import Foundation
+import os.log
 
 /// Embedded brand registry (PLAN.md §4). Loaded once from the bundled
 /// registry/brands.json — the same file the TS side compiles in. No runtime
@@ -23,8 +24,14 @@ struct BrandRegistry: Sendable {
     static let shared: BrandRegistry = {
         guard let url = Bundle.main.url(forResource: "brands", withExtension: "json"),
               let data = try? Data(contentsOf: url),
-              let entries = try? JSONDecoder().decode([BrandEntry].self, from: data)
+              let entries = try? JSONDecoder().decode([BrandEntry].self, from: data),
+              !entries.isEmpty
         else {
+            // An empty registry silently disables every identity verdict — the
+            // worst possible failure (no alert, no sign). Make it loud.
+            Logger(subsystem: "com.ouweis.impostor", category: "registry")
+                .fault("brands.json missing or empty from bundle — identity detection is OFF")
+            assertionFailure("brands.json failed to load — identity detection disabled")
             return BrandRegistry(entries: [])
         }
         return BrandRegistry(entries: entries)

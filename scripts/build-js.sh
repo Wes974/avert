@@ -33,7 +33,9 @@ bunx tsc --noEmit
 bun test
 
 for entry in content background; do
-  bun build "src/$entry.ts" --format=iife --target=browser \
+  # Minified: content.js is parsed on every page (all_urls); ~95% have no
+  # capture point and stop at L0, so keep the bytes down.
+  bun build "src/$entry.ts" --format=iife --target=browser --minify \
     --outfile="$ROOT/Extension/Resources/$entry.js"
 done
 

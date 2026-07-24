@@ -20,7 +20,7 @@ struct LimitsView: View {
               detail: "Le phishing s'adapte plus vite qu'une défense. Je croise plusieurs indices pour rendre l'évasion coûteuse, pas impossible."),
         .init(icon: "checkmark.shield",
               title: "Je peux me tromper (faux positif)",
-              detail: "Certains prestataires d'authentification légitimes ressemblent à une incohérence d'identité. Vous pouvez toujours continuer, et signaler l'erreur."),
+              detail: "Certains prestataires d'authentification légitimes ressemblent à une incohérence d'identité. Une alerte reste toujours contournable — c'est vous qui décidez."),
         .init(icon: "eye.slash",
               title: "Je ne vois pas tout d'une page",
               detail: "Certaines techniques (formulaires reconstruits en image, protections avancées) échappent à mon analyse. Une absence d'alerte ne garantit rien."),

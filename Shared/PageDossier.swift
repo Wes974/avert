@@ -32,7 +32,6 @@ struct L2Signal: Codable, Sendable {
 
 struct PageDossier: Codable, Sendable {
     let version: Int
-    let url: String
     let host: String
     /// For L3 identity extraction only; ephemeral, never persisted.
     let title: String

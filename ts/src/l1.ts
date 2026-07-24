@@ -105,7 +105,7 @@ export function hasMixedScript(label: string): boolean {
 // near-identical in a browser address bar.
 const CONFUSABLES: Record<string, string> = {
   "а": "a", "е": "e", "о": "o", "р": "p", "с": "c", "х": "x", "у": "y",
-  "і": "i", "ѕ": "s", "ԁ": "d", "ј": "j", " һ": "h", "ԛ": "q", "ԝ": "w",
+  "і": "i", "ѕ": "s", "ԁ": "d", "ј": "j", "һ": "h", "ԛ": "q", "ԝ": "w",
   "ο": "o", "α": "a", "ν": "v", "ι": "i", "κ": "k", "τ": "t", "υ": "u",
   "0": "o", "1": "l", "3": "e", "5": "s", "7": "t",
 };
@@ -115,6 +115,10 @@ export function normalizeConfusables(s: string): string {
   for (const ch of s) out += CONFUSABLES[ch] ?? ch;
   return out;
 }
+
+// Exposed for a regression test: normalizeConfusables iterates code point by
+// code point, so any key longer than one code point is dead (silent miss).
+export const CONFUSABLE_KEYS = Object.keys(CONFUSABLES);
 
 // ---------------------------------------------------------------------------
 // Levenshtein with cutoff.

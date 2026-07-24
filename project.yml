@@ -18,7 +18,10 @@ settings:
     CURRENT_PROJECT_VERSION: "1"
     CODE_SIGN_STYLE: Automatic
     DEVELOPMENT_TEAM: LT9VN8QXU9
-    GENERATE_INFOPLIST_FILE: true
+    # false : on fournit des Info.plist explicites via les blocs `info:` (requis
+    # pour le NSExtension). true entrerait en conflit et rendrait la version
+    # imprévisible. Version = source unique MARKETING_VERSION/CURRENT_PROJECT_VERSION.
+    GENERATE_INFOPLIST_FILE: false
 
 targets:
   Impostor:

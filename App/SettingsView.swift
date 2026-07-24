@@ -1,40 +1,38 @@
 import SwiftUI
 
-/// Settings (PLAN.md §7). Everything here is opt-in and off by default; the
-/// on-device history is stored via Keychain, never synced (wired in M6).
+/// Settings (PLAN.md §7).
+///
+/// Honesty rule: this screen shows only what actually works. The opt-in login
+/// history and the Private Cloud Compute escalation both depend on plumbing
+/// that isn't wired yet (app group entitlement for history; iOS 27 + managed
+/// entitlement for PCC), so their toggles are intentionally absent rather than
+/// present-but-fake. They come back the moment the plumbing lands.
 struct SettingsView: View {
-    @AppStorage("rememberLoginDomains") private var rememberLoginDomains = false
-    @AppStorage("usePrivateCloudCompute") private var usePrivateCloudCompute = false
+    private var appVersion: String {
+        let v = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
+        let b = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"
+        return "\(v) (\(b))"
+    }
 
     var body: some View {
         NavigationStack {
             Form {
                 Section {
-                    Toggle("Mémoriser les domaines où je me connecte", isOn: $rememberLoginDomains)
+                    Label("Aucune donnée de page ne quitte votre appareil.", systemImage: "lock.shield")
+                    Label("Aucune télémétrie, aucun compte, aucune publicité.", systemImage: "hand.raised")
                 } header: {
-                    Text("Détection de nouveauté")
+                    Text("Confidentialité")
                 } footer: {
-                    Text("Désactivé par défaut. Permet de signaler un domaine de connexion jamais vu. Stockage chiffré local (Keychain), purgeable, jamais synchronisé.")
+                    Text("Impostor analyse les pages localement. Aucune adresse, aucun contenu n’est envoyé où que ce soit.")
                 }
 
                 Section {
-                    Toggle("Autoriser l'analyse via Private Cloud Compute", isOn: $usePrivateCloudCompute)
-                } header: {
-                    Text("Analyse approfondie")
-                } footer: {
-                    Text("Désactivé par défaut. Pour les cas ambigus, délègue l'extraction à un modèle Apple plus grand sur Private Cloud Compute (garanties de confidentialité Apple, aucune donnée conservée). Nécessite un appareil et une version d'iOS compatibles.")
-                }
-
-                Section {
-                    Button(role: .destructive) {
-                        LoginHistoryStore.shared.purge()
-                    } label: {
-                        Label("Effacer les domaines mémorisés", systemImage: "trash")
+                    LabeledContent("Version", value: appVersion)
+                    Link(destination: URL(string: "https://www.apple.com/legal/privacy/")!) {
+                        Label("Politique de confidentialité", systemImage: "doc.text")
                     }
-                } footer: {
-                    Text("Version 0.1.0")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+                } header: {
+                    Text("À propos")
                 }
             }
             .navigationTitle("Réglages")

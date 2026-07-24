@@ -20,7 +20,6 @@ import type { L2Signal } from "./l2";
 
 export interface PageDossier {
   version: 1;
-  url: string;
   host: string;
   /** Page title + visible-text excerpt, for L3 identity extraction only.
    *  Collected solely when L0 found a capture point; never persisted. */

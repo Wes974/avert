@@ -1,676 +1,81 @@
-(() => {
-  // src/l0.ts
-  var PAYMENT_ATTR = /card.?n(um|o)|cardnumber|cvv|cvc|cryptogramme|num.?carte/i;
-  var OTP_ATTR = /\botp\b|one.?time|2fa|mfa|totp|verification.?code|code.?secur/i;
-  var SEED_ATTR = /seed|mnemonic|recovery.?phrase|secret.?phrase|phrase.?secr/i;
-  var ID_DOC_ATTR = /passport|passeport|identity|id.?card|cni|kyc|driver|permis/i;
-  function attrBlob(el) {
-    return [
-      el.getAttribute("name"),
-      el.getAttribute("id"),
-      el.getAttribute("placeholder"),
-      el.getAttribute("aria-label"),
-      el.getAttribute("autocomplete")
-    ].filter(Boolean).join(" ");
+(()=>{var c=/card.?n(um|o)|cardnumber|cvv|cvc|cryptogramme|num.?carte/i,h=/\botp\b|one.?time|2fa|mfa|totp|verification.?code|code.?secur/i,D=/seed|mnemonic|recovery.?phrase|secret.?phrase|phrase.?secr/i,a=/passport|passeport|identity|id.?card|cni|kyc|driver|permis/i;function w(m){return[m.getAttribute("name"),m.getAttribute("id"),m.getAttribute("placeholder"),m.getAttribute("aria-label"),m.getAttribute("autocomplete")].filter(Boolean).join(" ")}function H(m){let _=m.tagName.toLowerCase(),B=(m.getAttribute("type")??"text").toLowerCase(),L=(m.getAttribute("autocomplete")??"").toLowerCase(),G=w(m);if(_==="input"&&B==="password")return"password";if(L.startsWith("cc-"))return"payment-card";if(_==="input"&&c.test(G))return"payment-card";if(L==="one-time-code")return"otp";if(_==="input"&&h.test(G)){let g=parseInt(m.getAttribute("maxlength")??"99",10);if((m.getAttribute("inputmode")??"")==="numeric"||g<=8)return"otp"}if((_==="textarea"||_==="input")&&D.test(G))return"seed-phrase";if(_==="input"&&B==="file"&&a.test(G))return"id-document-upload";return null}function v(m){let _=window.getComputedStyle(m);if(_.display==="none"||_.visibility==="hidden")return!1;if(parseFloat(_.opacity)===0)return!1;let B=m.getBoundingClientRect();return B.width>0&&B.height>0}function r(m){let _=m.closest("form");if(!_)return null;let B=_.getAttribute("action");if(!B)return null;try{let L=new URL(B,window.location.href);return L.host!==window.location.host?L.host:null}catch{return null}}function O(m){let _=[];for(let B of m.querySelectorAll("input, textarea")){let L=H(B);if(!L)continue;_.push({kind:L,visible:B instanceof HTMLElement?v(B):!0,inIframe:window.self!==window.top,crossOriginActionHost:r(B)})}return _}function b(m,_,B){m=B?Math.floor(m/700):m>>1,m+=Math.floor(m/_);let L=0;while(m>455)m=Math.floor(m/35),L+=36;return L+Math.floor(36*m/(m+38))}function n(m){let _=[],B=128,L=0,G=72,g=m.lastIndexOf("-");if(g>0)for(let F of m.slice(0,g)){let R=F.codePointAt(0)??0;if(R>=128)return null;_.push(R)}let f=g>0?g+1:0;while(f<m.length){let F=L,R=1;for(let q=36;;q+=36){if(f>=m.length)return null;let A=m.codePointAt(f++)??0,C=A>=97?A-97:A>=65?A-65:A>=48?A-48+26:-1;if(C<0||C>=36)return null;L+=C*R;let M=q<=G?1:q>=G+26?26:q-G;if(C<M)break;R*=36-M}G=b(L-F,_.length+1,F===0),B+=Math.floor(L/(_.length+1)),L%=_.length+1,_.splice(L,0,B),L++}return String.fromCodePoint(..._)}var i=/[Ѐ-ӿ]/,p=/[Ͱ-Ͽ]/,s=/[a-z]/i;function e(m){return[i.test(m),p.test(m),s.test(m)].filter(Boolean).length>1}var P={"а":"a","е":"e","о":"o","р":"p","с":"c","х":"x","у":"y","і":"i","ѕ":"s","ԁ":"d","ј":"j","һ":"h","ԛ":"q","ԝ":"w","ο":"o","α":"a","ν":"v","ι":"i","κ":"k","τ":"t","υ":"u","0":"o","1":"l","3":"e","5":"s","7":"t"};function V(m){let _="";for(let B of m)_+=P[B]??B;return _}var um=Object.keys(P);function d(m,_,B){if(Math.abs(m.length-_.length)>B)return B+1;let L=Array.from({length:_.length+1},(G,g)=>g);for(let G=1;G<=m.length;G++){let g=[G],f=G;for(let F=1;F<=_.length;F++){let R=m[G-1]===_[F-1]?0:1,q=Math.min((L[F]??0)+1,(g[F-1]??0)+1,(L[F-1]??0)+R);if(g.push(q),q<f)f=q}if(f>B)return B+1;L=g}return L[_.length]??B+1}var l=new Set(["co.uk","org.uk","gov.uk","ac.uk","com.au","net.au","org.au","com.br","com.mx","com.ar","co.jp","co.in","co.nz","com.tr","com.cn","com.hk","com.sg","co.za","gouv.fr","asso.fr","com.es"]);function Q(m){let _=m.toLowerCase().split(".");if(_.length<=2)return _.join(".");let B=_.slice(-2).join("."),L=l.has(B)?3:2;return _.slice(-L).join(".")}var t=new Set(["top","xyz","tk","ml","ga","cf","gq","icu","click","link","work","rest","fit","loan","men","bid","stream","racing","win","party","date","faith","review","vip","monster","quest","cyou"]),mm=["secure","verif","verification","login","signin","sign-in","account","support","update","confirm","wallet","service","auth","id","assistance","client","portail","espace"];function _m(m){let _=new Set;for(let B of m.domains){let L=Q(B).split(".")[0];if(L&&L.length>=4)_.add(L)}return[..._]}function Lm(m,_){let B=Q(m);return _.domains.some((L)=>B===Q(L))||_.auth_delegates.some((L)=>{let G=L.replace(/^\*\./,"");return B===Q(G)||m===G})}function E(m,_){let B=[],L;try{L=new URL(m)}catch{return B}if(L.protocol!=="http:"&&L.protocol!=="https:")return B;let G=L.hostname.toLowerCase(),g=G.split("."),f=Q(G),F=f.split(".")[0]??"",R=g[g.length-1]??"";if(_.find((u)=>Lm(G,u)))return B;if(/^\d{1,3}(\.\d{1,3}){3}$/.test(G)||G.startsWith("["))B.push({id:"l1.ip-literal",detail:G});if(L.port!==""&&L.port!=="80"&&L.port!=="443")B.push({id:"l1.exotic-port",detail:L.port});if(g.length>=5)B.push({id:"l1.subdomain-depth",detail:String(g.length)});if(t.has(R))B.push({id:"l1.low-rep-tld",detail:R});let A=g.map((u)=>u.startsWith("xn--")?n(u.slice(4))??u:u);if(g.some((u)=>u.startsWith("xn--")))B.push({id:"l1.punycode",detail:A.join(".")});let M=A.join(".");if(A.some(e))B.push({id:"l1.mixed-script",detail:M});let o=V(Q(M).split(".")[0]??F);for(let u of _)for(let J of _m(u)){if(o===J&&F!==J){B.push({id:"l1.homograph",detail:`${F} → ${J}`,brand:u.brand});continue}let X=J.length>=8?2:1,K=d(o,J,X);if(K>0&&K<=X){B.push({id:"l1.typosquat",detail:`${F} ≈ ${J}`,brand:u.brand});continue}if(o!==J&&o.includes(J)){let Y=o.replace(J,"");if(mm.some((T)=>o.includes(T))||Y.includes("-")){B.push({id:"l1.combosquat",detail:F,brand:u.brand});continue}}if(A.slice(0,-f.split(".").length).some((Y)=>V(Y).includes(J)))B.push({id:"l1.brand-subdomain",detail:G,brand:u.brand})}let N=new Set;return B.filter((u)=>{let J=`${u.id}|${u.brand??""}`;if(N.has(J))return!1;return N.add(J),!0})}function U(m,_){let B=Q(_);return m.domains.some((L)=>B===Q(L))||m.auth_delegates.some((L)=>B===Q(L.replace(/^\*\./,"")))}function Z(m,_){return _.find((B)=>U(B,m))??null}function j(m,_,B,L){let G=[],g=Z(_,L),F=B.find((o)=>o.crossOriginActionHost)?.crossOriginActionHost;if(F){if(!(g!=null&&U(g,F)))G.push({id:"l2.cross-origin-form",detail:F})}if(B.some((o)=>!o.visible))G.push({id:"l2.hidden-capture-field"});for(let o of m.querySelectorAll("iframe[src]"))try{let N=new URL(o.getAttribute("src")??"",`https://${_}`);if(N.host&&N.host!==_&&!Z(N.host,L)){let u=parseInt(o.getAttribute("width")??"0",10),J=parseInt(o.getAttribute("height")??"0",10),X=o instanceof HTMLElement?o.getBoundingClientRect():{width:u,height:J};if((X.width||u)>=200&&(X.height||J)>=100){G.push({id:"l2.thirdparty-iframe",detail:N.host});break}}}catch{}let R=m.body,q=[];if(m.documentElement.getAttribute("oncontextmenu")||R?.getAttribute("oncontextmenu"))q.push("contextmenu");if(R?.getAttribute("onselectstart")||R?.getAttribute("oncopy"))q.push("selection");if(R&&typeof window<"u"){if(window.getComputedStyle(R).userSelect==="none")q.push("user-select")}if(q.length>0)G.push({id:"l2.anti-inspection",detail:q.join(",")});let A=new Set;for(let o of m.querySelectorAll('link[rel~="icon"], link[rel="apple-touch-icon"]')){let N=o.getAttribute("href");if(N)try{A.add(new URL(N,`https://${_}`).host)}catch{}}let C=0;for(let o of m.querySelectorAll("img[src]")){if(C++>=50)break;try{A.add(new URL(o.getAttribute("src")??"",`https://${_}`).host)}catch{}}let M=Z(_,L);for(let o of A){if(o===_)continue;let N=Z(o,L);if(N&&N!==M){G.push({id:"l2.borrowed-brand-assets",detail:o,brand:N.brand});break}}return G}var W=[{brand:"La Banque Postale",aliases:["Banque Postale","LBP"],domains:["labanquepostale.fr"],auth_delegates:["*.wl-fr.com"],sector:"banking",region:["FR"]},{brand:"BNP Paribas",aliases:["BNP","Hello bank!","Hello bank"],domains:["bnpparibas.net","bnpparibas.com","hellobank.fr"],auth_delegates:[],sector:"banking",region:["FR"]},{brand:"Société Générale",aliases:["SocGen","SG"],domains:["societegenerale.fr","particuliers.sg.fr","sg.fr"],auth_delegates:[],sector:"banking",region:["FR"]},{brand:"Crédit Agricole",aliases:["CA"],domains:["credit-agricole.fr"],auth_delegates:[],sector:"banking",region:["FR"]},{brand:"Caisse d'Épargne",aliases:["Caisse d'Epargne"],domains:["caisse-epargne.fr"],auth_delegates:[],sector:"banking",region:["FR"]},{brand:"Crédit Mutuel",aliases:["CIC"],domains:["creditmutuel.fr","cic.fr"],auth_delegates:[],sector:"banking",region:["FR"]},{brand:"BoursoBank",aliases:["Boursorama","Boursorama Banque"],domains:["boursobank.com","boursorama.com"],auth_delegates:[],sector:"banking",region:["FR"]},{brand:"LCL",aliases:["Crédit Lyonnais"],domains:["lcl.fr"],auth_delegates:[],sector:"banking",region:["FR"]},{brand:"Fortuneo",aliases:[],domains:["fortuneo.fr"],auth_delegates:[],sector:"banking",region:["FR"]},{brand:"N26",aliases:[],domains:["n26.com"],auth_delegates:[],sector:"banking",region:["EU"]},{brand:"Revolut",aliases:[],domains:["revolut.com"],auth_delegates:[],sector:"banking",region:["EU"]},{brand:"PayPal",aliases:[],domains:["paypal.com"],auth_delegates:[],sector:"payment",region:["GLOBAL"]},{brand:"Apple",aliases:["iCloud","App Store","Apple ID"],domains:["apple.com","icloud.com"],auth_delegates:[],sector:"tech",region:["GLOBAL"]},{brand:"Google",aliases:["Gmail","YouTube"],domains:["google.com","google.fr","gmail.com","youtube.com"],auth_delegates:[],sector:"tech",region:["GLOBAL"]},{brand:"Microsoft",aliases:["Outlook","Office 365","OneDrive","Xbox"],domains:["microsoft.com","outlook.com","office.com"],auth_delegates:["microsoftonline.com","live.com"],sector:"tech",region:["GLOBAL"]},{brand:"Amazon",aliases:["Prime"],domains:["amazon.fr","amazon.com"],auth_delegates:[],sector:"ecommerce",region:["GLOBAL"]},{brand:"Netflix",aliases:[],domains:["netflix.com"],auth_delegates:[],sector:"streaming",region:["GLOBAL"]},{brand:"Facebook",aliases:["Meta"],domains:["facebook.com","fb.com"],auth_delegates:[],sector:"social",region:["GLOBAL"]},{brand:"Instagram",aliases:[],domains:["instagram.com"],auth_delegates:[],sector:"social",region:["GLOBAL"]},{brand:"WhatsApp",aliases:[],domains:["whatsapp.com"],auth_delegates:[],sector:"social",region:["GLOBAL"]},{brand:"Orange",aliases:["Sosh"],domains:["orange.fr","sosh.fr"],auth_delegates:[],sector:"telecom",region:["FR"]},{brand:"SFR",aliases:["RED by SFR"],domains:["sfr.fr","red-by-sfr.fr"],auth_delegates:[],sector:"telecom",region:["FR"]},{brand:"Free",aliases:["Freebox","Free Mobile"],domains:["free.fr"],auth_delegates:[],sector:"telecom",region:["FR"]},{brand:"Bouygues Telecom",aliases:["Bouygues","B&You"],domains:["bouyguestelecom.fr"],auth_delegates:[],sector:"telecom",region:["FR"]},{brand:"Impôts",aliases:["impots.gouv","DGFiP","Direction générale des Finances publiques"],domains:["impots.gouv.fr"],auth_delegates:["franceconnect.gouv.fr"],sector:"government",region:["FR"]},{brand:"Ameli",aliases:["Assurance Maladie","CPAM"],domains:["ameli.fr"],auth_delegates:["franceconnect.gouv.fr"],sector:"government",region:["FR"]},{brand:"FranceConnect",aliases:[],domains:["franceconnect.gouv.fr"],auth_delegates:[],sector:"government",region:["FR"]},{brand:"La Poste",aliases:["Colissimo"],domains:["laposte.fr","colissimo.fr"],auth_delegates:[],sector:"logistics",region:["FR"]},{brand:"Chronopost",aliases:[],domains:["chronopost.fr"],auth_delegates:[],sector:"logistics",region:["FR"]},{brand:"DHL",aliases:[],domains:["dhl.com","dhl.fr"],auth_delegates:[],sector:"logistics",region:["GLOBAL"]},{brand:"Binance",aliases:[],domains:["binance.com"],auth_delegates:[],sector:"crypto",region:["GLOBAL"]},{brand:"Coinbase",aliases:[],domains:["coinbase.com"],auth_delegates:[],sector:"crypto",region:["GLOBAL"]},{brand:"Ledger",aliases:["Ledger Live"],domains:["ledger.com"],auth_delegates:[],sector:"crypto",region:["GLOBAL"]},{brand:"MetaMask",aliases:[],domains:["metamask.io"],auth_delegates:[],sector:"crypto",region:["GLOBAL"]}];var $=null;function I(){if(document.getElementById("impostor-ui-host"))return null;$=document.activeElement;let m=document.createElement("div");m.id="impostor-ui-host";let _=m.attachShadow({mode:"closed"}),B=document.createElement("style");B.textContent=`
+  :host { all: initial; }
+  * { box-sizing: border-box; }
+  .imp-root {
+    --bg-banner: #8a5200; --fg-banner: #fff;
+    --overlay: rgba(18,16,22,.94);
+    --card: #1c1b22; --card-line: #38333f; --fg: #f4f3f7; --fg-dim: #b9b7c4;
+    --leave-bg: #4340c4; --leave-fg: #fff; --proceed: #9a99a8;
+    --danger: #ff5a5f;
+    font-family: -apple-system, system-ui, "SF Pro Text", sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
-  function classifyInput(el) {
-    const tag = el.tagName.toLowerCase();
-    const type = (el.getAttribute("type") ?? "text").toLowerCase();
-    const autocomplete = (el.getAttribute("autocomplete") ?? "").toLowerCase();
-    const blob = attrBlob(el);
-    if (tag === "input" && type === "password")
-      return "password";
-    if (autocomplete.startsWith("cc-"))
-      return "payment-card";
-    if (tag === "input" && PAYMENT_ATTR.test(blob))
-      return "payment-card";
-    if (autocomplete === "one-time-code")
-      return "otp";
-    if (tag === "input" && OTP_ATTR.test(blob)) {
-      const maxLen = parseInt(el.getAttribute("maxlength") ?? "99", 10);
-      const numeric = (el.getAttribute("inputmode") ?? "") === "numeric";
-      if (numeric || maxLen <= 8)
-        return "otp";
+  @media (prefers-color-scheme: light) {
+    .imp-root {
+      --bg-banner: #b8791b; --fg-banner: #1a1205;
+      --overlay: rgba(40,36,48,.55);
+      --card: #ffffff; --card-line: #e6e3ee; --fg: #1a1922; --fg-dim: #605f70;
+      --leave-bg: #4340c4; --leave-fg: #fff; --proceed: #86859a; --danger: #d93a3f;
     }
-    if ((tag === "textarea" || tag === "input") && SEED_ATTR.test(blob))
-      return "seed-phrase";
-    if (tag === "input" && type === "file" && ID_DOC_ATTR.test(blob))
-      return "id-document-upload";
-    return null;
-  }
-  function isVisible(el) {
-    const style = window.getComputedStyle(el);
-    if (style.display === "none" || style.visibility === "hidden")
-      return false;
-    if (parseFloat(style.opacity) === 0)
-      return false;
-    const rect = el.getBoundingClientRect();
-    return rect.width > 0 && rect.height > 0;
-  }
-  function crossOriginActionHost(el) {
-    const form = el.closest("form");
-    if (!form)
-      return null;
-    const action = form.getAttribute("action");
-    if (!action)
-      return null;
-    try {
-      const actionUrl = new URL(action, window.location.href);
-      return actionUrl.host !== window.location.host ? actionUrl.host : null;
-    } catch {
-      return null;
-    }
-  }
-  function detectCapturePoints(root) {
-    const points = [];
-    for (const el of root.querySelectorAll("input, textarea")) {
-      const kind = classifyInput(el);
-      if (!kind)
-        continue;
-      points.push({
-        kind,
-        visible: el instanceof HTMLElement ? isVisible(el) : true,
-        inIframe: window.self !== window.top,
-        crossOriginActionHost: crossOriginActionHost(el)
-      });
-    }
-    return points;
   }
 
-  // src/l1.ts
-  var PUNY_BASE = 36;
-  var PUNY_TMIN = 1;
-  var PUNY_TMAX = 26;
-  var PUNY_SKEW = 38;
-  var PUNY_DAMP = 700;
-  var PUNY_INITIAL_BIAS = 72;
-  var PUNY_INITIAL_N = 128;
-  function punyAdapt(delta, numPoints, firstTime) {
-    delta = firstTime ? Math.floor(delta / PUNY_DAMP) : delta >> 1;
-    delta += Math.floor(delta / numPoints);
-    let k = 0;
-    while (delta > (PUNY_BASE - PUNY_TMIN) * PUNY_TMAX >> 1) {
-      delta = Math.floor(delta / (PUNY_BASE - PUNY_TMIN));
-      k += PUNY_BASE;
-    }
-    return k + Math.floor((PUNY_BASE - PUNY_TMIN + 1) * delta / (delta + PUNY_SKEW));
+  .imp-banner {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 2147483647;
+    display: flex; align-items: center; gap: .6rem;
+    padding: calc(.7rem + env(safe-area-inset-top)) calc(.9rem + env(safe-area-inset-right)) .7rem calc(.9rem + env(safe-area-inset-left));
+    background: var(--bg-banner); color: var(--fg-banner);
+    box-shadow: 0 2px 12px rgba(0,0,0,.28); font-size: .95rem; line-height: 1.35;
   }
-  function punycodeDecode(input) {
-    const output = [];
-    let n = PUNY_INITIAL_N;
-    let i = 0;
-    let bias = PUNY_INITIAL_BIAS;
-    const lastDelim = input.lastIndexOf("-");
-    if (lastDelim > 0) {
-      for (const ch of input.slice(0, lastDelim)) {
-        const cp = ch.codePointAt(0) ?? 0;
-        if (cp >= 128)
-          return null;
-        output.push(cp);
-      }
-    }
-    let idx = lastDelim > 0 ? lastDelim + 1 : 0;
-    while (idx < input.length) {
-      const oldi = i;
-      let w = 1;
-      for (let k = PUNY_BASE;; k += PUNY_BASE) {
-        if (idx >= input.length)
-          return null;
-        const cp = input.codePointAt(idx++) ?? 0;
-        const digit = cp >= 97 ? cp - 97 : cp >= 65 ? cp - 65 : cp >= 48 ? cp - 48 + 26 : -1;
-        if (digit < 0 || digit >= PUNY_BASE)
-          return null;
-        i += digit * w;
-        const t = k <= bias ? PUNY_TMIN : k >= bias + PUNY_TMAX ? PUNY_TMAX : k - bias;
-        if (digit < t)
-          break;
-        w *= PUNY_BASE - t;
-      }
-      bias = punyAdapt(i - oldi, output.length + 1, oldi === 0);
-      n += Math.floor(i / (output.length + 1));
-      i %= output.length + 1;
-      output.splice(i, 0, n);
-      i++;
-    }
-    return String.fromCodePoint(...output);
-  }
-  var CYRILLIC = /[Ѐ-ӿ]/;
-  var GREEK = /[Ͱ-Ͽ]/;
-  var LATIN = /[a-z]/i;
-  function hasMixedScript(label) {
-    const scripts = [CYRILLIC.test(label), GREEK.test(label), LATIN.test(label)];
-    return scripts.filter(Boolean).length > 1;
-  }
-  var CONFUSABLES = {
-    "а": "a",
-    "е": "e",
-    "о": "o",
-    "р": "p",
-    "с": "c",
-    "х": "x",
-    "у": "y",
-    "і": "i",
-    "ѕ": "s",
-    "ԁ": "d",
-    "ј": "j",
-    " һ": "h",
-    "ԛ": "q",
-    "ԝ": "w",
-    "ο": "o",
-    "α": "a",
-    "ν": "v",
-    "ι": "i",
-    "κ": "k",
-    "τ": "t",
-    "υ": "u",
-    "0": "o",
-    "1": "l",
-    "3": "e",
-    "5": "s",
-    "7": "t"
-  };
-  function normalizeConfusables(s) {
-    let out = "";
-    for (const ch of s)
-      out += CONFUSABLES[ch] ?? ch;
-    return out;
-  }
-  function levenshtein(a, b, max) {
-    if (Math.abs(a.length - b.length) > max)
-      return max + 1;
-    let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
-    for (let i = 1;i <= a.length; i++) {
-      const cur = [i];
-      let rowMin = i;
-      for (let j = 1;j <= b.length; j++) {
-        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-        const v = Math.min((prev[j] ?? 0) + 1, (cur[j - 1] ?? 0) + 1, (prev[j - 1] ?? 0) + cost);
-        cur.push(v);
-        if (v < rowMin)
-          rowMin = v;
-      }
-      if (rowMin > max)
-        return max + 1;
-      prev = cur;
-    }
-    return prev[b.length] ?? max + 1;
-  }
-  var TWO_LEVEL_SUFFIXES = new Set([
-    "co.uk",
-    "org.uk",
-    "gov.uk",
-    "ac.uk",
-    "com.au",
-    "net.au",
-    "org.au",
-    "com.br",
-    "com.mx",
-    "com.ar",
-    "co.jp",
-    "co.in",
-    "co.nz",
-    "com.tr",
-    "com.cn",
-    "com.hk",
-    "com.sg",
-    "co.za",
-    "gouv.fr",
-    "asso.fr",
-    "com.es"
-  ]);
-  function registrableDomain(host) {
-    const labels = host.toLowerCase().split(".");
-    if (labels.length <= 2)
-      return labels.join(".");
-    const lastTwo = labels.slice(-2).join(".");
-    const take = TWO_LEVEL_SUFFIXES.has(lastTwo) ? 3 : 2;
-    return labels.slice(-take).join(".");
-  }
-  var LOW_REP_TLDS = new Set([
-    "top",
-    "xyz",
-    "tk",
-    "ml",
-    "ga",
-    "cf",
-    "gq",
-    "icu",
-    "click",
-    "link",
-    "work",
-    "rest",
-    "fit",
-    "loan",
-    "men",
-    "bid",
-    "stream",
-    "racing",
-    "win",
-    "party",
-    "date",
-    "faith",
-    "review",
-    "vip",
-    "monster",
-    "quest",
-    "cyou"
-  ]);
-  var COMBO_KEYWORDS = [
-    "secure",
-    "verif",
-    "verification",
-    "login",
-    "signin",
-    "sign-in",
-    "account",
-    "support",
-    "update",
-    "confirm",
-    "wallet",
-    "service",
-    "auth",
-    "id",
-    "assistance",
-    "client",
-    "portail",
-    "espace"
-  ];
-  function brandTokens(brand) {
-    const tokens = new Set;
-    for (const d of brand.domains) {
-      const sld = registrableDomain(d).split(".")[0];
-      if (sld && sld.length >= 4)
-        tokens.add(sld);
-    }
-    return [...tokens];
-  }
-  function isOwnedBy(host, brand) {
-    const reg = registrableDomain(host);
-    return brand.domains.some((d) => reg === registrableDomain(d)) || brand.auth_delegates.some((d) => {
-      const clean = d.replace(/^\*\./, "");
-      return reg === registrableDomain(clean) || host === clean;
-    });
-  }
-  function analyzeUrl(rawUrl, brands) {
-    const signals = [];
-    let url;
-    try {
-      url = new URL(rawUrl);
-    } catch {
-      return signals;
-    }
-    if (url.protocol !== "http:" && url.protocol !== "https:")
-      return signals;
-    const host = url.hostname.toLowerCase();
-    const labels = host.split(".");
-    const reg = registrableDomain(host);
-    const sld = reg.split(".")[0] ?? "";
-    const tld = labels[labels.length - 1] ?? "";
-    const owner = brands.find((b) => isOwnedBy(host, b));
-    if (owner)
-      return signals;
-    if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host) || host.startsWith("[")) {
-      signals.push({ id: "l1.ip-literal", detail: host });
-    }
-    if (url.port !== "" && url.port !== "80" && url.port !== "443") {
-      signals.push({ id: "l1.exotic-port", detail: url.port });
-    }
-    if (labels.length >= 5) {
-      signals.push({ id: "l1.subdomain-depth", detail: String(labels.length) });
-    }
-    if (LOW_REP_TLDS.has(tld)) {
-      signals.push({ id: "l1.low-rep-tld", detail: tld });
-    }
-    const decodedLabels = labels.map((l) => l.startsWith("xn--") ? punycodeDecode(l.slice(4)) ?? l : l);
-    const hadPunycode = labels.some((l) => l.startsWith("xn--"));
-    if (hadPunycode) {
-      signals.push({ id: "l1.punycode", detail: decodedLabels.join(".") });
-    }
-    const decodedHost = decodedLabels.join(".");
-    if (decodedLabels.some(hasMixedScript)) {
-      signals.push({ id: "l1.mixed-script", detail: decodedHost });
-    }
-    const normalizedSld = normalizeConfusables(registrableDomain(decodedHost).split(".")[0] ?? sld);
-    for (const brand of brands) {
-      for (const token of brandTokens(brand)) {
-        if (normalizedSld === token && sld !== token) {
-          signals.push({ id: "l1.homograph", detail: `${sld} → ${token}`, brand: brand.brand });
-          continue;
-        }
-        const maxDist = token.length >= 8 ? 2 : 1;
-        const dist = levenshtein(normalizedSld, token, maxDist);
-        if (dist > 0 && dist <= maxDist) {
-          signals.push({ id: "l1.typosquat", detail: `${sld} ≈ ${token}`, brand: brand.brand });
-          continue;
-        }
-        if (normalizedSld !== token && normalizedSld.includes(token)) {
-          const rest = normalizedSld.replace(token, "");
-          const luring = COMBO_KEYWORDS.some((k) => normalizedSld.includes(k)) || rest.includes("-");
-          if (luring) {
-            signals.push({ id: "l1.combosquat", detail: sld, brand: brand.brand });
-            continue;
-          }
-        }
-        const subLabels = decodedLabels.slice(0, -reg.split(".").length);
-        if (subLabels.some((l) => normalizeConfusables(l).includes(token))) {
-          signals.push({ id: "l1.brand-subdomain", detail: host, brand: brand.brand });
-        }
-      }
-    }
-    const seen = new Set;
-    return signals.filter((s) => {
-      const key = `${s.id}|${s.brand ?? ""}`;
-      if (seen.has(key))
-        return false;
-      seen.add(key);
-      return true;
-    });
+  .imp-banner .glyph { flex: 0 0 auto; width: 1.25rem; height: 1.25rem; }
+  .imp-banner .msg { flex: 1 1 auto; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .imp-btn-dismiss {
+    flex: 0 0 auto; min-height: 44px; min-width: 44px; padding: 0 .8rem;
+    background: rgba(255,255,255,.14); border: 1px solid currentColor; color: inherit;
+    border-radius: 10px; font: inherit; font-weight: 600; cursor: pointer;
   }
 
-  // src/l2.ts
-  function brandCoversHost(brand, host) {
-    const reg = registrableDomain(host);
-    return brand.domains.some((d) => reg === registrableDomain(d)) || brand.auth_delegates.some((d) => reg === registrableDomain(d.replace(/^\*\./, "")));
+  .imp-overlay {
+    position: fixed; inset: 0; z-index: 2147483647;
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: calc(env(safe-area-inset-top) + 8vh) calc(1.25rem + env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 1.25rem) calc(1.25rem + env(safe-area-inset-left));
+    background: var(--overlay); -webkit-backdrop-filter: blur(7px); backdrop-filter: blur(7px);
   }
-  function brandOwning(host, brands) {
-    return brands.find((b) => brandCoversHost(b, host)) ?? null;
+  .imp-card {
+    width: 100%; max-width: 33rem; background: var(--card); color: var(--fg);
+    border: 1px solid var(--card-line); border-radius: 22px; padding: 1.6rem 1.5rem;
+    box-shadow: 0 18px 54px rgba(0,0,0,.5);
   }
-  function analyzePage(doc, pageHost, capturePoints, brands) {
-    const signals = [];
-    const pageBrand = brandOwning(pageHost, brands);
-    const crossOrigin = capturePoints.find((p) => p.crossOriginActionHost);
-    const actionHost = crossOrigin?.crossOriginActionHost;
-    if (actionHost) {
-      const legitDelegate = pageBrand != null && brandCoversHost(pageBrand, actionHost);
-      if (!legitDelegate) {
-        signals.push({ id: "l2.cross-origin-form", detail: actionHost });
-      }
-    }
-    if (capturePoints.some((p) => !p.visible)) {
-      signals.push({ id: "l2.hidden-capture-field" });
-    }
-    for (const iframe of doc.querySelectorAll("iframe[src]")) {
-      try {
-        const src = new URL(iframe.getAttribute("src") ?? "", `https://${pageHost}`);
-        if (src.host && src.host !== pageHost && !brandOwning(src.host, brands)) {
-          const w = parseInt(iframe.getAttribute("width") ?? "0", 10);
-          const h = parseInt(iframe.getAttribute("height") ?? "0", 10);
-          const rect = iframe instanceof HTMLElement ? iframe.getBoundingClientRect() : { width: w, height: h };
-          if ((rect.width || w) >= 200 && (rect.height || h) >= 100) {
-            signals.push({ id: "l2.thirdparty-iframe", detail: src.host });
-            break;
-          }
-        }
-      } catch {}
-    }
-    const body = doc.body;
-    const antiInspection = [];
-    if (doc.documentElement.getAttribute("oncontextmenu") || body?.getAttribute("oncontextmenu")) {
-      antiInspection.push("contextmenu");
-    }
-    if (body?.getAttribute("onselectstart") || body?.getAttribute("oncopy")) {
-      antiInspection.push("selection");
-    }
-    if (body && typeof window !== "undefined") {
-      const style = window.getComputedStyle(body);
-      if (style.userSelect === "none")
-        antiInspection.push("user-select");
-    }
-    if (antiInspection.length > 0) {
-      signals.push({ id: "l2.anti-inspection", detail: antiInspection.join(",") });
-    }
-    const assetHosts = new Set;
-    for (const link of doc.querySelectorAll('link[rel~="icon"], link[rel="apple-touch-icon"]')) {
-      const href = link.getAttribute("href");
-      if (href) {
-        try {
-          assetHosts.add(new URL(href, `https://${pageHost}`).host);
-        } catch {}
-      }
-    }
-    let imgCount = 0;
-    for (const img of doc.querySelectorAll("img[src]")) {
-      if (imgCount++ >= 50)
-        break;
-      try {
-        assetHosts.add(new URL(img.getAttribute("src") ?? "", `https://${pageHost}`).host);
-      } catch {}
-    }
-    const pageOwner = brandOwning(pageHost, brands);
-    for (const host of assetHosts) {
-      if (host === pageHost)
-        continue;
-      const assetOwner = brandOwning(host, brands);
-      if (assetOwner && assetOwner !== pageOwner) {
-        signals.push({
-          id: "l2.borrowed-brand-assets",
-          detail: host,
-          brand: assetOwner.brand
-        });
-        break;
-      }
-    }
-    return signals;
+  .imp-card h1 {
+    margin: 0 0 .7rem; font-size: 1.5rem; font-weight: 700; line-height: 1.18;
+    letter-spacing: -.01em; display: flex; align-items: center; gap: .55rem;
   }
+  .imp-card h1 .glyph { width: 1.5rem; height: 1.5rem; flex: 0 0 auto; color: var(--danger); }
+  .imp-card .msg { margin: 0 0 1.4rem; font-size: 1.12rem; line-height: 1.5; color: var(--fg-dim); }
+  .imp-card .msg .host { font-family: ui-monospace, "SF Mono", Menlo, monospace; color: var(--fg); overflow-wrap: anywhere; }
+  .imp-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; min-height: 52px; padding: .9rem; border: 0; border-radius: 14px;
+    font: inherit; font-size: 1.12rem; font-weight: 600; cursor: pointer; position: relative;
+  }
+  .imp-leave { background: var(--leave-bg); color: var(--leave-fg); margin-bottom: .6rem; }
+  .imp-proceed {
+    background: transparent; color: var(--proceed); font-size: 1rem; font-weight: 500;
+    min-height: 48px; overflow: hidden;
+  }
+  .imp-proceed .fill { position: absolute; inset: 0; background: rgba(150,150,160,.16); width: 0%; }
+  .imp-proceed .lbl { position: relative; text-decoration: underline; }
+  .imp-hint { margin: .1rem 0 0; text-align: center; font-size: .8rem; color: var(--proceed); }
 
-  // src/generated/brands.ts
-  var BRANDS = [
-    { brand: "La Banque Postale", aliases: ["Banque Postale", "LBP"], domains: ["labanquepostale.fr"], auth_delegates: ["*.wl-fr.com"], sector: "banking", region: ["FR"] },
-    { brand: "BNP Paribas", aliases: ["BNP", "Hello bank!", "Hello bank"], domains: ["bnpparibas.net", "bnpparibas.com", "hellobank.fr"], auth_delegates: [], sector: "banking", region: ["FR"] },
-    { brand: "Société Générale", aliases: ["SocGen", "SG"], domains: ["societegenerale.fr", "particuliers.sg.fr", "sg.fr"], auth_delegates: [], sector: "banking", region: ["FR"] },
-    { brand: "Crédit Agricole", aliases: ["CA"], domains: ["credit-agricole.fr"], auth_delegates: [], sector: "banking", region: ["FR"] },
-    { brand: "Caisse d'Épargne", aliases: ["Caisse d'Epargne"], domains: ["caisse-epargne.fr"], auth_delegates: [], sector: "banking", region: ["FR"] },
-    { brand: "Crédit Mutuel", aliases: ["CIC"], domains: ["creditmutuel.fr", "cic.fr"], auth_delegates: [], sector: "banking", region: ["FR"] },
-    { brand: "BoursoBank", aliases: ["Boursorama", "Boursorama Banque"], domains: ["boursobank.com", "boursorama.com"], auth_delegates: [], sector: "banking", region: ["FR"] },
-    { brand: "LCL", aliases: ["Crédit Lyonnais"], domains: ["lcl.fr"], auth_delegates: [], sector: "banking", region: ["FR"] },
-    { brand: "Fortuneo", aliases: [], domains: ["fortuneo.fr"], auth_delegates: [], sector: "banking", region: ["FR"] },
-    { brand: "N26", aliases: [], domains: ["n26.com"], auth_delegates: [], sector: "banking", region: ["EU"] },
-    { brand: "Revolut", aliases: [], domains: ["revolut.com"], auth_delegates: [], sector: "banking", region: ["EU"] },
-    { brand: "PayPal", aliases: [], domains: ["paypal.com"], auth_delegates: [], sector: "payment", region: ["GLOBAL"] },
-    { brand: "Apple", aliases: ["iCloud", "App Store", "Apple ID"], domains: ["apple.com", "icloud.com"], auth_delegates: [], sector: "tech", region: ["GLOBAL"] },
-    { brand: "Google", aliases: ["Gmail", "YouTube"], domains: ["google.com", "google.fr", "gmail.com", "youtube.com"], auth_delegates: [], sector: "tech", region: ["GLOBAL"] },
-    { brand: "Microsoft", aliases: ["Outlook", "Office 365", "OneDrive", "Xbox"], domains: ["microsoft.com", "outlook.com", "office.com"], auth_delegates: ["microsoftonline.com", "live.com"], sector: "tech", region: ["GLOBAL"] },
-    { brand: "Amazon", aliases: ["Prime"], domains: ["amazon.fr", "amazon.com"], auth_delegates: [], sector: "ecommerce", region: ["GLOBAL"] },
-    { brand: "Netflix", aliases: [], domains: ["netflix.com"], auth_delegates: [], sector: "streaming", region: ["GLOBAL"] },
-    { brand: "Facebook", aliases: ["Meta"], domains: ["facebook.com", "fb.com"], auth_delegates: [], sector: "social", region: ["GLOBAL"] },
-    { brand: "Instagram", aliases: [], domains: ["instagram.com"], auth_delegates: [], sector: "social", region: ["GLOBAL"] },
-    { brand: "WhatsApp", aliases: [], domains: ["whatsapp.com"], auth_delegates: [], sector: "social", region: ["GLOBAL"] },
-    { brand: "Orange", aliases: ["Sosh"], domains: ["orange.fr", "sosh.fr"], auth_delegates: [], sector: "telecom", region: ["FR"] },
-    { brand: "SFR", aliases: ["RED by SFR"], domains: ["sfr.fr", "red-by-sfr.fr"], auth_delegates: [], sector: "telecom", region: ["FR"] },
-    { brand: "Free", aliases: ["Freebox", "Free Mobile"], domains: ["free.fr"], auth_delegates: [], sector: "telecom", region: ["FR"] },
-    { brand: "Bouygues Telecom", aliases: ["Bouygues", "B&You"], domains: ["bouyguestelecom.fr"], auth_delegates: [], sector: "telecom", region: ["FR"] },
-    { brand: "Impôts", aliases: ["impots.gouv", "DGFiP", "Direction générale des Finances publiques"], domains: ["impots.gouv.fr"], auth_delegates: ["franceconnect.gouv.fr"], sector: "government", region: ["FR"] },
-    { brand: "Ameli", aliases: ["Assurance Maladie", "CPAM"], domains: ["ameli.fr"], auth_delegates: ["franceconnect.gouv.fr"], sector: "government", region: ["FR"] },
-    { brand: "FranceConnect", aliases: [], domains: ["franceconnect.gouv.fr"], auth_delegates: [], sector: "government", region: ["FR"] },
-    { brand: "La Poste", aliases: ["Colissimo"], domains: ["laposte.fr", "colissimo.fr"], auth_delegates: [], sector: "logistics", region: ["FR"] },
-    { brand: "Chronopost", aliases: [], domains: ["chronopost.fr"], auth_delegates: [], sector: "logistics", region: ["FR"] },
-    { brand: "DHL", aliases: [], domains: ["dhl.com", "dhl.fr"], auth_delegates: [], sector: "logistics", region: ["GLOBAL"] },
-    { brand: "Binance", aliases: [], domains: ["binance.com"], auth_delegates: [], sector: "crypto", region: ["GLOBAL"] },
-    { brand: "Coinbase", aliases: [], domains: ["coinbase.com"], auth_delegates: [], sector: "crypto", region: ["GLOBAL"] },
-    { brand: "Ledger", aliases: ["Ledger Live"], domains: ["ledger.com"], auth_delegates: [], sector: "crypto", region: ["GLOBAL"] },
-    { brand: "MetaMask", aliases: [], domains: ["metamask.io"], auth_delegates: [], sector: "crypto", region: ["GLOBAL"] }
-  ];
+  .imp-dbg { margin-top: 1rem; padding-top: .7rem; border-top: 1px solid var(--card-line); font: .72rem ui-monospace, monospace; color: var(--proceed); overflow-wrap: anywhere; }
 
-  // src/banner.ts
-  var HOST_ID = "impostor-ui-host";
-  function ensureHost() {
-    if (document.getElementById(HOST_ID))
-      return null;
-    const host = document.createElement("div");
-    host.id = HOST_ID;
-    const shadow = host.attachShadow({ mode: "closed" });
-    document.documentElement.append(host);
-    return shadow;
-  }
-  function removeHost() {
-    document.getElementById(HOST_ID)?.remove();
-  }
-  var FALLBACK_REASON = "Cette page présente plusieurs caractéristiques de page de phishing. Vérifiez l'adresse avant de saisir quoi que ce soit.";
-  function debugLine(text) {
-    const el = document.createElement("div");
-    el.setAttribute("style", "margin-top:16px;padding-top:12px;border-top:1px solid #333;font:12px ui-monospace,monospace;color:#7a7a7e;word-break:break-word");
-    el.textContent = text;
-    return el;
-  }
-  function showBanner(verdict) {
-    const shadow = ensureHost();
-    if (!shadow)
-      return;
-    const bar = document.createElement("div");
-    bar.setAttribute("style", [
-      "position:fixed",
-      "top:0",
-      "left:0",
-      "right:0",
-      "z-index:2147483647",
-      "display:flex",
-      "align-items:center",
-      "gap:8px",
-      "padding:10px 14px",
-      "font:14px -apple-system,system-ui,sans-serif",
-      "background:#8a5200",
-      "color:#fff",
-      "box-shadow:0 2px 8px rgba(0,0,0,.35)"
-    ].join(";"));
-    const text = document.createElement("span");
-    text.style.flex = "1";
-    text.textContent = verdict.reason ?? FALLBACK_REASON;
-    const close = document.createElement("button");
-    close.textContent = "Ignorer";
-    close.setAttribute("style", "background:transparent;border:1px solid #fff;color:#fff;border-radius:6px;padding:4px 10px;font:13px -apple-system,system-ui,sans-serif");
-    close.addEventListener("click", removeHost);
-    bar.append(text, close);
-    if (verdict.debug) {
-      const dbg = debugLine(verdict.debug);
-      dbg.style.marginTop = "6px";
-      dbg.style.borderTop = "0";
-      dbg.style.color = "#f0d0b0";
-      bar.style.flexWrap = "wrap";
-      bar.append(dbg);
-    }
-    shadow.append(bar);
-  }
-  function showInterstitial(verdict) {
-    const shadow = ensureHost();
-    if (!shadow)
-      return;
-    const overlay = document.createElement("div");
-    overlay.setAttribute("style", [
-      "position:fixed",
-      "inset:0",
-      "z-index:2147483647",
-      "display:flex",
-      "align-items:flex-start",
-      "justify-content:center",
-      "padding:12vh 20px 20px",
-      "box-sizing:border-box",
-      "background:rgba(20,0,0,.94)",
-      "backdrop-filter:blur(6px)",
-      "font:17px -apple-system,system-ui,sans-serif",
-      "color:#fff"
-    ].join(";"));
-    const card = document.createElement("div");
-    card.setAttribute("style", "width:100%;max-width:560px;background:#1c1c1e;border:1px solid #5a1a1a;border-radius:22px;padding:28px 26px;box-shadow:0 16px 50px rgba(0,0,0,.55)");
-    const title = document.createElement("h1");
-    title.setAttribute("style", "margin:0 0 16px;font-size:26px;font-weight:700;line-height:1.2;display:flex;gap:10px;align-items:center");
-    title.textContent = "⚠️ Attention — page suspecte";
-    const body = document.createElement("p");
-    body.setAttribute("style", "margin:0 0 26px;font-size:19px;line-height:1.5;color:#e8e8ea");
-    body.textContent = verdict.reason ?? FALLBACK_REASON;
-    const leave = document.createElement("button");
-    leave.textContent = "Quitter cette page";
-    leave.setAttribute("style", "width:100%;margin-bottom:12px;padding:17px;border:0;border-radius:14px;background:#ff453a;color:#fff;font-weight:600;font-size:19px");
-    leave.addEventListener("click", () => {
-      if (window.history.length > 1)
-        window.history.back();
-      else
-        window.location.replace("about:blank");
-    });
-    const proceed = document.createElement("button");
-    proceed.textContent = "Continuer quand même";
-    proceed.setAttribute("style", "width:100%;padding:15px;border:0;border-radius:14px;background:transparent;color:#9a9a9e;font-size:17px;text-decoration:underline");
-    proceed.addEventListener("click", removeHost);
-    card.append(title, body, leave, proceed);
-    if (verdict.debug)
-      card.append(debugLine(verdict.debug));
-    overlay.append(card);
-    shadow.append(overlay);
-  }
-  function renderVerdict(verdict) {
-    if (verdict.action === "interstitial")
-      showInterstitial(verdict);
-    else if (verdict.action === "banner")
-      showBanner(verdict);
-  }
+  button:focus-visible { outline: 3px solid #7d7bff; outline-offset: 2px; }
 
-  // src/content.ts
-  function identityCues() {
-    const parts = [];
-    const push = (s) => {
-      const t = (s ?? "").trim();
-      if (t && t.length <= 80)
-        parts.push(t);
-    };
-    push(document.querySelector('meta[property="og:site_name"]')?.getAttribute("content"));
-    push(document.querySelector('meta[name="application-name"]')?.getAttribute("content"));
-    for (const img of document.querySelectorAll("img[alt]")) {
-      const alt = img.getAttribute("alt") ?? "";
-      if (/logo|brand/i.test(img.getAttribute("class") ?? "") || /logo/i.test(alt))
-        push(alt);
-    }
-    if (parts.length === 0) {
-      let headings = 0;
-      for (const h of document.querySelectorAll("h1, h2, legend")) {
-        push(h.textContent);
-        if (++headings >= 2)
-          break;
-      }
-    }
-    return [...new Set(parts)].join(" · ").slice(0, 400);
+  @media (prefers-reduced-motion: no-preference) {
+    .imp-banner { animation: imp-slide .22s cubic-bezier(.2,.7,.2,1) both; }
+    .imp-overlay { animation: imp-fade .2s ease both; }
+    .imp-card { animation: imp-rise .24s cubic-bezier(.2,.7,.2,1) both; }
+    @keyframes imp-slide { from { transform: translateY(-100%); } to { transform: none; } }
+    @keyframes imp-fade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes imp-rise { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   }
-  async function run() {
-    const t0 = performance.now();
-    const capturePoints = detectCapturePoints(document);
-    if (capturePoints.length === 0)
-      return;
-    const dossier = {
-      version: 1,
-      url: window.location.href,
-      host: window.location.host,
-      title: document.title.slice(0, 200),
-      textExcerpt: identityCues(),
-      capturePoints,
-      l1Signals: analyzeUrl(window.location.href, BRANDS),
-      l2Signals: analyzePage(document, window.location.host, capturePoints, BRANDS)
-    };
-    const jsMs = performance.now() - t0;
-    const response = await browser.runtime.sendMessage({
-      type: "dossier",
-      dossier
-    });
-    if ("type" in response && response.type === "verdict") {
-      document.documentElement.dataset["impostor"] = response.verdict.action;
-      if (response.verdict.debug) {
-        response.verdict.debug = `js=${jsMs.toFixed(1)}ms · ${response.verdict.debug}`;
-      }
-      renderVerdict(response.verdict);
-      await browser.runtime.sendMessage({
-        type: "ack",
-        echoHost: response.verdict.echoHost ?? ""
-      });
-    }
-  }
-  function runReporting() {
-    run().catch((err) => {
-      browser.runtime.sendMessage({
-        type: "jsError",
-        detail: err instanceof Error ? `${err.name}: ${err.message}` : String(err)
-      });
-    });
-  }
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", runReporting);
-  } else {
-    runReporting();
-  }
-})();
+`;let L=document.createElement("div");return L.className="imp-root",_.append(B,L),document.documentElement.append(m),{root:L,shadow:_}}function k(){if(document.getElementById("impostor-ui-host")?.remove(),$ instanceof HTMLElement)$.focus({preventScroll:!0});$=null}function Bm(m){return(_)=>{if(_.key!=="Tab")return;let B=[...m.querySelectorAll("button")];if(B.length===0)return;let L=B[0],G=B[B.length-1],g=m.getRootNode()instanceof ShadowRoot?m.getRootNode().activeElement:document.activeElement;if(_.shiftKey&&g===L)_.preventDefault(),G?.focus();else if(!_.shiftKey&&g===G)_.preventDefault(),L?.focus()}}function y(m){let _=document.createElement("div");return _.className="imp-dbg",_.textContent=m,_}function Gm(m){let _=I();if(!_)return;let B=document.createElement("div");B.className="imp-banner",B.setAttribute("role","alert");let L=document.createElement("span");L.innerHTML='<svg class="glyph" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.2 1.8 20.5h20.4L12 3.2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9.5v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.15" fill="currentColor"/></svg>';let G=document.createElement("span");G.className="msg",G.textContent=m.reason??"Cette page présente plusieurs caractéristiques de page de phishing. Vérifiez l'adresse avant de saisir quoi que ce soit.";let g=document.createElement("button");if(g.className="imp-btn-dismiss",g.type="button",g.textContent="Ignorer",g.setAttribute("aria-label","Ignorer l’avertissement"),g.addEventListener("click",k),B.append(L,G,g),m.debug)B.append(y(m.debug));_.root.append(B)}function gm(m){let _=I();if(!_)return;let B=document.createElement("div");B.className="imp-overlay";let L=document.createElement("div");L.className="imp-card",L.setAttribute("role","alertdialog"),L.setAttribute("aria-modal","true"),L.setAttribute("aria-labelledby","imp-title"),L.setAttribute("aria-describedby","imp-msg");let G=document.createElement("h1");G.id="imp-title",G.innerHTML=`${'<svg class="glyph" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.2 1.8 20.5h20.4L12 3.2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9.5v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.15" fill="currentColor"/></svg>'}<span>Attention — page suspecte</span>`;let g=document.createElement("p");g.className="msg",g.id="imp-msg",g.textContent=m.reason??"Cette page présente plusieurs caractéristiques de page de phishing. Vérifiez l'adresse avant de saisir quoi que ce soit.";let f=document.createElement("button");f.className="imp-btn imp-leave",f.type="button",f.textContent="Quitter cette page",f.addEventListener("click",z);let F=document.createElement("button");F.className="imp-btn imp-proceed",F.type="button",F.setAttribute("aria-label","Continuer quand même — maintenir appuyé");let R=document.createElement("span");R.className="fill";let q=document.createElement("span");q.className="lbl",q.textContent="Continuer quand même",F.append(R,q),Fm(F,R,q,k);let A=document.createElement("p");if(A.className="imp-hint",A.textContent="Maintenez appuyé pour continuer",L.append(G,g,f,F,A),m.debug)L.append(y(m.debug));B.append(L),_.root.append(B),f.focus({preventScroll:!0});let C=Bm(L);L.addEventListener("keydown",(M)=>{if(M.key==="Escape")M.preventDefault(),z();else C(M)})}function z(){if(window.history.length>1)window.history.back();else window.location.replace("about:blank")}function Fm(m,_,B,L){if(window.matchMedia("(prefers-reduced-motion: reduce)").matches){m.addEventListener("click",()=>{if(window.confirm("Continuer vers cette page malgré l’avertissement ?"))L()});return}let g=1400,f=0,F=0,R=(C)=>{if(!F)F=C;let M=Math.min(100,(C-F)/g*100);if(_.style.width=`${M}%`,M>=100){A(),L();return}f=requestAnimationFrame(R)},q=(C)=>{C.preventDefault(),F=0,f=requestAnimationFrame(R)},A=()=>{if(f)cancelAnimationFrame(f);f=0,F=0,_.style.width="0%"};m.addEventListener("pointerdown",q),m.addEventListener("pointerup",A),m.addEventListener("pointerleave",A),m.addEventListener("pointercancel",A),m.addEventListener("keydown",(C)=>{if(C.key==="Enter"||C.key===" "){if(C.preventDefault(),window.confirm("Continuer vers cette page malgré l’avertissement ?"))L()}}),B.setAttribute("aria-hidden","false")}function S(m){if(m.action==="interstitial")gm(m);else if(m.action==="banner")Gm(m)}function om(){let m=[],_=(B)=>{let L=(B??"").trim();if(L&&L.length<=80)m.push(L)};_(document.querySelector('meta[property="og:site_name"]')?.getAttribute("content")),_(document.querySelector('meta[name="application-name"]')?.getAttribute("content"));for(let B of document.querySelectorAll("img[alt]")){let L=B.getAttribute("alt")??"";if(/logo|brand/i.test(B.getAttribute("class")??"")||/logo/i.test(L))_(L)}if(m.length===0){let B=0;for(let L of document.querySelectorAll("h1, h2, legend"))if(_(L.textContent),++B>=2)break}return[...new Set(m)].join(" · ").slice(0,400)}async function fm(){let m=performance.now(),_=O(document);if(_.length===0)return;let B={version:1,host:window.location.hostname,title:document.title.slice(0,200),textExcerpt:om(),capturePoints:_,l1Signals:E(window.location.href,W),l2Signals:j(document,window.location.hostname,_,W)},L=performance.now()-m,G=await browser.runtime.sendMessage({type:"dossier",dossier:B});if(G&&typeof G==="object"&&"type"in G&&G.type==="verdict"){if(G.verdict.debug)G.verdict.debug=`js=${L.toFixed(1)}ms · ${G.verdict.debug}`,document.documentElement.dataset.impostor=G.verdict.action;S(G.verdict),await browser.runtime.sendMessage({type:"ack",echoHost:G.verdict.echoHost??""})}}function x(){fm().catch((m)=>{browser.runtime.sendMessage({type:"jsError",detail:m instanceof Error?`${m.name}: ${m.message}`:String(m)})})}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",x);else x();})();

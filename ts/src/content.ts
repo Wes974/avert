@@ -53,13 +53,15 @@ async function run(): Promise<void> {
 
   const dossier: PageDossier = {
     version: 1,
-    url: window.location.href,
-    host: window.location.host,
+    // Hostname only — never the full URL. The path/query of a sensitive page
+    // often carries secrets (?token=…, magic links) and the native side never
+    // uses anything but the host. L1 still parses the full href locally below.
+    host: window.location.hostname,
     title: document.title.slice(0, 200),
     textExcerpt: identityCues(),
     capturePoints,
     l1Signals: analyzeUrl(window.location.href, BRANDS),
-    l2Signals: analyzePage(document, window.location.host, capturePoints, BRANDS),
+    l2Signals: analyzePage(document, window.location.hostname, capturePoints, BRANDS),
   };
   const jsMs = performance.now() - t0;
 
@@ -68,13 +70,20 @@ async function run(): Promise<void> {
     dossier,
   });
 
-  if ("type" in response && response.type === "verdict") {
-    // DOM marker kept for UI-automation assertions.
-    document.documentElement.dataset["impostor"] = response.verdict.action;
+  // Cold-start can resolve a nullish response; guard before touching it.
+  if (
+    response &&
+    typeof response === "object" &&
+    "type" in response &&
+    response.type === "verdict"
+  ) {
     // Debug builds carry a diagnostic string; prepend the JS-side latency
     // (L0+L1+L2 dossier build) so both halves of the timing are visible.
     if (response.verdict.debug) {
       response.verdict.debug = `js=${jsMs.toFixed(1)}ms · ${response.verdict.debug}`;
+      // Detection oracle for UI-automation — DEBUG only. In release we never
+      // mark the DOM, so a hostile page can't read whether it was flagged.
+      document.documentElement.dataset["impostor"] = response.verdict.action;
     }
     renderVerdict(response.verdict);
     await browser.runtime.sendMessage({

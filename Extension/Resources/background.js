@@ -1,7 +1,1 @@
-(() => {
-  // src/background.ts
-  browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-    browser.runtime.sendNativeMessage("application.id", message).then(sendResponse).catch((err) => sendResponse({ error: String(err) }));
-    return true;
-  });
-})();
+(()=>{browser.runtime.onMessage.addListener((n,r,e)=>{return browser.runtime.sendNativeMessage("application.id",n).then(e).catch((t)=>e({error:String(t)})),!0});})();
