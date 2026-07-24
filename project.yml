@@ -37,11 +37,14 @@ targets:
       path: App/Info.plist
       properties:
         CFBundleDisplayName: Impostor
-        UILaunchScreen: {}
+        UILaunchScreen:
+          UIColorName: LaunchBackground
         ITSAppUsesNonExemptEncryption: false
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.impostor
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
 
   ImpostorExtension:
     type: app-extension
