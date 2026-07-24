@@ -63,18 +63,8 @@ struct ScoreEngine {
             if w > 0 { contributing.append((signal.id, w, signal.brand)) }
         }
 
-        if let l3 {
-            if !l3.urgencyMarkers.isEmpty {
-                score += 10
-                contributing.append(("l3.urgency", 10, nil))
-            }
-            if !l3.genericScamPatterns.isEmpty {
-                score += 10
-                contributing.append(("l3.scam-patterns", 10, nil))
-            }
-            if identityMismatch, !l3.claimedBrand.isEmpty {
-                contributing.append(("l3.identity-mismatch", 0, l3.claimedBrand))
-            }
+        if let l3, identityMismatch, !l3.claimedBrand.isEmpty {
+            contributing.append(("l3.identity-mismatch", 0, l3.claimedBrand))
         }
 
         if identityMismatch {

@@ -67,28 +67,41 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         let signalMismatch = ScoreEngine.signalIdentityMismatch(dossier)
         var verdict = engine.evaluate(dossier, identityMismatch: signalMismatch)
 
+        // Bring-up diagnostic (removed in M6): surfaces L3 state on-screen
+        // because os_log .info doesn't reach idevicesyslog.
+        var l3Debug = "l3=off(score<\(ScoreEngine.l3WakeThreshold))"
+
         // L3 gate: only above the wake threshold, only when the model exists.
-        if verdict.score >= ScoreEngine.l3WakeThreshold,
-           let extraction = await L3Extractor.extract(from: dossier) {
-            let l3Mismatch = extraction.confidence >= 0.6
-                && BrandRegistry.shared.identityMismatch(
-                    claimedBrand: extraction.claimedBrand,
-                    host: dossier.host
+        if verdict.score >= ScoreEngine.l3WakeThreshold {
+            let t0 = Date()
+            if let extraction = await L3Extractor.extract(from: dossier) {
+                let ms = Int(Date().timeIntervalSince(t0) * 1000)
+                let l3Mismatch = extraction.confidence >= 0.6
+                    && BrandRegistry.shared.identityMismatch(
+                        claimedBrand: extraction.claimedBrand,
+                        host: dossier.host
+                    )
+                verdict = engine.evaluate(
+                    dossier,
+                    identityMismatch: signalMismatch || l3Mismatch,
+                    l3: extraction
                 )
-            verdict = engine.evaluate(
-                dossier,
-                identityMismatch: signalMismatch || l3Mismatch,
-                l3: extraction
-            )
+                let brand = extraction.claimedBrand.isEmpty ? "∅" : extraction.claimedBrand
+                l3Debug = "l3=OK \(ms)ms in=\(dossier.title.count)/\(dossier.textExcerpt.count)c brand=\(brand) conf=\(String(format: "%.2f", extraction.confidence)) intent=\(extraction.pageIntent) mismatch=\(l3Mismatch)"
+            } else {
+                let why = L3Extractor.lastFailure ?? "modèle indisponible (Apple Intelligence off ?)"
+                l3Debug = "l3=failed: \(why)"
+            }
         }
 
-        log.info("verdict: action=\(verdict.action.rawValue, privacy: .public) score=\(verdict.score)")
+        log.info("verdict: action=\(verdict.action.rawValue, privacy: .public) score=\(verdict.score) \(l3Debug, privacy: .public)")
 
         guard let verdictData = try? JSONEncoder().encode(verdict),
-              let verdictDict = try? JSONSerialization.jsonObject(with: verdictData) as? [String: Any]
+              var verdictDict = try? JSONSerialization.jsonObject(with: verdictData) as? [String: Any]
         else {
             return ["error": "verdict encoding failed"]
         }
+        verdictDict["debug"] = "score=\(verdict.score) · \(l3Debug)"
         return ["type": "verdict", "verdict": verdictDict]
     }
 }

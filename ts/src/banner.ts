@@ -23,6 +23,18 @@ function removeHost(): void {
 const FALLBACK_REASON =
   "Cette page présente plusieurs caractéristiques de page de phishing. Vérifiez l'adresse avant de saisir quoi que ce soit.";
 
+// Bring-up only (removed in M6): shows the L3 state so we can read it off the
+// device screen while os_log .info isn't reachable via idevicesyslog.
+function debugLine(text: string): HTMLElement {
+  const el = document.createElement("div");
+  el.setAttribute(
+    "style",
+    "margin-top:16px;padding-top:12px;border-top:1px solid #333;font:12px ui-monospace,monospace;color:#7a7a7e;word-break:break-word",
+  );
+  el.textContent = text;
+  return el;
+}
+
 export function showBanner(verdict: Verdict): void {
   const shadow = ensureHost();
   if (!shadow) return;
@@ -51,6 +63,14 @@ export function showBanner(verdict: Verdict): void {
   close.addEventListener("click", removeHost);
 
   bar.append(text, close);
+  if (verdict.debug) {
+    const dbg = debugLine(verdict.debug);
+    dbg.style.marginTop = "6px";
+    dbg.style.borderTop = "0";
+    dbg.style.color = "#f0d0b0";
+    bar.style.flexWrap = "wrap";
+    bar.append(dbg);
+  }
   shadow.append(bar);
 }
 
@@ -68,32 +88,35 @@ export function showInterstitial(verdict: Verdict): void {
     "style",
     [
       "position:fixed", "inset:0", "z-index:2147483647",
-      "display:flex", "align-items:center", "justify-content:center",
-      "padding:24px", "box-sizing:border-box",
-      "background:rgba(20,0,0,.92)", "backdrop-filter:blur(4px)",
-      "font:16px -apple-system,system-ui,sans-serif", "color:#fff",
+      "display:flex", "align-items:flex-start", "justify-content:center",
+      "padding:12vh 20px 20px", "box-sizing:border-box",
+      "background:rgba(20,0,0,.94)", "backdrop-filter:blur(6px)",
+      "font:17px -apple-system,system-ui,sans-serif", "color:#fff",
     ].join(";"),
   );
 
   const card = document.createElement("div");
   card.setAttribute(
     "style",
-    "max-width:460px;background:#1c1c1e;border:1px solid #5a1a1a;border-radius:16px;padding:24px;box-shadow:0 12px 40px rgba(0,0,0,.5)",
+    "width:100%;max-width:560px;background:#1c1c1e;border:1px solid #5a1a1a;border-radius:22px;padding:28px 26px;box-shadow:0 16px 50px rgba(0,0,0,.55)",
   );
 
   const title = document.createElement("h1");
-  title.setAttribute("style", "margin:0 0 12px;font-size:20px;display:flex;gap:8px;align-items:center");
+  title.setAttribute(
+    "style",
+    "margin:0 0 16px;font-size:26px;font-weight:700;line-height:1.2;display:flex;gap:10px;align-items:center",
+  );
   title.textContent = "⚠️ Attention — page suspecte";
 
   const body = document.createElement("p");
-  body.setAttribute("style", "margin:0 0 20px;line-height:1.45;color:#e8e8ea");
+  body.setAttribute("style", "margin:0 0 26px;font-size:19px;line-height:1.5;color:#e8e8ea");
   body.textContent = verdict.reason ?? FALLBACK_REASON;
 
   const leave = document.createElement("button");
   leave.textContent = "Quitter cette page";
   leave.setAttribute(
     "style",
-    "width:100%;margin-bottom:10px;padding:12px;border:0;border-radius:10px;background:#ff453a;color:#fff;font-weight:600;font-size:16px",
+    "width:100%;margin-bottom:12px;padding:17px;border:0;border-radius:14px;background:#ff453a;color:#fff;font-weight:600;font-size:19px",
   );
   leave.addEventListener("click", () => {
     // Best-effort: navigating away is safer than closing. history.back if we
@@ -106,11 +129,12 @@ export function showInterstitial(verdict: Verdict): void {
   proceed.textContent = "Continuer quand même";
   proceed.setAttribute(
     "style",
-    "width:100%;padding:12px;border:0;border-radius:10px;background:transparent;color:#9a9a9e;font-size:15px;text-decoration:underline",
+    "width:100%;padding:15px;border:0;border-radius:14px;background:transparent;color:#9a9a9e;font-size:17px;text-decoration:underline",
   );
   proceed.addEventListener("click", removeHost);
 
   card.append(title, body, leave, proceed);
+  if (verdict.debug) card.append(debugLine(verdict.debug));
   overlay.append(card);
   shadow.append(overlay);
 }

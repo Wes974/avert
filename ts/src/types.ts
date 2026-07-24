@@ -39,6 +39,9 @@ export interface Verdict {
   reason: string | null;
   /** Echoed back by the native side so M0 can assert the round trip. */
   echoHost: string | null;
+  /** Diagnostic string (L3 state, score breakdown). Shown small in the UI
+   *  during bring-up; removed in M6. */
+  debug?: string | null;
 }
 
 // Messages between content script and background.
