@@ -1,0 +1,25 @@
+Avert is a Safari extension that warns you when a page is pretending to be someone else.
+
+It uses no blocklist. It knows nothing about a site's reputation. It looks at the one thing that matters the moment you are about to type a password: does this page claim an identity — a bank, a service, a brand — that doesn't match the domain hosting it?
+
+SILENT BY DEFAULT
+On a normal page, Avert shows nothing. No badge, no score, no "this site is safe". The analysis doesn't even start: it waits for a page to ask for a password, a card number, a one-time code or a recovery phrase. A warning means something because it is rare.
+
+100% ON YOUR DEVICE
+No address, no page content, no data ever leaves your iPhone — not even to check a brand. No network, no server, no account, no telemetry, no ads. The identity analysis uses Apple Intelligence's on-device language model.
+
+HOW IT WORKS
+1. A page asks for a secret. That is the only trigger.
+2. The address is examined: deceptive characters, a brand grafted onto a foreign domain, unusual structure.
+3. The page is examined: hidden field, form posting elsewhere, logo borrowed from a known brand.
+4. The identity the page claims is extracted, then compared to the domain. That comparison decides — not the model's hunch.
+
+A single clue never raises a strong warning: several signals have to converge. And you can always continue — Avert explains and slows you down, it does not block.
+
+WHAT AVERT DOES NOT DO
+A security tool that promises everything is a tool that will lie to you. The app devotes a whole screen to its limits, stated plainly: brands outside its registry can't be verified, an attacker who studies it can work around it, it can be wrong, it sees neither the certificate nor the domain's age, and it only sees Safari. The absence of a warning guarantees nothing. You remain the last line of defence.
+
+SETUP
+Avert lives inside Safari: after installing, enable the extension in Settings → Apps → Safari → Extensions, and allow it on all websites. Without that permission it can see nothing.
+
+Free, no account, no in-app purchases.

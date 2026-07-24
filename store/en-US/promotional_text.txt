@@ -1,0 +1,1 @@
+No blocklist, no network, no account: Avert compares the identity a page claims against the domain hosting it, entirely on your device — and stays quiet when nothing is wrong.

@@ -1,0 +1,37 @@
+HOW TO SEE THE APP DO ANYTHING (important — it is silent by design)
+
+Avert is a Safari web extension. After installing the app, the extension has to
+be enabled by hand, otherwise nothing happens at all:
+
+  Settings → Apps → Safari → Extensions → Avert → enable
+  → Permissions → All Websites → Allow
+
+The container app itself is only documentation: what the extension does, what it
+deliberately cannot do, and its privacy stance.
+
+WHEN A WARNING APPEARS
+
+Nothing is shown on ordinary pages. Analysis starts only when a page contains a
+sensitive input (password, payment card, one-time code, recovery phrase), and a
+warning requires several independent signals to converge — a single clue never
+raises one. So a legitimate login page (e.g. a real bank) correctly shows
+nothing: that is the intended behaviour, not a failure.
+
+To see the UI, open a page that claims a brand it does not own on a domain that
+does not belong to that brand — for example a copy of a bank login page served
+from an unrelated host. The warning always offers a way to continue.
+
+PRIVACY
+
+No data collection of any kind. No network requests are made by the app or the
+extension — there is no server, no account, no analytics, no ads, no third-party
+SDK. The page analysis runs entirely on device; the identity-extraction step uses
+Apple's on-device language model (FoundationModels) where Apple Intelligence is
+available, and degrades to local heuristics elsewhere. Only the page hostname is
+passed from the extension to the native code — never the full URL, since the
+path or query of a sensitive page can itself contain secrets.
+
+AGE RATING / CONTENT
+
+No user-generated content, no accounts, no in-app purchases, no external links
+except a privacy policy.

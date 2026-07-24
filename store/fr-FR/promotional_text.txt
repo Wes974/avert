@@ -1,0 +1,1 @@
+Pas de liste noire, pas de réseau, pas de compte : Avert compare l'identité que la page revendique au domaine qui l'héberge, sur votre appareil — et reste muet quand tout va bien.

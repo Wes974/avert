@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  # The web half: typecheck, unit tests, registry sanity, and the network guard.
+  # Runs on Linux because none of it needs a Mac — keep the fast feedback fast.
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Registry lint
+        run: bun run scripts/lint-registry.ts
+
+      - name: Install (ts/)
+        working-directory: ts
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck
+        working-directory: ts
+        run: bunx tsc --noEmit
+
+      - name: Unit tests
+        working-directory: ts
+        run: bun test
+
+      # Bundle here rather than trusting the committed artifacts, then check the
+      # freshly built output: a stale committed bundle must not be able to hide a
+      # network call that the current sources would introduce.
+      - name: Bundle
+        working-directory: ts
+        run: |
+          for entry in content background; do
+            bun build "src/$entry.ts" --format=iife --target=browser --minify \
+              --outfile="../Extension/Resources/$entry.js"
+          done
+
+      - name: Network guard
+        run: ./scripts/check-no-network.sh
+
+      - name: Committed bundles are up to date
+        run: |
+          if ! git diff --quiet -- Extension/Resources; then
+            echo "Les bundles committés ne correspondent pas aux sources — relancer ./scripts/build-js.sh" >&2
+            git diff --stat -- Extension/Resources
+            exit 1
+          fi
+
+  # The native half needs an Xcode with the iOS 26 SDK (FoundationModels).
+  # Enabled by setting the repository variable ENABLE_MACOS_CI to "true" once a
+  # runner image with that Xcode is available; until then the signed builds and
+  # the Swift tests run in Xcode Cloud, and this job stays out of the way instead
+  # of painting CI red for an infrastructure reason.
+  native:
+    if: ${{ vars.ENABLE_MACOS_CI == 'true' }}
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - name: XcodeGen
+        run: |
+          brew install xcodegen
+          xcodegen generate
+      - name: Build & test
+        run: |
+          xcodebuild test \
+            -project Avert.xcodeproj -scheme Avert \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+            -derivedDataPath "$RUNNER_TEMP/dd" \
+            | xcbeautify

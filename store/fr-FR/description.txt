@@ -1,0 +1,25 @@
+Avert est une extension Safari qui vous prévient quand une page se fait passer pour quelqu'un d'autre.
+
+Il ne consulte aucune liste noire. Il ne connaît pas la réputation des sites. Il regarde une seule chose, celle qui compte au moment où vous allez taper un mot de passe : cette page revendique-t-elle une identité — une banque, un service, une marque — qui ne correspond pas au domaine qui l'héberge ?
+
+SILENCIEUX PAR DÉFAUT
+Sur une page normale, Avert n'affiche rien. Pas de badge, pas de score, pas de « site sûr ». L'analyse ne démarre même pas : elle attend qu'une page demande un mot de passe, un numéro de carte, un code à usage unique ou une phrase de récupération. Une alerte veut dire quelque chose parce qu'elle est rare.
+
+100 % SUR VOTRE APPAREIL
+Aucune adresse, aucun contenu de page, aucune donnée ne quitte votre iPhone — jamais, même pour vérifier une marque. Aucun réseau, aucun serveur, aucun compte, aucune télémétrie, aucune publicité. L'analyse d'identité utilise le modèle de langage embarqué d'Apple Intelligence, qui tourne localement.
+
+COMMENT ÇA MARCHE
+1. Une page demande un secret. C'est le seul déclencheur.
+2. L'adresse est examinée : caractères trompeurs, marque greffée sur un domaine étranger, structure inhabituelle.
+3. La page est examinée : champ caché, formulaire qui envoie ailleurs, logo emprunté à une marque connue.
+4. L'identité revendiquée par la page est extraite, puis comparée au domaine. C'est cette comparaison qui décide, pas une intuition du modèle.
+
+Jamais d'alerte forte sur un seul indice : plusieurs signaux doivent converger. Et vous pouvez toujours continuer — Avert explique et ralentit, il ne bloque pas.
+
+CE QU'AVERT NE FAIT PAS
+Un outil de sécurité qui promet tout est un outil qui mentira. L'app contient un écran entier consacré à ses limites, écrites franchement : les marques hors de son registre ne sont pas vérifiables, un attaquant qui l'étudie peut le contourner, il peut se tromper, il ne voit ni le certificat ni l'âge du domaine, et il ne voit que Safari. Une absence d'alerte ne garantit rien. Vous restez la dernière ligne de défense.
+
+ACTIVATION
+Avert vit dans Safari : après l'installation, activez l'extension dans Réglages → Apps → Safari → Extensions, et autorisez-la sur tous les sites. Sans cette autorisation, elle ne peut rien voir.
+
+Gratuit, sans compte, sans achat intégré.
