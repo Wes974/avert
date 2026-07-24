@@ -1,0 +1,614 @@
+{
+  "sourceLanguage": "fr",
+  "strings": {
+    "Accueil": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home"
+          }
+        }
+      }
+    },
+    "Activation": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setup"
+          }
+        }
+      }
+    },
+    "Activer **Avert**": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on **Avert**"
+          }
+        }
+      }
+    },
+    "Aucune donnée de page ne quitte l'appareil": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No page data leaves the device"
+          }
+        }
+      }
+    },
+    "Aucune donnée de page ne quitte votre appareil": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No page data leaves your device"
+          }
+        }
+      }
+    },
+    "Aucune liste noire. Aucun réseau. Une comparaison.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No blocklist. No network. One comparison."
+          }
+        }
+      }
+    },
+    "Aucune requête réseau, même pour vérifier une marque": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No network request, not even to check a brand"
+          }
+        }
+      }
+    },
+    "Aucune télémétrie, aucun compte": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No telemetry, no account"
+          }
+        }
+      }
+    },
+    "Aucune télémétrie, aucun compte, aucune publicité": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No telemetry, no account, no ads"
+          }
+        }
+      }
+    },
+    "Autoriser sur tous les sites (« Toujours autoriser »)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow on every website (“Always Allow”)"
+          }
+        }
+      }
+    },
+    "Avert analyse les pages localement. Aucune adresse, aucun contenu n'est envoyé où que ce soit.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avert analyses pages locally. No address, no content is sent anywhere."
+          }
+        }
+      }
+    },
+    "Avert explique et ralentit. Il ne bloque pas.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avert explains and slows you down. It does not block."
+          }
+        }
+      }
+    },
+    "Avert ne peut pas savoir si vous avez fait ces trois étapes : rien ne remonte de Safari vers l'app.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avert can't tell whether you've done these three steps: nothing travels back from Safari to the app."
+          }
+        }
+      }
+    },
+    "Avert réduit un risque, il ne l'élimine pas. Vous restez la dernière ligne de défense.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avert reduces a risk, it does not remove it. You remain the last line of defence."
+          }
+        }
+      }
+    },
+    "Avert vit dans Safari. Trois réglages à faire une fois :": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avert lives inside Safari. Three settings, once:"
+          }
+        }
+      }
+    },
+    "Caractères trompeurs, marque greffée sur un domaine étranger, structure inhabituelle.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deceptive characters, a brand grafted onto a foreign domain, unusual structure."
+          }
+        }
+      }
+    },
+    "Ce que je ne vois pas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What I can't see"
+          }
+        }
+      }
+    },
+    "Certaines techniques (formulaires reconstruits en image, protections avancées) échappent à mon analyse. Une absence d'alerte ne garantit rien.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some techniques (forms rebuilt as images, advanced protections) escape my analysis. The absence of a warning guarantees nothing."
+          }
+        }
+      }
+    },
+    "Certains prestataires d'authentification légitimes ressemblent à une incohérence d'identité. Une alerte reste toujours contournable — c'est vous qui décidez.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some legitimate authentication providers look exactly like an identity mismatch. A warning can always be dismissed — you decide."
+          }
+        }
+      }
+    },
+    "Cette page ment-elle sur son identité ?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Is this page lying about who it is?"
+          }
+        }
+      }
+    },
+    "Champ caché, formulaire qui poste ailleurs, logo emprunté à une marque connue.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hidden field, form posting elsewhere, logo borrowed from a known brand."
+          }
+        }
+      }
+    },
+    "Comment ça marche": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How it works"
+          }
+        }
+      }
+    },
+    "Confidentialité": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy"
+          }
+        }
+      }
+    },
+    "Jamais d'alerte sur un seul indice": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Never a warning on a single clue"
+          }
+        }
+      }
+    },
+    "Je ne connais qu'une liste de marques (banques, services). Face à une marque absente, je ne peux comparer aucune identité — seulement repérer des schémas d'arnaque génériques.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I only know a list of brands (banks, services). Faced with a brand that isn't on it, I have no identity to compare — only generic scam patterns to spot."
+          }
+        }
+      }
+    },
+    "Je ne vois pas tout d'une page": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I don't see everything on a page"
+          }
+        }
+      }
+    },
+    "Je ne vois que Safari": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I only see Safari"
+          }
+        }
+      }
+    },
+    "Je ne vérifie ni le certificat ni l'âge du domaine": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I check neither the certificate nor the domain's age"
+          }
+        }
+      }
+    },
+    "Je peux me tromper (faux positif)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I can be wrong (false positive)"
+          }
+        }
+      }
+    },
+    "L'adresse est examinée": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The address is examined"
+          }
+        }
+      }
+    },
+    "L'identité revendiquée est extraite": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The claimed identity is extracted"
+          }
+        }
+      }
+    },
+    "La page est examinée": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The page is examined"
+          }
+        }
+      }
+    },
+    "Le modèle sur l'appareil dit quelle marque la page prétend être. Avert compare — et c'est cette comparaison qui décide.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The on-device model says which brand the page claims to be. Avert compares — and that comparison is what decides."
+          }
+        }
+      }
+    },
+    "Le phishing s'adapte plus vite qu'une défense. Je croise plusieurs indices pour rendre l'évasion coûteuse, pas impossible.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phishing adapts faster than any defence. I cross several clues to make evasion expensive, not impossible."
+          }
+        }
+      }
+    },
+    "Le pire échec possible pour un outil comme Avert n'est pas de rater un site : c'est de vous faire croire que vous êtes couvert. Ce que je ne sais pas faire est écrit ici, pas caché dans une page d'aide.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The worst possible failure for a tool like Avert isn't missing a site: it's making you believe you're covered. What it can't do is written here, not buried in a help page."
+          }
+        }
+      }
+    },
+    "Limites": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limits"
+          }
+        }
+      }
+    },
+    "Mot de passe, carte, code, phrase de récupération : c'est le seul moment où l'analyse démarre.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password, card, code, recovery phrase: that is the only moment analysis starts."
+          }
+        }
+      }
+    },
+    "Ouvrir les Réglages": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Settings"
+          }
+        }
+      }
+    },
+    "Pas de badge, pas de score, pas de « page sûre ». Une alerte veut dire quelque chose parce qu'elle est rare.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No badge, no score, no “this page is safe”. A warning means something because it is rare."
+          }
+        }
+      }
+    },
+    "Plusieurs signaux doivent converger, et une alerte forte exige en plus une incohérence d'identité confirmée.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Several signals have to converge, and a strong warning also requires a confirmed identity mismatch."
+          }
+        }
+      }
+    },
+    "Politique de confidentialité": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy policy"
+          }
+        }
+      }
+    },
+    "Pourquoi cet écran existe": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Why this screen exists"
+          }
+        }
+      }
+    },
+    "Rien ne s'affiche sur une page normale": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing appears on an ordinary page"
+          }
+        }
+      }
+    },
+    "Réglages": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        }
+      }
+    },
+    "Réglages → Apps → Safari → Extensions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings → Apps → Safari → Extensions"
+          }
+        }
+      }
+    },
+    "Safari ne me donne pas accès à ces informations sans réseau. Je m'appuie sur l'identité revendiquée et la structure de la page, pas sur la réputation du domaine.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari gives me no access to that without the network. I rely on the claimed identity and the page's structure, not on the domain's reputation."
+          }
+        }
+      }
+    },
+    "Silence par défaut": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Silent by default"
+          }
+        }
+      }
+    },
+    "Un attaquant qui m'étudie peut me contourner": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An attacker who studies me can work around me"
+          }
+        }
+      }
+    },
+    "Un lien ouvert dans une autre app, un SMS, un mail, un QR code : hors de ma portée jusqu'à ce que la page s'ouvre dans Safari.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A link opened in another app, a text, an email, a QR code: out of my reach until the page opens in Safari."
+          }
+        }
+      }
+    },
+    "Une marque hors de mon registre n'est pas vérifiable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A brand outside my registry can't be verified"
+          }
+        }
+      }
+    },
+    "Une page demande un secret": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A page asks for a secret"
+          }
+        }
+      }
+    },
+    "Version": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        }
+      }
+    },
+    "Vous pouvez toujours continuer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can always continue"
+          }
+        }
+      }
+    },
+    "verdict.reason.brand-mismatch": {
+      "comment": "Alert text. %1$@ claimed brand, %2$@ page host, %3$ld number of converging signals.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This page evokes “%1$@” but is hosted on %2$@, which does not belong to that brand (%3$ld converging signals). Do not enter your credentials."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette page évoque « %1$@ » mais est hébergée sur %2$@, qui n'appartient pas à cette marque (%3$ld signaux convergents). Ne saisissez pas vos identifiants."
+          }
+        }
+      }
+    },
+    "verdict.reason.generic": {
+      "comment": "Alert text with no brand implicated. %1$ld number of signals, %2$@ page host.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This sign-in page shows %1$ld characteristics of a phishing page. Check the address %2$@ before typing anything."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette page de connexion présente %1$ld caractéristiques de page de phishing. Vérifiez l'adresse %2$@ avant toute saisie."
+          }
+        }
+      }
+    },
+    "À propos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        }
+      }
+    },
+    "Étape %1$@ : %2$@": {
+      "comment": "Même chaîne que « Étape %lld : %@ » — l'extracteur et le compilateur ne s'accordent pas sur le placeholder de l'Int, les deux orthographes sont fournies.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Step %1$@: %2$@"
+          }
+        }
+      }
+    },
+    "Étape %@ : %@": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Étape %1$@ : %2$@"
+          }
+        }
+      }
+    },
+    "Étape %lld : %@": {
+      "comment": "VoiceOver label for a numbered setup step. %1$lld step number, %2$@ step text.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Step %1$lld: %2$@"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

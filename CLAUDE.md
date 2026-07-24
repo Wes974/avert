@@ -8,7 +8,8 @@ Principe : détecter **l'incohérence d'identité** (« la page ment-elle sur so
 - **`ts/`** — content script (TypeScript, bundlé par bun, zéro dépendance runtime).
   - `l0.ts` déclencheur point-de-capture · `l1.ts` heuristiques URL · `l2.ts` DOM · `banner.ts` UI (bandeau + interstitiel shadow-DOM) · `content.ts` orchestration · `background.ts` relais native.
   - **Source unique** du registre : `registry/brands.json` → `ts/src/generated/brands.ts` (généré au build).
-- **`Shared/`** — compilé dans l'app ET l'extension : `PageDossier` (miroir de `ts/src/types.ts`), `ScoreEngine`, `BrandRegistry`, `L3Extractor`.
+- **`Shared/`** — compilé dans l'app ET l'extension : `PageDossier` (miroir de `ts/src/types.ts`), `ScoreEngine`, `BrandRegistry`, `L3Extractor`, `Localizable.xcstrings`.
+- **`frames.ts` + `all_frames: true`** — le content script tourne dans chaque frame. Une sous-frame ne fait que L0 et **rapporte** ses points de capture à la frame du haut *via le background* (`tabs.sendMessage`, frameId 0) : jamais `postMessage`, qu'une page pourrait écouter pour détecter Avert. Seule la frame du haut décide et affiche.
 - **`Extension/Swift/SafariWebExtensionHandler.swift`** — reçoit le dossier, appelle moteur + L3, renvoie le verdict. **Sur iOS tout le moteur vit dans le process de l'extension**, pas l'app.
 - **`App/`** — app conteneur SwiftUI : accueil, écran des limites, réglages.
 
@@ -23,6 +24,14 @@ xcodebuild -project Avert.xcodeproj -scheme Avert \
   -destination 'generic/platform=iOS Simulator' \
   -derivedDataPath /tmp/claude-501/impostor-dd build
 ```
+
+## Localisation
+
+- Langue source **fr** (`options.developmentLanguage`), EN traduit. Un seul catalogue `Shared/Localizable.xcstrings` compilé dans les **deux** bundles (l'app pour son UI, l'extension parce que le texte du verdict est produit par `ScoreEngine`).
+- **Piège** : une chaîne stockée dans un tableau de données doit être `LocalizedStringKey`, pas `String`, sinon elle **sort silencieusement du catalogue** (`xcodebuild -exportLocalizations` n'extrayait que 14 chaînes sur ~50).
+- `xcodebuild -exportLocalizations` **réécrit le .xcstrings** (normalisation + marqueurs `stale` + entrée `"%@"`), à nettoyer après usage.
+- Vérification qui compte : `xcrun simctl launch <SIM> com.ouweis.avert -AppleLanguages "(en)"` puis capture d'écran. Le contenu du `.strings` compilé ne prouve pas que la clé générée à l'exécution correspond.
+- Côté extension : `_locales/{fr,en}/messages.json` + `default_locale`, lus par `browser.i18n` (`ts/src/i18n.ts`, avec repli FR si l'API manque). `_locales` est ajouté en **folder reference** dans `project.yml` (sinon XcodeGen aplatit l'arborescence et les deux `messages.json` collisionnent).
 
 Ajout/suppression de fichier source Swift → **relancer `xcodegen generate`** (erreur « cannot find X in scope » sur un fichier neuf = membership de target, pas le code).
 

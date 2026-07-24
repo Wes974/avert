@@ -1,4 +1,5 @@
 import type { Verdict } from "./types";
+import { t } from "./i18n";
 
 // Alert UI (PLAN.md §6): discreet banner for the 40–70 band, full-screen
 // interstitial above 70 with confirmed identity mismatch. Both live in a
@@ -11,7 +12,7 @@ import type { Verdict } from "./types";
 // reduced-motion-aware entrances, and proportional friction on the
 // interstitial's "continue anyway" so it can't be dismissed by a reflex tap.
 
-const HOST_ID = "impostor-ui-host";
+const HOST_ID = "avert-ui-host";
 
 const STYLE = `
   :host { all: initial; }
@@ -98,8 +99,9 @@ const STYLE = `
 const ALERT_GLYPH =
   '<svg class="glyph" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.2 1.8 20.5h20.4L12 3.2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9.5v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.15" fill="currentColor"/></svg>';
 
-const FALLBACK_REASON =
-  "Cette page présente plusieurs caractéristiques de page de phishing. Vérifiez l'adresse avant de saisir quoi que ce soit.";
+// Used only if the native side sent no reason — a warning with no explanation
+// would break the rule that the user must always be able to judge for themselves.
+const fallbackReason = () => t("fallbackReason");
 
 let lastFocused: Element | null = null;
 
@@ -161,13 +163,13 @@ export function showBanner(verdict: Verdict): void {
 
   const msg = document.createElement("span");
   msg.className = "msg";
-  msg.textContent = verdict.reason ?? FALLBACK_REASON;
+  msg.textContent = verdict.reason ?? fallbackReason();
 
   const dismiss = document.createElement("button");
   dismiss.className = "imp-btn-dismiss";
   dismiss.type = "button";
-  dismiss.textContent = "Ignorer";
-  dismiss.setAttribute("aria-label", "Ignorer l’avertissement");
+  dismiss.textContent = t("dismiss");
+  dismiss.setAttribute("aria-label", t("dismissAria"));
   dismiss.addEventListener("click", removeHost);
 
   bar.append(glyph, msg, dismiss);
@@ -196,34 +198,34 @@ export function showInterstitial(verdict: Verdict): void {
 
   const title = document.createElement("h1");
   title.id = "imp-title";
-  title.innerHTML = `${ALERT_GLYPH}<span>Attention — page suspecte</span>`;
+  title.innerHTML = `${ALERT_GLYPH}<span>${t("interstitialTitle")}</span>`;
 
   const msg = document.createElement("p");
   msg.className = "msg";
   msg.id = "imp-msg";
-  msg.textContent = verdict.reason ?? FALLBACK_REASON;
+  msg.textContent = verdict.reason ?? fallbackReason();
 
   const leave = document.createElement("button");
   leave.className = "imp-btn imp-leave";
   leave.type = "button";
-  leave.textContent = "Quitter cette page";
+  leave.textContent = t("leavePage");
   leave.addEventListener("click", leavePage);
 
   const proceed = document.createElement("button");
   proceed.className = "imp-btn imp-proceed";
   proceed.type = "button";
-  proceed.setAttribute("aria-label", "Continuer quand même — maintenir appuyé");
+  proceed.setAttribute("aria-label", t("proceedAria"));
   const fill = document.createElement("span");
   fill.className = "fill";
   const lbl = document.createElement("span");
   lbl.className = "lbl";
-  lbl.textContent = "Continuer quand même";
+  lbl.textContent = t("proceed");
   proceed.append(fill, lbl);
   attachLongPress(proceed, fill, lbl, removeHost);
 
   const hint = document.createElement("p");
   hint.className = "imp-hint";
-  hint.textContent = "Maintenez appuyé pour continuer";
+  hint.textContent = t("longPressHint");
 
   card.append(title, msg, leave, proceed, hint);
   if (verdict.debug) card.append(debugEl(verdict.debug));
@@ -255,7 +257,7 @@ function attachLongPress(
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (reduce) {
     btn.addEventListener("click", () => {
-      if (window.confirm("Continuer vers cette page malgré l’avertissement ?")) done();
+      if (window.confirm(t("confirmProceed"))) done();
     });
     return;
   }
@@ -281,7 +283,7 @@ function attachLongPress(
   btn.addEventListener("keydown", (e) => {
     if ((e as KeyboardEvent).key === "Enter" || (e as KeyboardEvent).key === " ") {
       e.preventDefault();
-      if (window.confirm("Continuer vers cette page malgré l’avertissement ?")) done();
+      if (window.confirm(t("confirmProceed"))) done();
     }
   });
   lbl.setAttribute("aria-hidden", "false");

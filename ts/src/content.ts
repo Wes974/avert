@@ -158,7 +158,7 @@ async function evaluate(): Promise<void> {
     response.verdict.debug = `js=${jsMs.toFixed(1)}ms · pass=${evaluations} · ${response.verdict.debug}`;
     // Detection oracle for UI-automation — DEBUG only. In release we never
     // mark the DOM, so a hostile page can't read whether it was flagged.
-    document.documentElement.dataset["impostor"] = response.verdict.action;
+    document.documentElement.dataset["avert"] = response.verdict.action;
   }
 
   // Replace rather than stack: a second pass may upgrade a banner to an

@@ -17,7 +17,7 @@ struct ContentView: View {
 private struct HomeView: View {
     /// The four steps of the cascade, in the words of what the user gets — not
     /// in internal L0/L1/L2/L3 jargon.
-    private static let cascade: [(icon: String, title: String, detail: String)] = [
+    private static let cascade: [(icon: String, title: LocalizedStringKey, detail: LocalizedStringKey)] = [
         ("key", "Une page demande un secret",
          "Mot de passe, carte, code, phrase de récupération : c'est le seul moment où l'analyse démarre."),
         ("link", "L'adresse est examinée",
@@ -110,7 +110,7 @@ private struct HomeView: View {
 
 private struct StepRow: View {
     let number: Int
-    let text: String
+    let text: LocalizedStringKey
 
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 12) {
@@ -120,13 +120,15 @@ private struct StepRow: View {
                 .frame(width: 22, height: 22)
                 .background(Circle().fill(Color.avertIndigo.opacity(0.14)))
                 .accessibilityHidden(true)
-            Text(.init(text))
+            Text(text)
                 .font(.subheadline)
                 .foregroundStyle(Color.avertInk)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Étape \(number). \(text.replacingOccurrences(of: "**", with: ""))")
+        // The number badge is decorative (hidden), so VoiceOver needs it spoken
+        // here or the steps lose their order.
+        .accessibilityLabel(Text("Étape \(number) : \(Text(text))"))
     }
 }
 

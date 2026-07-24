@@ -1,0 +1,21 @@
+{
+  "extName": {
+    "message": "Avert",
+    "description": "Extension name shown in Safari settings."
+  },
+  "extDescription": {
+    "message": "Warns when a page claims an identity that doesn't match its domain. Fully on-device.",
+    "description": "Extension description shown in Safari settings."
+  },
+  "fallbackReason": {
+    "message": "This page shows several characteristics of a phishing page. Check the address before typing anything."
+  },
+  "dismiss": { "message": "Dismiss" },
+  "dismissAria": { "message": "Dismiss the warning" },
+  "interstitialTitle": { "message": "Careful — suspicious page" },
+  "leavePage": { "message": "Leave this page" },
+  "proceed": { "message": "Continue anyway" },
+  "proceedAria": { "message": "Continue anyway — press and hold" },
+  "longPressHint": { "message": "Press and hold to continue" },
+  "confirmProceed": { "message": "Continue to this page despite the warning?" }
+}

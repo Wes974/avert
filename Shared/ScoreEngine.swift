@@ -107,15 +107,25 @@ struct ScoreEngine {
     }
 
     /// Human-readable explanation — the user must be able to judge (PLAN.md §6).
+    ///
+    /// Localised through the String Catalog with explicit keys and positional
+    /// format specifiers rather than interpolated literals: this text ships in
+    /// the *extension* bundle, and a key that silently fails to resolve would
+    /// leave the alert with no explanation at all.
     private static func reason(
         contributing: [(id: String, weight: Int, brand: String?)],
         host: String
     ) -> String {
-        let implicatedBrand = contributing.compactMap(\.brand).first
         let count = contributing.count
-        if let brand = implicatedBrand {
-            return "Cette page évoque « \(brand) » mais est hébergée sur \(host), qui n'appartient pas à cette marque (\(count) signaux convergents). Ne saisissez pas vos identifiants."
+        if let brand = contributing.compactMap(\.brand).first {
+            return String(
+                format: String(localized: "verdict.reason.brand-mismatch"),
+                brand, host, count
+            )
         }
-        return "Cette page de connexion présente \(count) caractéristiques de page de phishing. Vérifiez l'adresse \(host) avant toute saisie."
+        return String(
+            format: String(localized: "verdict.reason.generic"),
+            count, host
+        )
     }
 }

@@ -2,6 +2,9 @@ name: Avert
 options:
   bundleIdPrefix: com.ouweis
   createIntermediateGroups: true
+  # French is the source language: the app is written for FR/EU users first, and
+  # the String Catalog keys are the French sentences.
+  developmentLanguage: fr
   deploymentTarget:
     iOS: "26.0"
 
@@ -29,6 +32,8 @@ targets:
     platform: iOS
     sources:
       - App
+      # Includes Shared/Localizable.xcstrings — both targets need it: the app for
+      # its own UI, the extension because the verdict text is produced there.
       - Shared
     dependencies:
       - target: AvertExtension
@@ -54,6 +59,15 @@ targets:
       - Shared
       - path: Extension/Resources
         buildPhase: resources
+        # _locales must keep its directory structure in the bundle (WebExtension
+        # i18n reads _locales/<lang>/messages.json), so it is added below as a
+        # folder reference instead of individual files, which would flatten it.
+        excludes:
+          - "_locales"
+          - "_locales/**"
+      - path: Extension/Resources/_locales
+        buildPhase: resources
+        type: folder
       - path: registry/brands.json
         buildPhase: resources
     info:

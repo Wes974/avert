@@ -95,9 +95,17 @@ struct ScoreEngineTests {
         #expect(v.action == .interstitial)
     }
 
-    @Test("Un verdict non-silencieux porte toujours une raison")
+    @Test("Un verdict non-silencieux porte toujours une raison, résolue et située")
     func nonSilentHasReason() {
-        let v = engine.evaluate(dossier(l2: [l2("l2.cross-origin-form"), l2("l2.hidden-capture-field")]))
-        #expect(v.reason != nil && !(v.reason ?? "").isEmpty)
+        let v = engine.evaluate(
+            dossier(host: "faux-site.example", l2: [l2("l2.cross-origin-form"), l2("l2.hidden-capture-field")])
+        )
+        let reason = v.reason ?? ""
+        #expect(!reason.isEmpty)
+        // Le nom d'hôte doit apparaître : c'est ce que l'utilisateur doit vérifier.
+        // Accessoirement, cela échoue si la clé du catalogue n'est pas résolue
+        // (String(localized:) renverrait la clé brute).
+        #expect(reason.contains("faux-site.example"))
+        #expect(!reason.contains("verdict.reason"))
     }
 }

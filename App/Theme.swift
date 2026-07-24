@@ -110,10 +110,13 @@ struct AvertCard<Content: View>: View {
 /// Small-caps section label — used instead of `List`'s built-in headers so the
 /// screens stay on the Midnight ground.
 struct AvertSectionLabel: View {
-    let text: String
+    let text: LocalizedStringKey
 
     var body: some View {
-        Text(text.uppercased())
+        // Uppercased by the view, not in the catalog: the key stays the natural
+        // spelling, and locales that uppercase differently are handled by SwiftUI.
+        Text(text)
+            .textCase(.uppercase)
             .font(.caption.weight(.semibold))
             .tracking(0.8)
             .foregroundStyle(Color.avertInkSoft)
@@ -127,8 +130,12 @@ struct AvertRow: View {
     enum Tone { case indigo, gold, neutral }
 
     let icon: String
-    let title: String
-    var detail: String? = nil
+    // LocalizedStringKey, not String: these titles come from arrays of data, and
+    // a plain String would silently drop out of the String Catalog (found the
+    // hard way — `xcodebuild -exportLocalizations` extracted 14 strings out of
+    // ~50). Markdown emphasis works too.
+    let title: LocalizedStringKey
+    var detail: LocalizedStringKey? = nil
     var tone: Tone = .indigo
 
     private var glyphColor: Color {
@@ -209,8 +216,8 @@ struct AvertMark: View {
 
 /// Shared layout for the three tabs: Midnight ground + large title + cards.
 struct MidnightScreen<Content: View>: View {
-    let title: String
-    var subtitle: String? = nil
+    let title: LocalizedStringKey
+    var subtitle: LocalizedStringKey? = nil
     @ViewBuilder var content: () -> Content
 
     var body: some View {

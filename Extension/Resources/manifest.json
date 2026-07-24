@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Avert",
+  "name": "__MSG_extName__",
   "version": "0.1",
-  "description": "Alerte quand une page réclame une identité qui ne correspond pas à son domaine. 100 % on-device.",
+  "description": "__MSG_extDescription__",
+  "default_locale": "fr",
   "permissions": ["nativeMessaging"],
   "host_permissions": ["<all_urls>"],
   "background": {

@@ -85,6 +85,11 @@ declare global {
         ): void;
       };
     };
+    /** Optional: absent in unit tests, and Safari only exposes it when the
+     *  extension ships `_locales`. `i18n.ts` handles both cases. */
+    i18n?: {
+      getMessage(key: string): string;
+    };
     tabs: {
       sendMessage(
         tabId: number,

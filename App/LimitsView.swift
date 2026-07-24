@@ -7,8 +7,8 @@ struct LimitsView: View {
     private struct Limit: Identifiable {
         let id = UUID()
         let icon: String
-        let title: String
-        let detail: String
+        let title: LocalizedStringKey
+        let detail: LocalizedStringKey
     }
 
     private let limits: [Limit] = [

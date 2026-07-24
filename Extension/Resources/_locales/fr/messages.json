@@ -1,0 +1,21 @@
+{
+  "extName": {
+    "message": "Avert",
+    "description": "Nom de l'extension dans les réglages de Safari."
+  },
+  "extDescription": {
+    "message": "Alerte quand une page réclame une identité qui ne correspond pas à son domaine. 100 % on-device.",
+    "description": "Description de l'extension dans les réglages de Safari."
+  },
+  "fallbackReason": {
+    "message": "Cette page présente plusieurs caractéristiques de page de phishing. Vérifiez l'adresse avant de saisir quoi que ce soit."
+  },
+  "dismiss": { "message": "Ignorer" },
+  "dismissAria": { "message": "Ignorer l’avertissement" },
+  "interstitialTitle": { "message": "Attention — page suspecte" },
+  "leavePage": { "message": "Quitter cette page" },
+  "proceed": { "message": "Continuer quand même" },
+  "proceedAria": { "message": "Continuer quand même — maintenir appuyé" },
+  "longPressHint": { "message": "Maintenez appuyé pour continuer" },
+  "confirmProceed": { "message": "Continuer vers cette page malgré l’avertissement ?" }
+}
