@@ -49,4 +49,10 @@ Ajout/suppression de fichier source Swift → **relancer `xcodegen generate`** (
 
 ## État
 
-M0→M5 faits (voir tâches / git log). Reste : **validation L3 réelle sur iPhone** (M4, présence utilisateur requise) et **M6 durcissement** (corpus de test, calibration des seuils, batterie, repasser en Swift 6 — actuellement mode 5 à cause d'un bug du checker d'isolation Xcode 26.5 sur le pattern Task+NSExtensionContext, Keychain pour l'option historique, signalement de faux positif).
+M0→M5 faits, **M4 validé sur iPhone 17 Pro réel** (L3 extrait brand=PayPal, mismatch=true), **M6 fait à ~90 %** :
+- ✅ Corpus négatif zéro alerte forte (bug auth_delegate cross-origin corrigé), debug derrière `#if DEBUG`, latence instrumentée, LoginHistoryStore Keychain + signal historique, robustesse L3 (indices d'identité only, en-têtes en dernier recours).
+- ⏳ **Reste (nécessite l'utilisateur / son matériel)** :
+  - **Mesure batterie/thermique** sur session iPhone réelle (Instruments Energy Log) — profiling utile = latence (fait) + énergie (à mesurer).
+  - **App group** `group.com.ouweis.impostor` (entitlement + assignation via Xcode GUI une fois, cf. skill xcodegen note #8) pour que le toggle historique et la purge soient partagés app↔extension. Sans ça, le signal historique reste inactif (défaut voulu).
+  - **Swift 6** : bloqué par un bug du region-isolation checker Xcode 26.5 (capture `NSExtensionContext` dans `Task`) — reproduit avec Task/Task.detached/refacto. Rester en mode langage 5, retenter aux MAJ Xcode.
+  - Signalement de faux positif (log local exportable).
