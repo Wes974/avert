@@ -1,12 +1,5 @@
-import { beforeAll, describe, expect, test } from "bun:test";
-import { GlobalRegistrator } from "@happy-dom/global-registrator";
-
-beforeAll(() => {
-  if (typeof document === "undefined") {
-    GlobalRegistrator.register({ url: "https://test.example/" });
-  }
-});
-
+import "./setup";
+import { describe, expect, test } from "bun:test";
 import { analyzePage } from "../src/l2";
 import { BRANDS } from "../src/generated/brands";
 import type { CapturePoint } from "../src/types";

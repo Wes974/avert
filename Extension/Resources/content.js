@@ -368,15 +368,23 @@
   }
 
   // src/l2.ts
-  function brandOwning(host, brands) {
+  function brandCoversHost(brand, host) {
     const reg = registrableDomain(host);
-    return brands.find((b) => b.domains.some((d) => reg === registrableDomain(d)) || b.auth_delegates.some((d) => reg === registrableDomain(d.replace(/^\*\./, "")))) ?? null;
+    return brand.domains.some((d) => reg === registrableDomain(d)) || brand.auth_delegates.some((d) => reg === registrableDomain(d.replace(/^\*\./, "")));
+  }
+  function brandOwning(host, brands) {
+    return brands.find((b) => brandCoversHost(b, host)) ?? null;
   }
   function analyzePage(doc, pageHost, capturePoints, brands) {
     const signals = [];
+    const pageBrand = brandOwning(pageHost, brands);
     const crossOrigin = capturePoints.find((p) => p.crossOriginActionHost);
-    if (crossOrigin?.crossOriginActionHost) {
-      signals.push({ id: "l2.cross-origin-form", detail: crossOrigin.crossOriginActionHost });
+    const actionHost = crossOrigin?.crossOriginActionHost;
+    if (actionHost) {
+      const legitDelegate = pageBrand != null && brandCoversHost(pageBrand, actionHost);
+      if (!legitDelegate) {
+        signals.push({ id: "l2.cross-origin-form", detail: actionHost });
+      }
     }
     if (capturePoints.some((p) => !p.visible)) {
       signals.push({ id: "l2.hidden-capture-field" });
@@ -447,7 +455,7 @@
 
   // src/generated/brands.ts
   var BRANDS = [
-    { brand: "La Banque Postale", aliases: ["Banque Postale", "LBP"], domains: ["labanquepostale.fr"], auth_delegates: [], sector: "banking", region: ["FR"] },
+    { brand: "La Banque Postale", aliases: ["Banque Postale", "LBP"], domains: ["labanquepostale.fr"], auth_delegates: ["*.wl-fr.com"], sector: "banking", region: ["FR"] },
     { brand: "BNP Paribas", aliases: ["BNP", "Hello bank!", "Hello bank"], domains: ["bnpparibas.net", "bnpparibas.com", "hellobank.fr"], auth_delegates: [], sector: "banking", region: ["FR"] },
     { brand: "Société Générale", aliases: ["SocGen", "SG"], domains: ["societegenerale.fr", "particuliers.sg.fr", "sg.fr"], auth_delegates: [], sector: "banking", region: ["FR"] },
     { brand: "Crédit Agricole", aliases: ["CA"], domains: ["credit-agricole.fr"], auth_delegates: [], sector: "banking", region: ["FR"] },
@@ -610,15 +618,18 @@
       if (/logo|brand/i.test(img.getAttribute("class") ?? "") || /logo/i.test(alt))
         push(alt);
     }
-    let headings = 0;
-    for (const h of document.querySelectorAll("h1, h2, h3, legend")) {
-      push(h.textContent);
-      if (++headings >= 4)
-        break;
+    if (parts.length === 0) {
+      let headings = 0;
+      for (const h of document.querySelectorAll("h1, h2, legend")) {
+        push(h.textContent);
+        if (++headings >= 2)
+          break;
+      }
     }
     return [...new Set(parts)].join(" · ").slice(0, 400);
   }
   async function run() {
+    const t0 = performance.now();
     const capturePoints = detectCapturePoints(document);
     if (capturePoints.length === 0)
       return;
@@ -632,12 +643,16 @@
       l1Signals: analyzeUrl(window.location.href, BRANDS),
       l2Signals: analyzePage(document, window.location.host, capturePoints, BRANDS)
     };
+    const jsMs = performance.now() - t0;
     const response = await browser.runtime.sendMessage({
       type: "dossier",
       dossier
     });
     if ("type" in response && response.type === "verdict") {
       document.documentElement.dataset["impostor"] = response.verdict.action;
+      if (response.verdict.debug) {
+        response.verdict.debug = `js=${jsMs.toFixed(1)}ms · ${response.verdict.debug}`;
+      }
       renderVerdict(response.verdict);
       await browser.runtime.sendMessage({
         type: "ack",

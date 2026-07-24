@@ -27,11 +27,10 @@ struct SettingsView: View {
 
                 Section {
                     Button(role: .destructive) {
-                        // Purge wired in M6 alongside the Keychain store.
+                        LoginHistoryStore.shared.purge()
                     } label: {
                         Label("Effacer les domaines mémorisés", systemImage: "trash")
                     }
-                    .disabled(!rememberLoginDomains)
                 } footer: {
                     Text("Version 0.1.0")
                         .font(.footnote)

@@ -1,11 +1,5 @@
-import { beforeAll, describe, expect, test } from "bun:test";
-import { GlobalRegistrator } from "@happy-dom/global-registrator";
-
-beforeAll(() => {
-  GlobalRegistrator.register({ url: "https://test.example/" });
-});
-
-// Import after registration so the module sees a DOM.
+import "./setup";
+import { describe, expect, test } from "bun:test";
 import { classifyInput } from "../src/l0";
 
 function el(html: string): Element {

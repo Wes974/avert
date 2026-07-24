@@ -7,9 +7,12 @@ options:
 
 settings:
   base:
-    # Mode langage 5 : le checker d'isolation Swift 6 (Xcode 26.5) plante sur
-    # le pattern Task+NSExtensionContext du handler (« please file a bug »).
-    # À retenter en 6.0 lors du durcissement M6.
+    # Swift 5 language mode (pas un vieux Swift : Xcode 26.5, toolchain 6.x).
+    # Le mode 6 fait planter le region-isolation checker sur la capture de
+    # NSExtensionContext dans le Task du handler (« pattern that the checker
+    # does not understand how to check. Please file a bug ») — bug compilateur,
+    # non contournable proprement, reproduit avec Task et Task.detached.
+    # À réessayer à chaque MAJ de Xcode.
     SWIFT_VERSION: "5.0"
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"

@@ -22,13 +22,12 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         switch message?["type"] as? String {
         case "dossier":
             // Serialize to Data before crossing into the Task: [String: Any]
-            // is not Sendable, Data is.
+            // is not Sendable, Data is. The whole async leg lives in one
+            // function — inlining the await+complete in the Task closure trips
+            // a Swift 6 region-isolation checker bug (Xcode 26.5).
             let rawData = (message?["dossier"] as? [String: Any])
                 .flatMap { try? JSONSerialization.data(withJSONObject: $0) }
-            Task {
-                let payload = await Self.handleDossier(rawData)
-                Self.complete(ctx, with: payload)
-            }
+            Task { await Self.respondToDossier(rawData, ctx) }
         case "jsError":
             let detail = (message?["detail"] as? String) ?? "?"
             Self.log.error("content script error: \(detail, privacy: .public)")
@@ -43,6 +42,11 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             Self.log.error("unknown native message type")
             Self.complete(ctx, with: ["error": "unknown message type"])
         }
+    }
+
+    private static func respondToDossier(_ rawData: Data?, _ ctx: UncheckedSendable<NSExtensionContext>) async {
+        let payload = await handleDossier(rawData)
+        complete(ctx, with: payload)
     }
 
     private static func complete(_ ctx: UncheckedSendable<NSExtensionContext>, with payload: [String: Any]) {
@@ -65,7 +69,14 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
         let engine = ScoreEngine()
         let signalMismatch = ScoreEngine.signalIdentityMismatch(dossier)
-        var verdict = engine.evaluate(dossier, identityMismatch: signalMismatch)
+
+        // Opt-in novelty signal (off by default). Look up before recording so
+        // the first visit counts as unseen.
+        let domain = BrandRegistry.registrableDomain(dossier.host)
+        let unseen = LoginHistoryStore.shared.hasSeen(domain: domain) == false
+        LoginHistoryStore.shared.record(domain: domain)
+
+        var verdict = engine.evaluate(dossier, identityMismatch: signalMismatch, unseenLoginDomain: unseen)
 
         // Bring-up diagnostic (removed in M6): surfaces L3 state on-screen
         // because os_log .info doesn't reach idevicesyslog.
@@ -84,7 +95,8 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 verdict = engine.evaluate(
                     dossier,
                     identityMismatch: signalMismatch || l3Mismatch,
-                    l3: extraction
+                    l3: extraction,
+                    unseenLoginDomain: unseen
                 )
                 let brand = extraction.claimedBrand.isEmpty ? "∅" : extraction.claimedBrand
                 l3Debug = "l3=OK \(ms)ms in=\(dossier.title.count)/\(dossier.textExcerpt.count)c brand=\(brand) conf=\(String(format: "%.2f", extraction.confidence)) intent=\(extraction.pageIntent) mismatch=\(l3Mismatch)"
@@ -101,7 +113,11 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         else {
             return ["error": "verdict encoding failed"]
         }
+        // The on-screen diagnostic ships only in debug builds; release verdicts
+        // never carry it, so the banner/interstitial stay clean.
+        #if DEBUG
         verdictDict["debug"] = "score=\(verdict.score) · \(l3Debug)"
+        #endif
         return ["type": "verdict", "verdict": verdictDict]
     }
 }

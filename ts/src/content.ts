@@ -25,27 +25,31 @@ function identityCues(): string {
     if (t && t.length <= 80) parts.push(t);
   };
 
+  // Cleanest, lowest-risk brand cues first: they rarely carry lure wording.
   push(document.querySelector('meta[property="og:site_name"]')?.getAttribute("content"));
   push(document.querySelector('meta[name="application-name"]')?.getAttribute("content"));
-
   for (const img of document.querySelectorAll<HTMLImageElement>("img[alt]")) {
     const alt = img.getAttribute("alt") ?? "";
-    // Logo-ish alt text is the cleanest brand cue.
     if (/logo|brand/i.test(img.getAttribute("class") ?? "") || /logo/i.test(alt)) push(alt);
   }
 
-  let headings = 0;
-  for (const h of document.querySelectorAll("h1, h2, h3, legend")) {
-    push(h.textContent);
-    if (++headings >= 4) break;
+  // Headings only as a fallback: a phishing heading like "Votre compte est
+  // suspendu !" is exactly the lure wording that trips the model's guardrail,
+  // so we avoid feeding it whenever a clean cue already exists.
+  if (parts.length === 0) {
+    let headings = 0;
+    for (const h of document.querySelectorAll("h1, h2, legend")) {
+      push(h.textContent);
+      if (++headings >= 2) break;
+    }
   }
-  // Dedup, cap length.
   return [...new Set(parts)].join(" · ").slice(0, 400);
 }
 
 async function run(): Promise<void> {
+  const t0 = performance.now();
   const capturePoints = detectCapturePoints(document);
-  if (capturePoints.length === 0) return;
+  if (capturePoints.length === 0) return; // L0 gate — the common, ~0-cost path.
 
   const dossier: PageDossier = {
     version: 1,
@@ -57,6 +61,7 @@ async function run(): Promise<void> {
     l1Signals: analyzeUrl(window.location.href, BRANDS),
     l2Signals: analyzePage(document, window.location.host, capturePoints, BRANDS),
   };
+  const jsMs = performance.now() - t0;
 
   const response = await browser.runtime.sendMessage({
     type: "dossier",
@@ -66,6 +71,11 @@ async function run(): Promise<void> {
   if ("type" in response && response.type === "verdict") {
     // DOM marker kept for UI-automation assertions.
     document.documentElement.dataset["impostor"] = response.verdict.action;
+    // Debug builds carry a diagnostic string; prepend the JS-side latency
+    // (L0+L1+L2 dossier build) so both halves of the timing are visible.
+    if (response.verdict.debug) {
+      response.verdict.debug = `js=${jsMs.toFixed(1)}ms · ${response.verdict.debug}`;
+    }
     renderVerdict(response.verdict);
     await browser.runtime.sendMessage({
       type: "ack",

@@ -16,15 +16,16 @@ export interface L2Signal {
   brand?: string;
 }
 
-function brandOwning(host: string, brands: BrandEntry[]): BrandEntry | null {
+function brandCoversHost(brand: BrandEntry, host: string): boolean {
   const reg = registrableDomain(host);
   return (
-    brands.find(
-      (b) =>
-        b.domains.some((d) => reg === registrableDomain(d)) ||
-        b.auth_delegates.some((d) => reg === registrableDomain(d.replace(/^\*\./, ""))),
-    ) ?? null
+    brand.domains.some((d) => reg === registrableDomain(d)) ||
+    brand.auth_delegates.some((d) => reg === registrableDomain(d.replace(/^\*\./, "")))
   );
+}
+
+function brandOwning(host: string, brands: BrandEntry[]): BrandEntry | null {
+  return brands.find((b) => brandCoversHost(b, host)) ?? null;
 }
 
 export function analyzePage(
@@ -37,9 +38,18 @@ export function analyzePage(
 
   // Cross-origin form action / hidden capture fields come from L0's per-field
   // observations — L2 turns them into page-level signals.
+  const pageBrand = brandOwning(pageHost, brands);
   const crossOrigin = capturePoints.find((p) => p.crossOriginActionHost);
-  if (crossOrigin?.crossOriginActionHost) {
-    signals.push({ id: "l2.cross-origin-form", detail: crossOrigin.crossOriginActionHost });
+  const actionHost = crossOrigin?.crossOriginActionHost;
+  if (actionHost) {
+    // A page posting credentials off-origin is a strong signal — UNLESS it
+    // posts to its own brand's authentication delegate (SSO, FranceConnect,
+    // bank auth providers). That is the whole point of auth_delegates and the
+    // main false-positive remedy (PLAN §4).
+    const legitDelegate = pageBrand != null && brandCoversHost(pageBrand, actionHost);
+    if (!legitDelegate) {
+      signals.push({ id: "l2.cross-origin-form", detail: actionHost });
+    }
   }
   if (capturePoints.some((p) => !p.visible)) {
     // A page that hides its own credential fields is suspicious by

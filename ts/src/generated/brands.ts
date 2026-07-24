@@ -1,7 +1,7 @@
 // GENERATED from registry/brands.json by scripts/build-js.sh — do not edit.
 import type { BrandEntry } from "../l1";
 export const BRANDS: BrandEntry[] = [
-  { "brand": "La Banque Postale", "aliases": ["Banque Postale", "LBP"], "domains": ["labanquepostale.fr"], "auth_delegates": [], "sector": "banking", "region": ["FR"] },
+  { "brand": "La Banque Postale", "aliases": ["Banque Postale", "LBP"], "domains": ["labanquepostale.fr"], "auth_delegates": ["*.wl-fr.com"], "sector": "banking", "region": ["FR"] },
   { "brand": "BNP Paribas", "aliases": ["BNP", "Hello bank!", "Hello bank"], "domains": ["bnpparibas.net", "bnpparibas.com", "hellobank.fr"], "auth_delegates": [], "sector": "banking", "region": ["FR"] },
   { "brand": "Société Générale", "aliases": ["SocGen", "SG"], "domains": ["societegenerale.fr", "particuliers.sg.fr", "sg.fr"], "auth_delegates": [], "sector": "banking", "region": ["FR"] },
   { "brand": "Crédit Agricole", "aliases": ["CA"], "domains": ["credit-agricole.fr"], "auth_delegates": [], "sector": "banking", "region": ["FR"] },

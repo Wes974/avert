@@ -23,6 +23,7 @@ struct ScoreEngine {
         "l2.thirdparty-iframe": 10,
         "l2.anti-inspection": 10,
         "l2.borrowed-brand-assets": 25,
+        "history.unseen-domain": 10,
     ]
 
     static let bannerThreshold = 40
@@ -47,7 +48,8 @@ struct ScoreEngine {
     func evaluate(
         _ dossier: PageDossier,
         identityMismatch: Bool = false,
-        l3: PageIdentityExtraction? = nil
+        l3: PageIdentityExtraction? = nil,
+        unseenLoginDomain: Bool = false
     ) -> Verdict {
         var score = 0
         var contributing: [(id: String, weight: Int, brand: String?)] = []
@@ -61,6 +63,14 @@ struct ScoreEngine {
             let w = Self.weights[signal.id] ?? 0
             score += w
             if w > 0 { contributing.append((signal.id, w, signal.brand)) }
+        }
+
+        // Opt-in history signal (off by default): a credential form on a domain
+        // the user has never logged into before is mildly suspicious.
+        if unseenLoginDomain {
+            let w = Self.weights["history.unseen-domain"] ?? 10
+            score += w
+            contributing.append(("history.unseen-domain", w, nil))
         }
 
         if let l3, identityMismatch, !l3.claimedBrand.isEmpty {
