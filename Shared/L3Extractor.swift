@@ -30,7 +30,7 @@ struct PageIdentityExtraction {
 }
 
 enum L3Extractor {
-    private static let log = Logger(subsystem: "com.ouweis.impostor", category: "l3")
+    private static let log = Logger(subsystem: "com.ouweis.avert", category: "l3")
 
     /// Cross-Task state (multiple tabs/navigations run `extract` concurrently),
     /// guarded by a lock so it isn't a data race.

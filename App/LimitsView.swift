@@ -33,7 +33,7 @@ struct LimitsView: View {
         NavigationStack {
             List {
                 Section {
-                    Text("Impostor réduit un risque, il ne l'élimine pas. Restez la dernière ligne de défense.")
+                    Text("Avert réduit un risque, il ne l'élimine pas. Restez la dernière ligne de défense.")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }

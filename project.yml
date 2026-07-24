@@ -1,4 +1,4 @@
-name: Impostor
+name: Avert
 options:
   bundleIdPrefix: com.ouweis
   createIntermediateGroups: true
@@ -24,29 +24,29 @@ settings:
     GENERATE_INFOPLIST_FILE: false
 
 targets:
-  Impostor:
+  Avert:
     type: application
     platform: iOS
     sources:
       - App
       - Shared
     dependencies:
-      - target: ImpostorExtension
+      - target: AvertExtension
         embed: true
     info:
       path: App/Info.plist
       properties:
-        CFBundleDisplayName: Impostor
+        CFBundleDisplayName: Avert
         UILaunchScreen:
           UIColorName: LaunchBackground
         ITSAppUsesNonExemptEncryption: false
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.impostor
+        PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.avert
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
 
-  ImpostorExtension:
+  AvertExtension:
     type: app-extension
     platform: iOS
     sources:
@@ -59,33 +59,33 @@ targets:
     info:
       path: Extension/Info.plist
       properties:
-        CFBundleDisplayName: Impostor
+        CFBundleDisplayName: Avert
         # XcodeGen ne génère pas le bloc NSExtension : obligatoire à la main.
         NSExtension:
           NSExtensionPointIdentifier: com.apple.Safari.web-extension
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).SafariWebExtensionHandler
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.impostor.extension
+        PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.avert.extension
 
-  ImpostorTests:
+  AvertTests:
     type: bundle.unit-test
     platform: iOS
     sources:
       - Tests/Swift
     dependencies:
-      - target: Impostor
+      - target: Avert
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.impostor.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.avert.tests
         GENERATE_INFOPLIST_FILE: true
 
 schemes:
-  Impostor:
+  Avert:
     build:
       targets:
-        Impostor: all
+        Avert: all
     test:
       targets:
-        - ImpostorTests
+        - AvertTests
     run: {}

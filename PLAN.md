@@ -1,4 +1,4 @@
-# Impostor — Extension Safari anti-phishing, on-device
+# Avert — Extension Safari anti-phishing, on-device
 
 > Spec de travail. Version amendée le 2026-07-23 (session de cadrage) — les amendements par rapport au plan initial sont marqués **[amendé]**.
 

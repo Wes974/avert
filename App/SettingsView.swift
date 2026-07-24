@@ -23,7 +23,7 @@ struct SettingsView: View {
                 } header: {
                     Text("Confidentialité")
                 } footer: {
-                    Text("Impostor analyse les pages localement. Aucune adresse, aucun contenu n’est envoyé où que ce soit.")
+                    Text("Avert analyse les pages localement. Aucune adresse, aucun contenu n’est envoyé où que ce soit.")
                 }
 
                 Section {

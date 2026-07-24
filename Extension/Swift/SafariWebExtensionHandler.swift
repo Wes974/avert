@@ -12,7 +12,7 @@ private struct UncheckedSendable<T>: @unchecked Sendable {
 /// On iOS this runs in the app-extension process — the whole engine
 /// (registry, scoring, FoundationModels) is called from here.
 final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
-    private static let log = Logger(subsystem: "com.ouweis.impostor", category: "native")
+    private static let log = Logger(subsystem: "com.ouweis.avert", category: "native")
 
     func beginRequest(with context: NSExtensionContext) {
         let item = context.inputItems.first as? NSExtensionItem

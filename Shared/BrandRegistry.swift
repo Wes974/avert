@@ -29,7 +29,7 @@ struct BrandRegistry: Sendable {
         else {
             // An empty registry silently disables every identity verdict — the
             // worst possible failure (no alert, no sign). Make it loud.
-            Logger(subsystem: "com.ouweis.impostor", category: "registry")
+            Logger(subsystem: "com.ouweis.avert", category: "registry")
                 .fault("brands.json missing or empty from bundle — identity detection is OFF")
             assertionFailure("brands.json failed to load — identity detection disabled")
             return BrandRegistry(entries: [])

@@ -1,5 +1,5 @@
 import Testing
-@testable import Impostor
+@testable import Avert
 
 /// Identity comparison is the load-bearing factual step (LLM extracts, Swift
 /// decides). Test with an injected registry — never `.shared`, which reads the

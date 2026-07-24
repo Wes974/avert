@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Impostor",
+  "name": "Avert",
   "version": "0.1",
   "description": "Alerte quand une page réclame une identité qui ne correspond pas à son domaine. 100 % on-device.",
   "permissions": ["nativeMessaging"],

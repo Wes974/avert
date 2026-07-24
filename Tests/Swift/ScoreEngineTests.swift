@@ -1,5 +1,5 @@
 import Testing
-@testable import Impostor
+@testable import Avert
 
 /// The decision core is pure and deterministic — these lock the non-negotiable
 /// product rules (PLAN.md §5) so a scoring regression can't pass silently.

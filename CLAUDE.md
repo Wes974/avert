@@ -1,4 +1,4 @@
-# CLAUDE.md — Impostor
+# CLAUDE.md — Avert
 
 Extension Safari anti-phishing iOS, 100 % on-device. Spec complète : [PLAN.md](PLAN.md).
 Principe : détecter **l'incohérence d'identité** (« la page ment-elle sur son identité ? »), pas la réputation.
@@ -19,7 +19,7 @@ DerivedData **hors iCloud** obligatoire (sinon codesign échoue sur les xattrs) 
 ```bash
 ./scripts/build-js.sh   # typecheck + 34 tests bun + bundle → Extension/Resources/
 xcodegen generate
-xcodebuild -project Impostor.xcodeproj -scheme Impostor \
+xcodebuild -project Avert.xcodeproj -scheme Avert \
   -destination 'generic/platform=iOS Simulator' \
   -derivedDataPath /tmp/claude-501/impostor-dd build
 ```

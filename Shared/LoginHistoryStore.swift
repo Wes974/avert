@@ -11,13 +11,13 @@ import Security
 struct LoginHistoryStore {
     static let shared = LoginHistoryStore()
 
-    private let service = "com.ouweis.impostor.login-history"
+    private let service = "com.ouweis.avert.login-history"
     // One entry per registrable domain; the account is the domain itself.
 
     /// Whether the feature is enabled lives in the shared app-group defaults so
     /// both processes agree.
     private var defaults: UserDefaults {
-        UserDefaults(suiteName: "group.com.ouweis.impostor") ?? .standard
+        UserDefaults(suiteName: "group.com.ouweis.avert") ?? .standard
     }
 
     var isEnabled: Bool {
