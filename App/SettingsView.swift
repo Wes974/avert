@@ -15,27 +15,44 @@ struct SettingsView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            Form {
-                Section {
-                    Label("Aucune donnée de page ne quitte votre appareil.", systemImage: "lock.shield")
-                    Label("Aucune télémétrie, aucun compte, aucune publicité.", systemImage: "hand.raised")
-                } header: {
-                    Text("Confidentialité")
-                } footer: {
-                    Text("Avert analyse les pages localement. Aucune adresse, aucun contenu n’est envoyé où que ce soit.")
-                }
-
-                Section {
-                    LabeledContent("Version", value: appVersion)
-                    Link(destination: URL(string: "https://www.apple.com/legal/privacy/")!) {
-                        Label("Politique de confidentialité", systemImage: "doc.text")
-                    }
-                } header: {
-                    Text("À propos")
+        MidnightScreen(title: "Réglages") {
+            AvertSectionLabel(text: "Confidentialité")
+            AvertCard {
+                VStack(alignment: .leading, spacing: 12) {
+                    AvertRow(icon: "lock.shield", title: "Aucune donnée de page ne quitte votre appareil")
+                    AvertRow(icon: "hand.raised", title: "Aucune télémétrie, aucun compte, aucune publicité")
+                    Divider().overlay(Color.avertHairline.opacity(0.12))
+                    Text("Avert analyse les pages localement. Aucune adresse, aucun contenu n'est envoyé où que ce soit.")
+                        .font(.footnote)
+                        .foregroundStyle(Color.avertInkSoft)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
-            .navigationTitle("Réglages")
+
+            AvertSectionLabel(text: "À propos")
+            AvertCard {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text("Version")
+                            .font(.subheadline)
+                            .foregroundStyle(Color.avertInk)
+                        Spacer()
+                        Text(appVersion)
+                            .font(.subheadline.monospacedDigit())
+                            .foregroundStyle(Color.avertInkSoft)
+                    }
+                    Divider().overlay(Color.avertHairline.opacity(0.12))
+                    Link(destination: URL(string: "https://www.apple.com/legal/privacy/")!) {
+                        HStack {
+                            AvertRow(icon: "doc.text", title: "Politique de confidentialité")
+                            Image(systemName: "arrow.up.right")
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(Color.avertInkSoft)
+                        }
+                        .frame(minHeight: 44)
+                    }
+                }
+            }
         }
     }
 }

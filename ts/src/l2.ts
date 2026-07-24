@@ -11,7 +11,9 @@ export interface L2Signal {
     | "l2.hidden-capture-field"
     | "l2.thirdparty-iframe"
     | "l2.anti-inspection"
-    | "l2.borrowed-brand-assets";
+    | "l2.borrowed-brand-assets"
+    // Emitted by frames.ts on the top frame, not by analyzePage.
+    | "l2.capture-in-thirdparty-iframe";
   detail?: string;
   brand?: string;
 }

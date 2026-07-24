@@ -21,6 +21,10 @@ struct ScoreEngine {
         "l2.cross-origin-form": 25,
         "l2.hidden-capture-field": 30,
         "l2.thirdparty-iframe": 10,
+        // A secret typed into a foreign frame. Deliberately light: embedded
+        // payment fields are legitimate and common, so this must never be
+        // enough to alert by itself (see ts/src/frames.ts).
+        "l2.capture-in-thirdparty-iframe": 15,
         "l2.anti-inspection": 10,
         "l2.borrowed-brand-assets": 25,
         "history.unseen-domain": 10,

@@ -74,6 +74,27 @@ struct ScoreEngineTests {
         #expect(engine.evaluate(d, unseenLoginDomain: true).action == .banner)
     }
 
+    @Test("Un secret saisi dans une iframe tierce ne suffit pas à alerter")
+    func thirdPartyIframeCaptureIsNotEnough() {
+        // Cas légitime le plus courant : champ de paiement embarqué (Stripe…).
+        // 15 + 10 = 25 < 40 → silence, malgré deux signaux convergents.
+        let d = dossier(l2: [l2("l2.capture-in-thirdparty-iframe"), l2("l2.thirdparty-iframe")])
+        let v = engine.evaluate(d)
+        #expect(v.score == 25)
+        #expect(v.action == .silent)
+    }
+
+    @Test("La même iframe tierce sur un domaine usurpateur alerte")
+    func thirdPartyIframeCaptureWithMismatch() {
+        let d = dossier(
+            l1: [l1("l1.typosquat", brand: "PayPal")],
+            l2: [l2("l2.capture-in-thirdparty-iframe")]
+        )
+        // (30 + 15) × 2 = 90 > 70 avec incohérence d'identité → interstitiel.
+        let v = engine.evaluate(d, identityMismatch: true)
+        #expect(v.action == .interstitial)
+    }
+
     @Test("Un verdict non-silencieux porte toujours une raison")
     func nonSilentHasReason() {
         let v = engine.evaluate(dossier(l2: [l2("l2.cross-origin-form"), l2("l2.hidden-capture-field")]))

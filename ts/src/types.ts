@@ -49,12 +49,22 @@ export type ContentToBackground =
   | { type: "ack"; echoHost: string }
   // Content-script exceptions are invisible on iOS (no console); forward them
   // so the native handler can put them in the unified log.
-  | { type: "jsError"; detail: string };
+  | { type: "jsError"; detail: string }
+  // Subframe → top frame, relayed by the background (never postMessage: the
+  // page could listen to that and learn Avert is installed). See frames.ts.
+  | { type: "frameCapture"; frameHost: string; kinds: CapturePointKind[] };
 
 export type NativeResponse =
   | { type: "verdict"; verdict: Verdict }
   | { ok: true }
+  | { relayed: true }
   | { error: string };
+
+export interface MessageSender {
+  tab?: { id?: number };
+  /** 0 is the top frame; anything else is a subframe. */
+  frameId?: number;
+}
 
 // Minimal typings for the Safari-provided `browser` global — only what we use.
 declare global {
@@ -69,11 +79,18 @@ declare global {
         addListener(
           listener: (
             message: ContentToBackground,
-            sender: unknown,
+            sender: MessageSender,
             sendResponse: (response: NativeResponse) => void,
           ) => boolean | void,
         ): void;
       };
+    };
+    tabs: {
+      sendMessage(
+        tabId: number,
+        message: ContentToBackground,
+        options?: { frameId?: number },
+      ): Promise<unknown>;
     };
   };
 }

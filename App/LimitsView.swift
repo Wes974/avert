@@ -27,30 +27,36 @@ struct LimitsView: View {
         .init(icon: "network.slash",
               title: "Je ne vérifie ni le certificat ni l'âge du domaine",
               detail: "Safari ne me donne pas accès à ces informations sans réseau. Je m'appuie sur l'identité revendiquée et la structure de la page, pas sur la réputation du domaine."),
+        .init(icon: "envelope.badge.shield.half.filled",
+              title: "Je ne vois que Safari",
+              detail: "Un lien ouvert dans une autre app, un SMS, un mail, un QR code : hors de ma portée jusqu'à ce que la page s'ouvre dans Safari."),
     ]
 
     var body: some View {
-        NavigationStack {
-            List {
-                Section {
-                    Text("Avert réduit un risque, il ne l'élimine pas. Restez la dernière ligne de défense.")
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                }
-                Section("Ce que je ne vois pas") {
-                    ForEach(limits) { limit in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Label(limit.title, systemImage: limit.icon)
-                                .font(.subheadline.weight(.semibold))
-                            Text(limit.detail)
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
-                        }
-                        .padding(.vertical, 2)
-                    }
+        MidnightScreen(
+            title: "Limites",
+            subtitle: "Avert réduit un risque, il ne l'élimine pas. Vous restez la dernière ligne de défense."
+        ) {
+            AvertSectionLabel(text: "Ce que je ne vois pas")
+            ForEach(limits) { limit in
+                AvertCard {
+                    // Neutral glyphs on purpose: these are honest statements, not
+                    // warnings. Gold stays reserved for actual caution.
+                    AvertRow(icon: limit.icon, title: limit.title, detail: limit.detail, tone: .neutral)
                 }
             }
-            .navigationTitle("Limites")
+
+            AvertCard {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Pourquoi cet écran existe")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Color.avertInk)
+                    Text("Le pire échec possible pour un outil comme Avert n'est pas de rater un site : c'est de vous faire croire que vous êtes couvert. Ce que je ne sais pas faire est écrit ici, pas caché dans une page d'aide.")
+                        .font(.footnote)
+                        .foregroundStyle(Color.avertInkSoft)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
         }
     }
 }

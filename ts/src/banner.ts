@@ -291,3 +291,9 @@ export function renderVerdict(verdict: Verdict): void {
   if (verdict.action === "interstitial") showInterstitial(verdict);
   else if (verdict.action === "banner") showBanner(verdict);
 }
+
+/// Take the UI down. Used when the page state that justified it is gone (SPA
+/// navigation) or when a second pass replaces it with a stronger alert.
+export function clearVerdict(): void {
+  if (document.getElementById(HOST_ID)) removeHost();
+}

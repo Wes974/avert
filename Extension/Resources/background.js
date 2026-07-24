@@ -1,1 +1,1 @@
-(()=>{browser.runtime.onMessage.addListener((n,r,e)=>{return browser.runtime.sendNativeMessage("application.id",n).then(e).catch((t)=>e({error:String(t)})),!0});})();
+(()=>{browser.runtime.onMessage.addListener((k,u,q)=>{if(k.type==="frameCapture"){let j=u.tab?.id;if(j!==void 0&&u.frameId!==0)browser.tabs.sendMessage(j,k,{frameId:0}).catch(()=>{});return q({relayed:!0}),!1}return browser.runtime.sendNativeMessage("application.id",k).then(q).catch((j)=>q({error:String(j)})),!0});})();

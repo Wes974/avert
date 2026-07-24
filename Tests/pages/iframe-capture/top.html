@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Espace client — Banque Postale</title>
+<meta property="og:site_name" content="La Banque Postale">
+</head>
+<body>
+<h1>Espace client</h1>
+<p>Accédez à vos comptes.</p>
+
+<!--
+  Manual test for cross-frame coverage (ts/src/frames.ts).
+
+  The top document has NO capture point: the credential form lives in a frame.
+  Before all_frames, L0 gated everything out here and Avert stayed silent.
+
+  The frame origin must differ from this page's origin, so pass it explicitly —
+  two hostnames that both resolve to the dev machine (LAN IP vs Tailscale IP,
+  or localhost vs 127.0.0.1 in the simulator):
+
+    …/iframe-capture/top.html?frame=http://127.0.0.1:8787/iframe-capture/frame.html
+-->
+<iframe id="f" width="340" height="220" title="Connexion"></iframe>
+<p id="note"></p>
+
+<script>
+  const params = new URLSearchParams(location.search);
+  const src = params.get("frame") ?? "frame.html";
+  document.getElementById("f").src = src;
+  const url = new URL(src, location.href);
+  document.getElementById("note").textContent =
+    url.hostname === location.hostname
+      ? `⚠︎ frame same-origin (${url.hostname}) : passe ?frame=… pour tester le cas tiers`
+      : `frame tierce : ${url.hostname}`;
+</script>
+</body>
+</html>
