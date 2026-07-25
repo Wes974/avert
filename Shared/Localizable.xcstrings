@@ -531,6 +531,24 @@
         }
       }
     },
+    "family.alert.message": {
+      "comment": "%1$@ = libelle d'appareil choisi par l'expediteur, %2$@ = date relative.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A strong warning was ignored on “%1$@” %2$@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un avertissement fort a été ignoré sur « %1$@ » %2$@."
+          }
+        }
+      }
+    },
     "link.caveat": {
       "comment": "Toujours affiché, quel que soit le verdict. Ne jamais retirer.",
       "extractionState": "manual",
