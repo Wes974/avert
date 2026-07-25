@@ -25,6 +25,15 @@ xcodebuild -project Avert.xcodeproj -scheme Avert \
   -derivedDataPath /tmp/claude-501/impostor-dd build
 ```
 
+## « Vérifier ce lien » (hors navigateur)
+
+- **Deux implémentations de L1** : `ts/src/l1.ts` (extension) et `Shared/URLHeuristics.swift` (App Intent + extension de partage). Obligatoire : aucun JS hors du navigateur, et Safari n'atteint une page qu'une fois ouverte — donc tout le smishing était invisible.
+- **La duplication est verrouillée** par `Tests/corpus/l1.json`, lu par les DEUX suites. Toute divergence non déclarée casse le build. Les divergences réelles sont documentées dans le corpus. Vérifié en cassant volontairement une attente (les 20 cas s'exécutent, la sentinelle est vue).
+- Parseur d'URL **écrit à la main** : `URLComponents` mange les hôtes non ASCII (là où vivent les homographes), et le piège du userinfo (`paypal.com@evil.top`) doit résoudre vers `evil.top`. Un hôte sans point ou avec des espaces est refusé — sinon du texte quelconque recevait un verdict *rassurant*.
+- Le verdict d'un lien nu (`LinkCheck`) est un **type à part**, pas `ScoreEngine` avec un dossier factice : dix fois moins d'indices. Trois niveaux ; un seul indice de distance d'édition n'accuse jamais. La mise en garde « je n'ai lu que l'adresse, pas la page » accompagne **tous** les verdicts.
+- `Shared/UI/` est exclu de l'extension Safari : ce process tourne sur chaque page et ne dessine rien.
+- **Pièges XcodeGen** : `info.path` fait *générer* le plist (un `NSExtension` écrit à la main y est écrasé — le déclarer dans `info.properties`) ; sans `- sdk: AppIntents.framework` l'intent compile mais n'apparaît jamais dans Siri/Raccourcis (`appintentsmetadataprocessor` dit « No AppIntents.framework dependency found »).
+
 ## Empreinte perceptuelle des logos
 
 - `dhash.ts` (pur, testable) + `logo.ts` (glu DOM) + `scripts/hash-logos.ts` (générateur, `sips` comme décodeur). Signal `l2.brand-logo-copy`, poids 25, **signal d'identité** (multiplicateur ×2).
