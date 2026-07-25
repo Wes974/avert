@@ -128,6 +128,12 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.avert.action
+        # Its own icon, WITH an alpha channel. iOS renders an action extension's
+        # icon as a template — it keeps the transparency and throws the colours
+        # away. Falling back to the app icon gave a solid white square in the
+        # share sheet, because that one deliberately has no alpha (App Store
+        # requirement). See design/ActionIcon.svg.
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
 
   AvertTests:
     type: bundle.unit-test

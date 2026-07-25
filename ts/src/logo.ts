@@ -49,30 +49,59 @@ function isReadable(img: HTMLImageElement, pageHost: string): boolean {
   }
 }
 
-/** Logo-ish images first, then any small loaded image (logos are small). */
+/** How long to wait for a candidate image to finish decoding. */
+const DECODE_TIMEOUT_MS = 400;
+
+/**
+ * Logo-ish images first, then the rest. Deliberately does NOT filter on
+ * `img.complete` or `naturalWidth`:
+ *
+ * the content script runs at `document_idle`, which on iOS can be *before* the
+ * images have finished decoding. Filtering here on "already loaded" silently
+ * dropped the one image that mattered — and since an image finishing its load
+ * mutates nothing in the DOM, the MutationObserver never scheduled another pass,
+ * so the signal could never fire on a normal page load. Measured on device:
+ * `pass=1`, no logo signal, on a page whose logo was plainly visible.
+ *
+ * Size filtering moves to `hashImage`, after the decode has been awaited.
+ */
 function candidates(doc: Document, pageHost: string): HTMLImageElement[] {
-  const all = [...doc.querySelectorAll<HTMLImageElement>("img[src]")].filter(
-    (img) => img.complete && img.naturalWidth > 0 && isReadable(img, pageHost),
+  const all = [...doc.querySelectorAll<HTMLImageElement>("img[src]")].filter((img) =>
+    isReadable(img, pageHost),
   );
   const looksLikeLogo = (img: HTMLImageElement) =>
     /logo|brand/i.test(`${img.getAttribute("class") ?? ""} ${img.getAttribute("alt") ?? ""} ${img.getAttribute("id") ?? ""}`);
-  const hashable = all.filter(
-    (img) =>
-      img.naturalWidth >= HASH_WIDTH &&
-      img.naturalHeight >= HASH_HEIGHT &&
-      img.naturalWidth <= MAX_DIMENSION &&
-      img.naturalHeight <= MAX_DIMENSION,
-  );
-  const named = hashable.filter(looksLikeLogo);
-  const rest = hashable.filter((img) => !looksLikeLogo(img) && img.naturalWidth >= 16);
+  const named = all.filter(looksLikeLogo);
+  const rest = all.filter((img) => !looksLikeLogo(img));
   return [...named, ...rest].slice(0, MAX_CANDIDATES);
 }
 
-/** dHash of one loaded image, or null if it can't be rasterised or read. */
+/**
+ * Resolve once the image is decoded and its intrinsic size is known, or false if
+ * it fails or takes too long. `decode()` resolves immediately for an image that
+ * is already loaded, so the common case costs nothing.
+ */
+async function ensureDecoded(img: HTMLImageElement): Promise<boolean> {
+  if (img.complete && img.naturalWidth > 0) return true;
+  const timeout = new Promise<boolean>((resolve) =>
+    setTimeout(() => resolve(false), DECODE_TIMEOUT_MS),
+  );
+  const decoded = img
+    .decode()
+    .then(() => img.naturalWidth > 0)
+    .catch(() => false);
+  return Promise.race([decoded, timeout]);
+}
+
+/** dHash of one decoded image, or null if it can't be rasterised or read. */
 function hashImage(img: HTMLImageElement): string | null {
   try {
     const w = img.naturalWidth;
     const h = img.naturalHeight;
+    // Size check happens here, once the intrinsic size is actually known.
+    if (w < HASH_WIDTH || h < HASH_HEIGHT || w > MAX_DIMENSION || h > MAX_DIMENSION) {
+      return null;
+    }
     const canvas = document.createElement("canvas");
     canvas.width = w;
     canvas.height = h;
@@ -103,25 +132,38 @@ function brandCoversHost(brand: BrandEntry, host: string): boolean {
   );
 }
 
+export interface LogoResult {
+  signals: L2Signal[];
+  /** Diagnostics surfaced in the DEBUG line — a silent signal is unfalsifiable
+   *  otherwise, as this one proved on device. */
+  considered: number;
+  hashed: number;
+}
+
 /**
  * `l2.brand-logo-copy` — a registry brand's logo is displayed, pixel-wise, on a
  * host that brand does not own. This is an identity claim contradicted by the
  * domain, so `ScoreEngine` treats it as an identity signal.
  *
- * Returns nothing when the reference table is empty, which is the current state
- * of the registry: the plumbing ships inert rather than pretending to check.
+ * Returns nothing when the reference table is empty: the plumbing stays inert
+ * rather than pretending to check.
  */
-export function logoSignals(
+export async function logoSignals(
   doc: Document,
   pageHost: string,
   brands: BrandEntry[],
-): L2Signal[] {
+): Promise<LogoResult> {
   const table = owners(brands);
-  if (table.length === 0) return [];
+  if (table.length === 0) return { signals: [], considered: 0, hashed: 0 };
 
-  for (const img of candidates(doc, pageHost)) {
+  const images = candidates(doc, pageHost);
+  let hashed = 0;
+
+  for (const img of images) {
+    if (!(await ensureDecoded(img))) continue;
     const hash = hashImage(img);
     if (!hash) continue;
+    hashed += 1;
     const match = matchLogo(hash, table);
     if (!match) continue;
 
@@ -129,13 +171,17 @@ export function logoSignals(
     // The brand's own site legitimately shows its own logo.
     if (owner && brandCoversHost(owner, pageHost)) continue;
 
-    return [
-      {
-        id: "l2.brand-logo-copy",
-        detail: `${hash}@${match.distance}`,
-        brand: match.brand,
-      },
-    ];
+    return {
+      considered: images.length,
+      hashed,
+      signals: [
+        {
+          id: "l2.brand-logo-copy",
+          detail: `${hash}@${match.distance}`,
+          brand: match.brand,
+        },
+      ],
+    };
   }
-  return [];
+  return { signals: [], considered: images.length, hashed };
 }

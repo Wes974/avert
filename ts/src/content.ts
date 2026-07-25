@@ -124,6 +124,9 @@ async function evaluate(): Promise<void> {
   evaluations += 1;
 
   const t0 = performance.now();
+  // Awaited: images may still be decoding at document_idle, and skipping them
+  // made the signal permanently silent on a normal page load.
+  const logo = await logoSignals(document, window.location.hostname, BRANDS);
   const dossier: PageDossier = {
     version: 1,
     // Hostname only — never the full URL. The path/query of a sensitive page
@@ -137,7 +140,7 @@ async function evaluate(): Promise<void> {
     l2Signals: [
       ...analyzePage(document, window.location.hostname, capturePoints, BRANDS),
       ...frameSignals(reports, window.location.hostname, BRANDS),
-      ...logoSignals(document, window.location.hostname, BRANDS),
+      ...logo.signals,
     ],
   };
   const jsMs = performance.now() - t0;
@@ -157,7 +160,9 @@ async function evaluate(): Promise<void> {
   // Debug builds carry a diagnostic string; prepend the JS-side latency
   // (L0+L1+L2 dossier build) so both halves of the timing are visible.
   if (response.verdict.debug) {
-    response.verdict.debug = `js=${jsMs.toFixed(1)}ms · pass=${evaluations} · ${response.verdict.debug}`;
+    response.verdict.debug =
+      `js=${jsMs.toFixed(1)}ms · pass=${evaluations} · logo=${logo.hashed}/${logo.considered} · ` +
+      response.verdict.debug;
     // Detection oracle for UI-automation — DEBUG only. In release we never
     // mark the DOM, so a hostile page can't read whether it was flagged.
     document.documentElement.dataset["avert"] = response.verdict.action;
