@@ -181,23 +181,25 @@ struct AvertRow: View {
 /// the icon, and the mismatch was visible side by side.
 ///
 /// Reference geometry, in the SVG's own coordinates: both cards are 40×40 with
-/// rx 11, the real one at (20,42), the ghost at (44,18), the spark centred on
-/// (80,22) with r 7.6. The glyph spans (20,14)…(88,82) — a 68-unit box.
+/// rx 11, the real one at (20,42), the ghost at (38,26), the spark centred on
+/// (74,30) with r 7.6. The glyph spans (20,22.4)…(81.6,82).
 struct AvertMark: View {
     var size: CGFloat = 72
 
-    // Everything below is expressed as a fraction of that 68-unit box.
-    private var box: CGFloat { size }
-    private var card: CGFloat { box * 40 / 68 }
-    private var radius: CGFloat { box * 11 / 68 }
-    private var spark: CGFloat { box * 15.2 / 68 }
+    // The glyph's bounding box in SVG units, and its centre.
+    private static let unit: CGFloat = 61.6
+    private static let centre = CGPoint(x: 50.8, y: 52.2)
+
+    private var card: CGFloat { size * 40 / Self.unit }
+    private var radius: CGFloat { size * 11 / Self.unit }
+    private var spark: CGFloat { size * 15.2 / Self.unit }
 
     /// Offset of a shape's centre from the box centre, given its top-left corner
     /// in SVG coordinates.
     private func offset(x: CGFloat, y: CGFloat, side: CGFloat) -> CGSize {
         CGSize(
-            width: (x + side / 2 - 20 - 34) / 68 * box,
-            height: (y + side / 2 - 14 - 34) / 68 * box
+            width: (x + side / 2 - Self.centre.x) / Self.unit * size,
+            height: (y + side / 2 - Self.centre.y) / Self.unit * size
         )
     }
 
@@ -208,12 +210,12 @@ struct AvertMark: View {
                 .strokeBorder(
                     Color.avertIndigo.opacity(0.55),
                     style: StrokeStyle(
-                        lineWidth: box * 3.1 / 68,
-                        dash: [box * 6 / 68, box * 6 / 68]
+                        lineWidth: size * 3.1 / Self.unit,
+                        dash: [size * 6 / Self.unit, size * 6 / Self.unit]
                     )
                 )
                 .frame(width: card, height: card)
-                .offset(offset(x: 44, y: 18, side: 40))
+                .offset(offset(x: 38, y: 26, side: 40))
 
             // The real card: solid, person knocked out.
             RoundedRectangle(cornerRadius: radius, style: .continuous)
@@ -239,7 +241,7 @@ struct AvertMark: View {
                     .foregroundStyle(Color.avertGroundBottom)
             }
             .frame(width: spark, height: spark)
-            .offset(offset(x: 80 - 7.6, y: 22 - 7.6, side: 15.2))
+            .offset(offset(x: 74 - 7.6, y: 30 - 7.6, side: 15.2))
         }
         .frame(width: size, height: size)
         .accessibilityHidden(true)

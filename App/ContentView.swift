@@ -1,6 +1,11 @@
 import SwiftUI
 
 struct ContentView: View {
+    /// Shown once. Stored in plain UserDefaults — this is a UI preference, not
+    /// something worth a Keychain entry, and it is the only state the app keeps.
+    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
+    @State private var showOnboarding = false
+
     var body: some View {
         TabView {
             HomeView()
@@ -11,6 +16,18 @@ struct ContentView: View {
                 .tabItem { Label("Réglages", systemImage: "gearshape") }
         }
         .tint(.avertIndigo)
+        .fullScreenCover(isPresented: $showOnboarding) {
+            OnboardingView(isPresented: $showOnboarding)
+        }
+        .onAppear {
+            guard !hasSeenOnboarding else { return }
+            showOnboarding = true
+            // Marked as seen on appearance rather than on completion: someone who
+            // force-quits mid-onboarding has still made a choice about it, and
+            // being shown it again would be nagging. Everything it says is on the
+            // Home and Limits tabs anyway.
+            hasSeenOnboarding = true
+        }
     }
 }
 
@@ -53,21 +70,8 @@ private struct HomeView: View {
                         .font(.subheadline)
                         .foregroundStyle(Color.avertInk)
                         .fixedSize(horizontal: false, vertical: true)
-                    VStack(alignment: .leading, spacing: 10) {
-                        StepRow(number: 1, text: "Réglages → Apps → Safari → Extensions")
-                        StepRow(number: 2, text: "Activer **Avert**")
-                        StepRow(number: 3, text: "Autoriser sur tous les sites (« Toujours autoriser »)")
-                    }
-                    Link(destination: URL(string: UIApplication.openSettingsURLString)!) {
-                        Text("Ouvrir les Réglages")
-                            .font(.subheadline.weight(.semibold))
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .fill(Color.avertIndigo.opacity(0.14))
-                            )
-                            .foregroundStyle(Color.avertIndigo)
-                    }
+                    ActivationSteps()
+                    OpenSettingsButton()
                     Text("Avert ne peut pas savoir si vous avez fait ces trois étapes : rien ne remonte de Safari vers l'app.")
                         .font(.caption)
                         .foregroundStyle(Color.avertInkSoft)
@@ -105,30 +109,6 @@ private struct HomeView: View {
                 }
             }
         }
-    }
-}
-
-private struct StepRow: View {
-    let number: Int
-    let text: LocalizedStringKey
-
-    var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 12) {
-            Text("\(number)")
-                .font(.caption.weight(.bold))
-                .foregroundStyle(Color.avertIndigo)
-                .frame(width: 22, height: 22)
-                .background(Circle().fill(Color.avertIndigo.opacity(0.14)))
-                .accessibilityHidden(true)
-            Text(text)
-                .font(.subheadline)
-                .foregroundStyle(Color.avertInk)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .accessibilityElement(children: .combine)
-        // The number badge is decorative (hidden), so VoiceOver needs it spoken
-        // here or the steps lose their order.
-        .accessibilityLabel(Text("Étape \(number) : \(Text(text))"))
     }
 }
 

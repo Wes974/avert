@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="102" height="102" viewBox="14 8 102 102">
+<svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" viewBox="16 18 70 70">
   <!--
     Template icon for the "Vérifier ce lien" action extension.
 
@@ -24,9 +24,9 @@
 
   <!-- Ghost duplicate: dashed card + outlined person, offset up and right. -->
   <g mask="url(#gap)" fill="none" stroke="#000">
-    <rect x="44" y="18" width="40" height="40" rx="11" stroke-width="3.6" stroke-dasharray="6 6"/>
-    <circle cx="64" cy="34" r="6.2" stroke-width="2.8"/>
-    <path d="M53.6 51 a10.4 10.4 0 0 1 20.8 0" stroke-width="2.8"/>
+    <rect x="38" y="26" width="40" height="40" rx="11" stroke-width="3.6" stroke-dasharray="6 6"/>
+    <circle cx="58" cy="42" r="6.2" stroke-width="2.8"/>
+    <path d="M47.6 59 a10.4 10.4 0 0 1 20.8 0" stroke-width="2.8"/>
   </g>
 
   <!-- The real card: solid, person knocked out (evenodd). -->
@@ -39,8 +39,8 @@
 
   <!-- The spark. Colour is lost in the mask; the shape carries the meaning. -->
   <path fill-rule="evenodd" d="
-    M 80 14.4 a 7.6 7.6 0 1 0 0 15.2 a 7.6 7.6 0 1 0 0 -15.2 z
-    M 78.7 17.6 h 2.6 v 5.6 h -2.6 z
-    M 78.7 25 h 2.6 v 2.4 h -2.6 z
+    M 74 22.4 a 7.6 7.6 0 1 0 0 15.2 a 7.6 7.6 0 1 0 0 -15.2 z
+    M 72.7 25.6 h 2.6 v 5.6 h -2.6 z
+    M 72.7 33 h 2.6 v 2.4 h -2.6 z
   "/>
 </svg>

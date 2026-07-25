@@ -1,4 +1,18 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    Canonical geometry of the mark. Two other renditions are derived from these
+    exact coordinates and must be updated with it:
+      · Shared/UI/Theme.swift  → AvertMark (in-app, colour)
+      · design/ActionIcon.svg  → action-extension icon (alpha mask, no colour)
+
+    Both cards are 40×40 rx 11. The ghost sits up and to the right of the real
+    one, overlapping by 22 units — close enough to read as the same card shifted,
+    which is the whole idea. An earlier version offset it by 24 with only a corner
+    of overlap, and at large sizes it read as two unrelated cards.
+
+    Glyph bounds: (20, 22.4) … (81.6, 82). Centring below is derived from that —
+    recompute it if the geometry moves.
+  -->
   <defs>
     <radialGradient id="bg" cx="30%" cy="18%" r="100%">
       <stop offset="0%" stop-color="#5a57e0"/>
@@ -7,19 +21,18 @@
     </radialGradient>
   </defs>
   <rect width="1024" height="1024" fill="url(#bg)"/>
-  <g transform="translate(-66.45,-59.55) scale(11.5)">
-    <g transform="translate(-3.5,1.5)">
-      <!-- claimed identity: ghost card + ghost person, behind -->
-      <rect x="44" y="18" width="40" height="40" rx="11" fill="none" stroke="#ffffff" stroke-opacity="0.5" stroke-width="3.1" stroke-dasharray="6 6"/>
-      <circle cx="64" cy="34" r="6.2" fill="none" stroke="#ffffff" stroke-opacity="0.5" stroke-width="2.6"/>
-      <path d="M53.6 51 a10.4 10.4 0 0 1 20.8 0" fill="none" stroke="#ffffff" stroke-opacity="0.5" stroke-width="2.6"/>
-      <!-- real identity: solid card + solid person, front -->
-      <rect x="20" y="42" width="40" height="40" rx="11" fill="#ffffff"/>
-      <circle cx="40" cy="58" r="6.4" fill="#3d3ab4"/>
-      <path d="M29.6 75 a10.4 10.4 0 0 1 20.8 0 z" fill="#3d3ab4"/>
-      <!-- the tell -->
-      <circle cx="80" cy="22" r="7.6" fill="#ffce4a"/>
-      <path d="M80 17.8 v4.6 M80 25.2 v0.4" stroke="#2b2888" stroke-width="2.6" stroke-linecap="round"/>
-    </g>
+  <!-- centre (50.8, 52.2) → canvas centre at scale 11.5 -->
+  <g transform="translate(-72.2,-88.3) scale(11.5)">
+    <!-- claimed identity: ghost card + ghost person, behind -->
+    <rect x="38" y="26" width="40" height="40" rx="11" fill="none" stroke="#ffffff" stroke-opacity="0.5" stroke-width="3.1" stroke-dasharray="6 6"/>
+    <circle cx="58" cy="42" r="6.2" fill="none" stroke="#ffffff" stroke-opacity="0.5" stroke-width="2.6"/>
+    <path d="M47.6 59 a10.4 10.4 0 0 1 20.8 0" fill="none" stroke="#ffffff" stroke-opacity="0.5" stroke-width="2.6"/>
+    <!-- real identity: solid card + solid person, front -->
+    <rect x="20" y="42" width="40" height="40" rx="11" fill="#ffffff"/>
+    <circle cx="40" cy="58" r="6.4" fill="#3d3ab4"/>
+    <path d="M29.6 75 a10.4 10.4 0 0 1 20.8 0 z" fill="#3d3ab4"/>
+    <!-- the tell, on the ghost's free corner -->
+    <circle cx="74" cy="30" r="7.6" fill="#ffce4a"/>
+    <path d="M74 25.8 v4.6 M74 33.2 v0.4" stroke="#2b2888" stroke-width="2.6" stroke-linecap="round"/>
   </g>
 </svg>
