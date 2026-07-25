@@ -9,9 +9,17 @@ import UIKit
 /// check, *before* the link opens. An App Intent alone wouldn't cover it: the
 /// share sheet is where the user already is.
 ///
+/// Registered as an **action** extension (`com.apple.ui-services`), not a share
+/// extension. Both appear in the same sheet but in different places: a share
+/// extension sits in the top row of app icons, where the user has to recognise
+/// and pick "Avert" among every app that accepts a link; an action extension
+/// sits in the actions list underneath, reading as the verb it is —
+/// "Vérifier ce lien". For a check you run on a link you already distrust, the
+/// verb is what you look for, not the app name.
+///
 /// Extracts the URL from the attachments, runs the same engine as everything
 /// else, shows the verdict. No network, and the link is never opened.
-final class ShareViewController: UIViewController {
+final class LinkActionViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .clear
@@ -70,7 +78,7 @@ final class ShareViewController: UIViewController {
             content = AnyView(LinkCheckSnippet(notALink: input ?? ""))
         }
 
-        let root = ShareSheet(content: content) { [weak self] in
+        let root = ActionSheet(content: content) { [weak self] in
             // Always `completeRequest`, never `cancelRequest`: the user asked for
             // an opinion and got one — this isn't a failure.
             self?.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
@@ -87,7 +95,7 @@ final class ShareViewController: UIViewController {
 }
 
 /// Chrome around the verdict: a title, the result, one way out.
-private struct ShareSheet: View {
+private struct ActionSheet: View {
     let content: AnyView
     let done: () -> Void
 

@@ -38,7 +38,7 @@ targets:
     dependencies:
       - target: AvertExtension
         embed: true
-      - target: AvertShare
+      - target: AvertAction
         embed: true
       # Without an explicit link, appintentsmetadataprocessor reports "No
       # AppIntents.framework dependency found" and skips extraction — the intent
@@ -94,11 +94,11 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.avert.extension
 
-  AvertShare:
+  AvertAction:
     type: app-extension
     platform: iOS
     sources:
-      - ShareExtension
+      - ActionExtension
       - Shared
       # The registry is the reference the verdict compares against — without it
       # in this bundle, every link would come back "nothing found", the most
@@ -106,15 +106,19 @@ targets:
       - path: registry/brands.json
         buildPhase: resources
     info:
-      path: ShareExtension/Info.plist
+      path: ActionExtension/Info.plist
       properties:
         CFBundleDisplayName: Vérifier ce lien
         # Declared here, not in a hand-written plist: XcodeGen *generates* the file
         # at info.path and silently overwrites anything committed there. Learned
         # twice now — same trap as AvertExtension above.
         NSExtension:
-          NSExtensionPointIdentifier: com.apple.share-services
-          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
+          # ui-services (action), not share-services: an action extension appears
+          # in the actions LIST of the share sheet, named by its verb, instead of
+          # forcing the user to spot the app's icon among every app that accepts
+          # a link. See the header comment in LinkActionViewController.swift.
+          NSExtensionPointIdentifier: com.apple.ui-services
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).LinkActionViewController
           NSExtensionAttributes:
             # A predicate rather than NSExtensionActivationSupportsWebURLWithMaxCount:
             # Messages hands a link over as plain text as often as a URL, and the
@@ -123,7 +127,7 @@ targets:
             NSExtensionActivationRule: 'SUBQUERY(extensionItems, $extensionItem, SUBQUERY($extensionItem.attachments, $attachment, ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.url" || ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.plain-text").@count >= 1).@count == 1'
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.avert.share
+        PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.avert.action
 
   AvertTests:
     type: bundle.unit-test
