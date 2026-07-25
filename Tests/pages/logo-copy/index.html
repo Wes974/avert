@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Connexion — Espace client</title>
+<meta property="og:site_name" content="PayPal">
+<style>
+  body { font: 16px -apple-system, system-ui, sans-serif; max-width: 22rem; margin: 3rem auto; padding: 0 1rem; }
+  img.logo { width: 180px; height: auto; display: block; margin: 0 auto 2rem; }
+  label { display: block; margin: .8rem 0 .2rem; font-size: .9rem; }
+  input { width: 100%; padding: .6rem; font-size: 1rem; }
+  button { margin-top: 1.2rem; width: 100%; padding: .7rem; font-size: 1rem; }
+</style>
+</head>
+<body>
+
+<!--
+  Manual test for the logo perceptual-hash signal (l2.brand-logo-copy).
+
+  Reproduces what a phishing kit actually does: the brand's logo is *copied into
+  this site*, served same-origin, so no URL heuristic can see anything wrong with
+  it. Only the pixels give it away.
+
+  The image is NOT committed — shipping a brand's logo in a public repo is not
+  something a test fixture needs to do. Drop a copy yourself:
+
+    cp <un-logo-paypal>.png Tests/pages/logo-copy/logo.png
+
+  Any rendition whose dHash is in registry/brands.json for PayPal works; rescaling
+  and re-encoding are tolerated (12 bits of 64), which is the point.
+
+  Expected: l2.brand-logo-copy@PayPal, and since it is an identity signal, the
+  score doubles → interstitial. Verify in the native log rather than by the UI
+  alone (subsystem == "com.ouweis.avert").
+-->
+
+<img class="logo" src="logo.png" alt="PayPal logo">
+
+<form method="post" action="/collect">
+  <label for="u">Adresse e-mail</label>
+  <input id="u" type="email" name="user" autocomplete="username">
+  <label for="p">Mot de passe</label>
+  <input id="p" type="password" name="pass" autocomplete="current-password">
+  <button type="submit">Se connecter</button>
+</form>
+
+<p id="warn" style="color:#b00; font-size:.85rem"></p>
+<script>
+  // Fail loudly rather than silently testing nothing: a missing image would make
+  // the page look "clean" and the test would pass for the wrong reason.
+  const img = document.querySelector("img.logo");
+  img.addEventListener("error", () => {
+    document.getElementById("warn").textContent =
+      "logo.png absent — le test ne prouve rien tant que l'image n'est pas là (cf. commentaire du fichier).";
+  });
+</script>
+</body>
+</html>

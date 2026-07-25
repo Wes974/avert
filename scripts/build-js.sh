@@ -32,6 +32,12 @@ mkdir -p "$ROOT/ts/src/generated"
 mkdir -p "$SCRATCH"
 rsync -a --delete --exclude node_modules "$ROOT/ts/" "$SCRATCH/"
 
+# The L1 corpus lives outside ts/ because the Swift tests read the same file
+# (Tests/corpus/l1.json is the anti-drift contract between the two L1 engines).
+# Mirror the repo-relative path the test imports, so it resolves in the scratch.
+mkdir -p "$SCRATCH/../Tests/corpus"
+rsync -a "$ROOT/Tests/corpus/" "$SCRATCH/../Tests/corpus/"
+
 cd "$SCRATCH"
 bun install --silent
 bunx tsc --noEmit

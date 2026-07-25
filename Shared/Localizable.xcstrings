@@ -531,6 +531,347 @@
         }
       }
     },
+    "link.caveat": {
+      "comment": "Toujours affiché, quel que soit le verdict. Ne jamais retirer.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I only read the address, not the page. A clean address does not make a page honest."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je n'ai lu que l'adresse, pas la page. Une adresse propre ne garantit pas une page honnête."
+          }
+        }
+      }
+    },
+    "link.detail.impersonation": {
+      "comment": "%1$@ = marque, %2$@ = hôte réel.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The link evokes “%1$@” but leads to %2$@, which does not belong to that brand. Do not enter any credentials there."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le lien évoque « %1$@ » mais mène à %2$@, qui n'appartient pas à cette marque. N'y saisissez aucun identifiant."
+          }
+        }
+      }
+    },
+    "link.detail.nothing": {
+      "comment": "%1$@ = hôte.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The address %1$@ shows no sign of impersonation that I can recognise."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'adresse %1$@ ne présente aucun signe d'usurpation d'identité que je sache reconnaître."
+          }
+        }
+      }
+    },
+    "link.detail.suspicious": {
+      "comment": "%1$@ = hôte.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The address %1$@ shows traits common to phishing pages, without certainty."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'adresse %1$@ présente des caractéristiques fréquentes sur les pages de phishing, sans certitude."
+          }
+        }
+      }
+    },
+    "link.error.not-a-link": {
+      "comment": "Entrée qui n'est pas un lien web (mailto:, texte brut).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is not a web link"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce n'est pas un lien web"
+          }
+        }
+      }
+    },
+    "link.error.not-a-link.detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I can only check http or https addresses."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je ne sais vérifier que des adresses http ou https."
+          }
+        }
+      }
+    },
+    "link.headline.impersonation": {
+      "comment": "Verdict d'un lien vérifié hors du navigateur. %1$@ = marque imitée.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This address imitates “%1$@”"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette adresse imite « %1$@ »"
+          }
+        }
+      }
+    },
+    "link.headline.nothing": {
+      "comment": "Verdict d'un lien : rien trouvé DANS L'ADRESSE. Jamais « sûr ».",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing unusual in the address"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien d'anormal dans l'adresse"
+          }
+        }
+      }
+    },
+    "link.headline.suspicious": {
+      "comment": "Verdict d'un lien : indices présents mais non concluants.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unusual address"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse inhabituelle"
+          }
+        }
+      }
+    },
+    "link.signal.l1.brand-subdomain": {
+      "comment": "%1$@ = marque, %2$@ = hôte.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%1$@” placed as a subdomain of another domain (%2$@)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %1$@ » placé en sous-domaine d'un autre domaine (%2$@)"
+          }
+        }
+      }
+    },
+    "link.signal.l1.combosquat": {
+      "comment": "%1$@ = marque, %2$@ = détail.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brand name “%1$@” glued to a lure word (%2$@)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nom de marque « %1$@ » collé à un mot d'appât (%2$@)"
+          }
+        }
+      }
+    },
+    "link.signal.l1.exotic-port": {
+      "comment": "%2$@ = port.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unusual network port (%2$@)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Port réseau inhabituel (%2$@)"
+          }
+        }
+      }
+    },
+    "link.signal.l1.homograph": {
+      "comment": "%1$@ = marque, %2$@ = détail.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deceptive characters imitating “%1$@” (%2$@)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caractères trompeurs imitant « %1$@ » (%2$@)"
+          }
+        }
+      }
+    },
+    "link.signal.l1.ip-literal": {
+      "comment": "%2$@ = hôte.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP address instead of a domain name (%2$@)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse IP au lieu d'un nom de domaine (%2$@)"
+          }
+        }
+      }
+    },
+    "link.signal.l1.low-rep-tld": {
+      "comment": "%2$@ = extension.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domain extension often used by throwaway sites (.%2$@)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extension de domaine souvent utilisée par des sites jetables (.%2$@)"
+          }
+        }
+      }
+    },
+    "link.signal.l1.mixed-script": {
+      "comment": "%2$@ = hôte décodé.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Several alphabets mixed in the domain (%2$@)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plusieurs alphabets mélangés dans le domaine (%2$@)"
+          }
+        }
+      }
+    },
+    "link.signal.l1.punycode": {
+      "comment": "%2$@ = forme décodée.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Address encoded to hide non-Latin characters (%2$@)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse encodée pour masquer des caractères non latins (%2$@)"
+          }
+        }
+      }
+    },
+    "link.signal.l1.subdomain-depth": {
+      "comment": "%2$@ = nombre de niveaux.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deeply nested subdomains (%2$@ levels)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sous-domaines très imbriqués (%2$@ niveaux)"
+          }
+        }
+      }
+    },
+    "link.signal.l1.typosquat": {
+      "comment": "%1$@ = marque, %2$@ = détail.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spelling very close to “%1$@” (%2$@)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orthographe très proche de « %1$@ » (%2$@)"
+          }
+        }
+      }
+    },
     "verdict.reason.brand-mismatch": {
       "comment": "Alert text. %1$@ claimed brand, %2$@ page host, %3$ld number of converging signals.",
       "extractionState": "manual",

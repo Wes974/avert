@@ -1,0 +1,105 @@
+{
+  "_doc": [
+    "Corpus L1 partagé par les DEUX implémentations : ts/src/l1.ts (extension) et",
+    "Shared/URLHeuristics.swift (App Intent, extension de partage).",
+    "Lu par ts/tests/l1-corpus.test.ts ET Tests/Swift/URLHeuristicsTests.swift.",
+    "Un signal est noté 'id@Marque' quand il implique une marque du registre.",
+    "'expect' = attendu commun. 'expectSwift' = surcharge quand la divergence est",
+    "voulue ; toute divergence non déclarée ici casse le build, c'est le but."
+  ],
+  "cases": [
+    {
+      "url": "https://www.paypal.com/signin",
+      "expect": [],
+      "note": "Domaine possédé par la marque : L1 se tait, c'est le garde anti-faux-positif principal."
+    },
+    {
+      "url": "https://labanquepostale.fr/",
+      "expect": []
+    },
+    {
+      "url": "https://auth.wl-fr.com/login",
+      "expect": [],
+      "note": "Délégué d'authentification légitime de La Banque Postale."
+    },
+    {
+      "url": "https://boutique-legitime.fr/panier",
+      "expect": [],
+      "note": "Site quelconque hors registre : aucun signal."
+    },
+    {
+      "url": "https://xn--pypal-4ve.com/login",
+      "expect": ["l1.homograph@PayPal", "l1.mixed-script", "l1.punycode"],
+      "note": "Punycode explicite : décodé puis replié sur 'paypal'."
+    },
+    {
+      "url": "https://pаypal.com/login",
+      "expect": ["l1.homograph@PayPal", "l1.mixed-script", "l1.punycode"],
+      "expectSwift": ["l1.homograph@PayPal", "l1.mixed-script"],
+      "note": "'а' cyrillique en clair. JS encode automatiquement l'hôte en punycode via URL, d'où le signal l1.punycode côté TS ; Swift reçoit la chaîne brute, donc pas d'encodage à signaler. L'analyse porte sur la forme décodée dans les deux cas — seul le signal d'encodage diffère."
+    },
+    {
+      "url": "https://paypa1.com/login",
+      "expect": ["l1.homograph@PayPal"],
+      "note": "Substitution de chiffre : '1' se replie sur 'l'."
+    },
+    {
+      "url": "https://paypal-secure-verif.top/",
+      "expect": ["l1.combosquat@PayPal", "l1.low-rep-tld"]
+    },
+    {
+      "url": "https://paypal.com.securite-client.xyz/login",
+      "expect": ["l1.brand-subdomain@PayPal", "l1.low-rep-tld"],
+      "note": "La marque en sous-domaine d'un domaine étranger."
+    },
+    {
+      "url": "https://amaz0n-account.xyz/",
+      "expect": ["l1.combosquat@Amazon", "l1.low-rep-tld"]
+    },
+    {
+      "url": "https://ameli-remboursement.click/",
+      "expect": ["l1.combosquat@Ameli", "l1.low-rep-tld"]
+    },
+    {
+      "url": "https://impots-remboursement.top/",
+      "expect": ["l1.combosquat@Impôts", "l1.low-rep-tld"]
+    },
+    {
+      "url": "https://192.168.1.44/login",
+      "expect": ["l1.ip-literal"]
+    },
+    {
+      "url": "https://[2001:db8::1]/login",
+      "expect": ["l1.ip-literal"],
+      "note": "IPv6 : les crochets font partie de l'hôte, comme dans URL.hostname."
+    },
+    {
+      "url": "https://login.example.com:8443/",
+      "expect": ["l1.exotic-port"]
+    },
+    {
+      "url": "https://a.b.c.d.e.example.com/",
+      "expect": ["l1.subdomain-depth"]
+    },
+    {
+      "url": "https://paypal.com@evil.top/login",
+      "expect": ["l1.low-rep-tld"],
+      "note": "Piège du userinfo : l'hôte réel est evil.top, pas paypal.com. Si le parseur lisait paypal.com, il classerait le lien comme légitime — le pire échec possible ici."
+    },
+    {
+      "url": "mailto:someone@paypal.com",
+      "expect": [],
+      "note": "Pas un lien web : aucun verdict."
+    },
+    {
+      "url": "javascript:alert(1)",
+      "expect": []
+    },
+    {
+      "url": "paypal-verif.top/login",
+      "expect": [],
+      "expectSwift": ["l1.combosquat@PayPal", "l1.low-rep-tld"],
+      "note": "Sans schéma. new URL() lève côté JS, donc l'extension ne voit rien — sans conséquence, un content script a toujours une URL complète. Swift doit l'accepter : c'est exactement la forme qu'on colle depuis un SMS."
+    }
+  ]
+}

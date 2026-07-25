@@ -32,12 +32,18 @@ targets:
     platform: iOS
     sources:
       - App
-      # Includes Shared/Localizable.xcstrings — both targets need it: the app for
-      # its own UI, the extension because the verdict text is produced there.
+      # Includes Shared/Localizable.xcstrings — every target needs it: the app for
+      # its own UI, the extensions because the verdict text is produced there.
       - Shared
     dependencies:
       - target: AvertExtension
         embed: true
+      - target: AvertShare
+        embed: true
+      # Without an explicit link, appintentsmetadataprocessor reports "No
+      # AppIntents.framework dependency found" and skips extraction — the intent
+      # compiles but never appears in Siri, Spotlight or Shortcuts.
+      - sdk: AppIntents.framework
     info:
       path: App/Info.plist
       properties:
@@ -56,7 +62,13 @@ targets:
     platform: iOS
     sources:
       - Extension/Swift
-      - Shared
+      # Shared/UI excluded: this process is spawned for page it analyses, and it
+      # never draws anything (the in-page alert is TypeScript). No reason to link
+      # SwiftUI views into it.
+      - path: Shared
+        excludes:
+          - "UI"
+          - "UI/**"
       - path: Extension/Resources
         buildPhase: resources
         # _locales must keep its directory structure in the bundle (WebExtension
@@ -82,11 +94,46 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.avert.extension
 
+  AvertShare:
+    type: app-extension
+    platform: iOS
+    sources:
+      - ShareExtension
+      - Shared
+      # The registry is the reference the verdict compares against — without it
+      # in this bundle, every link would come back "nothing found", the most
+      # dangerous possible failure. BrandRegistry logs .fault if it's missing.
+      - path: registry/brands.json
+        buildPhase: resources
+    info:
+      path: ShareExtension/Info.plist
+      properties:
+        CFBundleDisplayName: Vérifier ce lien
+        # Declared here, not in a hand-written plist: XcodeGen *generates* the file
+        # at info.path and silently overwrites anything committed there. Learned
+        # twice now — same trap as AvertExtension above.
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.share-services
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
+          NSExtensionAttributes:
+            # A predicate rather than NSExtensionActivationSupportsWebURLWithMaxCount:
+            # Messages hands a link over as plain text as often as a URL, and the
+            # count-based keys ignore the text case — the extension would be absent
+            # from the share sheet exactly when a lure message is being read.
+            NSExtensionActivationRule: 'SUBQUERY(extensionItems, $extensionItem, SUBQUERY($extensionItem.attachments, $attachment, ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.url" || ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.plain-text").@count >= 1).@count == 1'
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.avert.share
+
   AvertTests:
     type: bundle.unit-test
     platform: iOS
     sources:
       - Tests/Swift
+      # L1 corpus, shared with the bun tests: both engines assert against the
+      # same file so the TS and Swift implementations can't drift apart.
+      - path: Tests/corpus
+        buildPhase: resources
     dependencies:
       - target: Avert
     settings:

@@ -11,3 +11,8 @@ node_modules/
 # macOS noise
 .DS_Store
 ._*
+
+# Test fixture: a brand logo copied locally to exercise the perceptual-hash
+# signal. Never committed — a public repo has no need to redistribute brand
+# assets. See Tests/pages/logo-copy/index.html.
+Tests/pages/logo-copy/logo.png
