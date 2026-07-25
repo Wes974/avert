@@ -1,51 +1,46 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+<svg xmlns="http://www.w3.org/2000/svg" width="102" height="102" viewBox="14 8 102 102">
   <!--
     Template icon for the "Vérifier ce lien" action extension.
 
     iOS renders action-extension icons as an ALPHA MASK: every colour is thrown
     away and only opacity survives. That is why the app icon could not be reused —
     it ships without an alpha channel (an App Store requirement), so masking it
-    produced the solid white square seen in the share sheet.
+    produced the solid white square first seen in the share sheet.
 
-    So: black on transparent, no colour, no gradient, and the separation between
-    the two cards is a transparent gap rather than a light stroke.
-
-    Same idea as the app icon — "le décalage": a real identity card and its
-    offset ghost duplicate.
+    Same geometry as design/AppIcon.svg, coordinate for coordinate, so the three
+    renditions of the mark (Home Screen icon, in-app AvertMark, this one) are one
+    drawing. What a mask cannot carry: the gold of the spark, and the indigo of
+    the card. The spark stays as a shape; its colour is lost by construction.
   -->
   <defs>
-    <!-- Knocks a gap out of the ghost card wherever the real card overlaps it,
-         since a lighter stroke would simply vanish in a mask. -->
+    <!-- The ghost is behind the real card. In the full icon they are separated by
+         colour; in a mask everything is the same black, so the gap has to be cut
+         out of the ghost explicitly. -->
     <mask id="gap">
-      <rect width="100" height="100" fill="white"/>
-      <rect x="12" y="40" width="58" height="46" rx="13" fill="black"/>
+      <rect x="0" y="0" width="130" height="130" fill="white"/>
+      <rect x="15" y="37" width="50" height="50" rx="16" fill="black"/>
     </mask>
   </defs>
 
-  <!-- Ghost duplicate: outline, offset up and to the right. -->
-  <g mask="url(#gap)">
-    <rect x="34" y="16" width="52" height="40" rx="9"
-          fill="none" stroke="#000" stroke-width="6"/>
+  <!-- Ghost duplicate: dashed card + outlined person, offset up and right. -->
+  <g mask="url(#gap)" fill="none" stroke="#000">
+    <rect x="44" y="18" width="40" height="40" rx="11" stroke-width="3.6" stroke-dasharray="6 6"/>
+    <circle cx="64" cy="34" r="6.2" stroke-width="2.8"/>
+    <path d="M53.6 51 a10.4 10.4 0 0 1 20.8 0" stroke-width="2.8"/>
   </g>
 
-  <!-- The real card: solid, with the person knocked out so it reads at 20 pt. -->
+  <!-- The real card: solid, person knocked out (evenodd). -->
   <path fill-rule="evenodd" d="
-    M 26 44
-    h 40
-    a 9 9 0 0 1 9 9
-    v 26
-    a 9 9 0 0 1 -9 9
-    h -40
-    a 9 9 0 0 1 -9 -9
-    v -26
-    a 9 9 0 0 1 9 -9
-    z
-    M 37 62
-    a 6.5 6.5 0 1 0 13 0
-    a 6.5 6.5 0 1 0 -13 0
-    z
-    M 32 82
-    a 11.5 11.5 0 0 1 23 0
-    z
+    M 31 42 h 18 a 11 11 0 0 1 11 11 v 18 a 11 11 0 0 1 -11 11
+    h -18 a 11 11 0 0 1 -11 -11 v -18 a 11 11 0 0 1 11 -11 z
+    M 40 51.6 a 6.4 6.4 0 1 0 0 12.8 a 6.4 6.4 0 1 0 0 -12.8 z
+    M 29.6 75 a 10.4 10.4 0 0 1 20.8 0 z
+  "/>
+
+  <!-- The spark. Colour is lost in the mask; the shape carries the meaning. -->
+  <path fill-rule="evenodd" d="
+    M 80 14.4 a 7.6 7.6 0 1 0 0 15.2 a 7.6 7.6 0 1 0 0 -15.2 z
+    M 78.7 17.6 h 2.6 v 5.6 h -2.6 z
+    M 78.7 25 h 2.6 v 2.4 h -2.6 z
   "/>
 </svg>

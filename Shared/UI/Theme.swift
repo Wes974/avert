@@ -174,38 +174,72 @@ struct AvertRow: View {
 /// A SwiftUI echo of the app icon: the real identity card, its offset ghost
 /// duplicate, and the gold spark. Drawn rather than shipped as a PNG so it
 /// tracks the palette and stays crisp at any size.
+///
+/// The proportions below are not invented — they are `design/AppIcon.svg` mapped
+/// into a unit square, so the mark on screen and the mark on the Home Screen are
+/// the same drawing. An earlier version used wide card shapes here and squares in
+/// the icon, and the mismatch was visible side by side.
+///
+/// Reference geometry, in the SVG's own coordinates: both cards are 40×40 with
+/// rx 11, the real one at (20,42), the ghost at (44,18), the spark centred on
+/// (80,22) with r 7.6. The glyph spans (20,14)…(88,82) — a 68-unit box.
 struct AvertMark: View {
     var size: CGFloat = 72
 
+    // Everything below is expressed as a fraction of that 68-unit box.
+    private var box: CGFloat { size }
+    private var card: CGFloat { box * 40 / 68 }
+    private var radius: CGFloat { box * 11 / 68 }
+    private var spark: CGFloat { box * 15.2 / 68 }
+
+    /// Offset of a shape's centre from the box centre, given its top-left corner
+    /// in SVG coordinates.
+    private func offset(x: CGFloat, y: CGFloat, side: CGFloat) -> CGSize {
+        CGSize(
+            width: (x + side / 2 - 20 - 34) / 68 * box,
+            height: (y + side / 2 - 14 - 34) / 68 * box
+        )
+    }
+
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: size * 0.16, style: .continuous)
+            // Ghost duplicate: dashed outline, up and to the right.
+            RoundedRectangle(cornerRadius: radius, style: .continuous)
                 .strokeBorder(
                     Color.avertIndigo.opacity(0.55),
-                    style: StrokeStyle(lineWidth: size * 0.035, dash: [size * 0.08, size * 0.05])
+                    style: StrokeStyle(
+                        lineWidth: box * 3.1 / 68,
+                        dash: [box * 6 / 68, box * 6 / 68]
+                    )
                 )
-                .frame(width: size * 0.72, height: size * 0.54)
-                .offset(x: size * 0.11, y: -size * 0.11)
+                .frame(width: card, height: card)
+                .offset(offset(x: 44, y: 18, side: 40))
 
-            RoundedRectangle(cornerRadius: size * 0.16, style: .continuous)
+            // The real card: solid, person knocked out.
+            RoundedRectangle(cornerRadius: radius, style: .continuous)
                 .fill(
                     LinearGradient(
                         colors: [Color.avertIndigo, Color.avertIndigo.opacity(0.78)],
                         startPoint: .topLeading, endPoint: .bottomTrailing
                     )
                 )
-                .frame(width: size * 0.72, height: size * 0.54)
+                .frame(width: card, height: card)
                 .overlay(
                     Image(systemName: "person.fill")
-                        .font(.system(size: size * 0.26, weight: .semibold))
+                        .font(.system(size: card * 0.52, weight: .semibold))
                         .foregroundStyle(.white)
                 )
-                .offset(x: -size * 0.06, y: size * 0.06)
+                .offset(offset(x: 20, y: 42, side: 40))
 
-            Image(systemName: "exclamationmark")
-                .font(.system(size: size * 0.2, weight: .heavy))
-                .foregroundStyle(Color.avertGold)
-                .offset(x: size * 0.36, y: size * 0.24)
+            // The spark, on the ghost's top-right corner.
+            ZStack {
+                Circle().fill(Color.avertGold)
+                Image(systemName: "exclamationmark")
+                    .font(.system(size: spark * 0.62, weight: .heavy))
+                    .foregroundStyle(Color.avertGroundBottom)
+            }
+            .frame(width: spark, height: spark)
+            .offset(offset(x: 80 - 7.6, y: 22 - 7.6, side: 15.2))
         }
         .frame(width: size, height: size)
         .accessibilityHidden(true)
