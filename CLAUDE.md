@@ -58,6 +58,8 @@ Ajout/suppression de fichier source Swift → **relancer `xcodegen generate`** (
 - **bun** : `TMPDIR`/cache redirigés dans le scratch (géré par `scripts/build-js.sh`).
 - **Thermique** : MacBook Pro 16" 2019 throttle fort. Le simulateur iOS 26 lance `mediaanalysisd` (CPU 300 %+) qui **affame Safari → les content scripts ne s'injectent plus** (ressemble à « extension cassée »). Avant tout diagnostic, vérifier `pmset -g therm` et `uptime`. Un seul simulateur booté, préférer la page de test locale aux gros sites.
 - **Safari démarré à froid** charge la page avant d'activer l'extension : préchauffer sur une page neutre puis naviguer.
+- **Content script périmé après réinstallation** : un onglet déjà ouvert continue d'exécuter l'ANCIEN bundle. Symptôme trompeur — un verdict correct mais issu d'un code d'une version antérieure, donc sans les signaux récents. Repère fiable : la ligne de debug (`pass=`, absent avant la couverture SPA) et l'hôte affiché (`host:port` avant le refinement, `hostname` seul après). **Après chaque install : quitter Safari depuis le sélecteur d'apps**, pas seulement fermer l'onglet.
+- **Vérifier ce qu'on installe, pas ce qu'on a construit** : `grep logo_hashes <App>.app/PlugIns/*.appex/brands.json` avant `devicectl install`. Un build device antérieur à une modif du registre donne un signal muet qu'on prend pour un bug.
 
 ## L3 (FoundationModels)
 
