@@ -143,6 +143,7 @@ struct OnboardingView: View {
                 .disabled(page == Self.pageCount - 1)
         }
         .padding(.horizontal, 24)
+        .readableWidth()
     }
 }
 
@@ -178,6 +179,7 @@ private struct OnboardingPage<Illustration: View, Content: View>: View {
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 24)
+            .readableWidth()
         }
         .scrollContentBackground(.hidden)
     }

@@ -248,6 +248,21 @@ struct AvertMark: View {
     }
 }
 
+// MARK: - Readable width
+
+extension View {
+    /// Caps content at a comfortable measure and centres it.
+    ///
+    /// Without this the layout stretches edge to edge on iPad and the text runs
+    /// eleven inches wide — technically fine, unreadable in practice, and the
+    /// kind of thing App Review flags as "not designed for iPad". 620 pt keeps
+    /// body text near the 60–75 character measure typography has settled on.
+    func readableWidth(_ max: CGFloat = 620) -> some View {
+        frame(maxWidth: max)
+            .frame(maxWidth: .infinity)
+    }
+}
+
 // MARK: - Screen scaffold
 
 /// Shared layout for the three tabs: Midnight ground + large title + cards.
@@ -272,6 +287,7 @@ struct MidnightScreen<Content: View>: View {
                 .padding(.horizontal, 18)
                 .padding(.top, 4)
                 .padding(.bottom, 28)
+                .readableWidth()
             }
             .scrollContentBackground(.hidden)
             .background(MidnightGround())

@@ -51,6 +51,22 @@ targets:
         UILaunchScreen:
           UIColorName: LaunchBackground
         ITSAppUsesNonExemptEncryption: false
+        # Required, and rejected at upload without it: a universal build
+        # (TARGETED_DEVICE_FAMILY 1,2) must declare all four orientations or
+        # Apple refuses the bundle for breaking iPad multitasking.
+        # "Invalid bundle. No orientations were specified in the com.ouweis.avert
+        # bundle." — validation, 2026-07-25.
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        # On iPhone, upside-down is left out: it is not a rotation anyone wants
+        # on a phone, and iOS ignores it on most models anyway.
+        UISupportedInterfaceOrientations~iphone:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.avert
@@ -71,13 +87,19 @@ targets:
           - "UI/**"
       - path: Extension/Resources
         buildPhase: resources
-        # _locales must keep its directory structure in the bundle (WebExtension
-        # i18n reads _locales/<lang>/messages.json), so it is added below as a
-        # folder reference instead of individual files, which would flatten it.
+        # _locales and images must keep their directory structure in the bundle:
+        # the manifest addresses them by path (_locales/<lang>/messages.json,
+        # images/icon-48.png). Listed plainly they would be flattened to the
+        # bundle root and both references would dangle.
         excludes:
           - "_locales"
           - "_locales/**"
+          - "images"
+          - "images/**"
       - path: Extension/Resources/_locales
+        buildPhase: resources
+        type: folder
+      - path: Extension/Resources/images
         buildPhase: resources
         type: folder
       - path: registry/brands.json

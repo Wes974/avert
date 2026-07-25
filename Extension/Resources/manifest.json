@@ -4,6 +4,14 @@
   "version": "0.1",
   "description": "__MSG_extDescription__",
   "default_locale": "fr",
+  "_comment_icons": "Required by App Store validation, not optional: 'The icons field is required and must include numerically-named properties with values for each string type' (upload rejected 2026-07-25). Keys are sizes as strings.",
+  "icons": {
+    "48": "images/icon-48.png",
+    "96": "images/icon-96.png",
+    "128": "images/icon-128.png",
+    "256": "images/icon-256.png",
+    "512": "images/icon-512.png"
+  },
   "permissions": ["nativeMessaging"],
   "host_permissions": ["<all_urls>"],
   "background": {
