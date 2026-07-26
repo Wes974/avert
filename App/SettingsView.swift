@@ -8,10 +8,22 @@ import SwiftUI
 /// entitlement for PCC), so their toggles are intentionally absent rather than
 /// present-but-fake. They come back the moment the plumbing lands.
 struct SettingsView: View {
-    private var appVersion: String {
-        let v = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
-        let b = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"
-        return "\(v) (\(b))"
+    /// The build number stays hidden until asked for, the way Settings › General
+    /// › About does it. The version is what a user might mention; the build is
+    /// what a developer needs, and putting both up front makes the row read like
+    /// a serial number to everyone else.
+    @State private var showsBuild = false
+
+    private var marketingVersion: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
+    }
+
+    private var buildNumber: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"
+    }
+
+    private var displayedVersion: String {
+        showsBuild ? "\(marketingVersion) (\(buildNumber))" : marketingVersion
     }
 
     var body: some View {
@@ -53,10 +65,25 @@ struct SettingsView: View {
                             .font(.subheadline)
                             .foregroundStyle(Color.avertInk)
                         Spacer()
-                        Text(appVersion)
+                        Text(displayedVersion)
                             .font(.subheadline.monospacedDigit())
                             .foregroundStyle(Color.avertInkSoft)
+                            // contentTransition keeps the digits in place while
+                            // the build number slides in, instead of the row
+                            // jumping.
+                            .contentTransition(.numericText())
                     }
+                    // The whole row is the target, not just the number: a 44 pt
+                    // strip is findable, a short string is not.
+                    .contentShape(.rect)
+                    .onTapGesture {
+                        withAnimation(.snappy(duration: 0.2)) { showsBuild.toggle() }
+                    }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityHint(showsBuild
+                                       ? "Toucher pour masquer le numéro de build."
+                                       : "Toucher pour afficher le numéro de build.")
                     Divider().overlay(Color.avertHairline.opacity(0.12))
                     Link(destination: URL(string: "https://www.apple.com/legal/privacy/")!) {
                         HStack {
