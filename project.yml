@@ -67,6 +67,24 @@ targets:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
+    # Same trap as every `info:` block above, hit a third time: declaring a path
+    # makes XcodeGen *generate* the file, silently replacing anything committed
+    # there. The content belongs here.
+    #
+    # Family mode only. Everything else in Avert needs no entitlement at all, and
+    # that is worth preserving: these three keys are the entire surface over which
+    # anything can ever leave the device. CloudKit carries FamilyAlert records —
+    # a timestamp and a device label, no destination (Shared/Family/).
+    entitlements:
+      path: App/Avert.entitlements
+      properties:
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.com.ouweis.avert
+        com.apple.developer.icloud-services:
+          - CloudKit
+        # Silent pushes from a CKSubscription, so a relative learns of an ignored
+        # warning without having to open the app.
+        aps-environment: development
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.avert

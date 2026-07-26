@@ -549,6 +549,110 @@
         }
       }
     },
+    "family.peer.unnamed": {
+      "comment": "Nom de proche non communique par iCloud.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A relative"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un proche"
+          }
+        }
+      }
+    },
+    "family.share.title": {
+      "comment": "Titre de l'invitation iCloud.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avert family link"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lien familial Avert"
+          }
+        }
+      }
+    },
+    "family.unavailable.generic": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The family link is temporarily unavailable."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le lien familial est momentanément indisponible."
+          }
+        }
+      }
+    },
+    "family.unavailable.icloud": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud is unavailable on this device."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud est indisponible sur cet appareil."
+          }
+        }
+      }
+    },
+    "family.unavailable.no-account": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No iCloud account is signed in."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun compte iCloud n'est connecté."
+          }
+        }
+      }
+    },
+    "family.unavailable.restricted": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud is restricted on this device."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud est restreint sur cet appareil."
+          }
+        }
+      }
+    },
     "link.caveat": {
       "comment": "Toujours affiché, quel que soit le verdict. Ne jamais retirer.",
       "extractionState": "manual",

@@ -52,6 +52,23 @@ xcodebuild -project Avert.xcodeproj -scheme Avert \
 
 Ajout/suppression de fichier source Swift → **relancer `xcodegen generate`** (erreur « cannot find X in scope » sur un fichier neuf = membership de target, pas le code).
 
+### Règle XcodeGen : tout `path:` est une SORTIE, jamais une source
+
+Piège rencontré **trois fois** (Info.plist de l'extension Safari, Info.plist de l'extension d'action, entitlements de l'app). Dès qu'un bloc `info:` ou `entitlements:` déclare un `path:`, XcodeGen **génère** ce fichier et écrase silencieusement ce qui s'y trouve. Un `NSExtension` ou un entitlement écrit à la main y disparaît sans avertissement, et le symptôme apparaît plus tard : extension absente de la feuille de partage, capacité manquante à la signature.
+
+→ Le contenu va dans `properties:` sous le bloc, dans `project.yml`. Le fichier sur disque est un artefact, pas une source. Ne jamais l'éditer.
+
+### Provisionnement sans Xcode
+
+Contrairement à ce que je croyais, **aucune capacité ne nécessite l'interface d'Xcode**. Chaîne complète en ligne de commande :
+
+1. `asc bundle-ids capabilities add --bundle <ID> --capability ICLOUD --settings '[{"key":"ICLOUD_VERSION","options":[{"key":"XCODE_6","enabled":true}]}]'` (sans `--settings`, l'API répond « CloudkitVersion null »)
+2. Entitlements déclarés dans `project.yml`
+3. `xcodebuild -allowProvisioningUpdates` — **crée les identifiants manquants**, y compris les conteneurs iCloud, via le service qu'utilise Xcode (que l'API App Store Connect n'expose pas)
+
+Vérifier le résultat sur le profil embarqué, pas sur le fichier généré :
+`security cms -D -i <App>.app/embedded.mobileprovision | plutil -extract Entitlements xml1 -o - -`
+
 ## Contraintes environnement (Mac Intel + iCloud)
 
 - **git** : le repo est dans iCloud → sandbox bloque les écritures `.git`. Toute commande git passe par `dangerouslyDisableSandbox`.

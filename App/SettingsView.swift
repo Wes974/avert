@@ -29,6 +29,22 @@ struct SettingsView: View {
                 }
             }
 
+            AvertSectionLabel(text: "Famille")
+            AvertCard {
+                NavigationLink {
+                    FamilyView(store: CloudKitFamilyStore())
+                } label: {
+                    HStack {
+                        AvertRow(icon: "person.2", title: "Mode famille",
+                                 detail: "Prévenir un proche quand un avertissement fort est ignoré. Désactivé par défaut.")
+                        Image(systemName: "chevron.right")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(Color.avertInkSoft)
+                    }
+                    .frame(minHeight: 44)
+                }
+            }
+
             AvertSectionLabel(text: "À propos")
             AvertCard {
                 VStack(alignment: .leading, spacing: 12) {
