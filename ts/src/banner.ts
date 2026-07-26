@@ -221,7 +221,14 @@ export function showInterstitial(verdict: Verdict): void {
   lbl.className = "lbl";
   lbl.textContent = t("proceed");
   proceed.append(fill, lbl);
-  attachLongPress(proceed, fill, lbl, removeHost);
+  attachLongPress(proceed, fill, lbl, () => {
+    // Family mode: the relative learns THAT a strong warning was ignored. Fired
+    // here rather than natively, because this is the only place that knows the
+    // user actually went through with it. Best-effort — a failure here must
+    // never stand between the user and the page they chose to open.
+    void browser.runtime.sendMessage({ type: "warningIgnored" }).catch(() => {});
+    removeHost();
+  });
 
   const hint = document.createElement("p");
   hint.className = "imp-hint";

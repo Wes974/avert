@@ -13,6 +13,7 @@ struct FamilyView: View {
     @State private var invitation: URL?
     @State private var busy = false
     @State private var confirmingUnlink = false
+    @State private var deviceLabel = FamilyDeviceLabel.current
 
     let store: FamilyStore
 
@@ -22,6 +23,7 @@ struct FamilyView: View {
             subtitle: "Prévenir un proche quand un avertissement fort est ignoré — et être prévenu pour lui."
         ) {
             whatTravels
+            labelField
 
             switch state {
             case .unavailable(let reason):
@@ -56,6 +58,32 @@ struct FamilyView: View {
     }
 
     // MARK: - States
+
+    /// The label doubles as the on/off switch: empty means nothing is ever
+    /// published. One state instead of a name plus a boolean that could drift
+    /// apart — see `FamilyDeviceLabel`.
+    private var labelField: some View {
+        AvertCard {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Le nom de cet appareil")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.avertInk)
+                TextField("iPhone de Papa", text: $deviceLabel)
+                    .textFieldStyle(.roundedBorder)
+                    .autocorrectionDisabled()
+                    .onChange(of: deviceLabel) { _, new in FamilyDeviceLabel.set(new) }
+                Text("C'est le seul mot que vos proches verront. Choisissez-le : il n'est pas repris du nom de votre appareil, qui contient souvent votre nom complet.")
+                    .font(.caption)
+                    .foregroundStyle(Color.avertInkSoft)
+                    .fixedSize(horizontal: false, vertical: true)
+                if deviceLabel.trimmingCharacters(in: .whitespaces).isEmpty {
+                    Text("Tant que ce champ est vide, rien n'est jamais envoyé.")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Color.avertGold)
+                }
+            }
+        }
+    }
 
     private var setup: some View {
         AvertCard {

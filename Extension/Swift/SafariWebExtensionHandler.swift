@@ -32,6 +32,15 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             let detail = (message?["detail"] as? String) ?? "?"
             Self.log.error("content script error: \(detail, privacy: .public)")
             Self.complete(ctx, with: ["ok": true])
+        case "warningIgnored":
+            // Family mode. Answer JS immediately and publish in the background:
+            // the user is already navigating to the page they chose, and a
+            // CloudKit round trip must never sit in that path.
+            //
+            // Note what is NOT read here — no host, no verdict, no dossier.
+            // There is nothing to strip because nothing was passed.
+            Self.complete(ctx, with: ["ok": true])
+            Task { await Self.reportWarningIgnored() }
         case "ack":
             // Second leg of the round-trip proof: JS confirming it received
             // our verdict. Log only.
@@ -41,6 +50,25 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         default:
             Self.log.error("unknown native message type")
             Self.complete(ctx, with: ["error": "unknown message type"])
+        }
+    }
+
+    /// Tell linked relatives that a strong warning was ignored here.
+    ///
+    /// Silent on every failure, deliberately. Family mode is off for almost
+    /// everyone, and `publish` throwing `.notLinked` is the normal case, not an
+    /// error worth a log line on every bypass.
+    private static func reportWarningIgnored() async {
+        let label = FamilyDeviceLabel.current
+        guard !label.isEmpty else { return }
+        let alert = FamilyAlert(occurredAt: Date(), deviceLabel: label)
+        do {
+            try await CloudKitFamilyStore().publish(alert)
+            log.info("family alert published")
+        } catch FamilyError.notLinked {
+            // Nothing set up: expected, not a failure.
+        } catch {
+            log.error("family alert failed: \(error.localizedDescription, privacy: .public)")
         }
     }
 

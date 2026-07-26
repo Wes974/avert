@@ -85,6 +85,11 @@ targets:
         # Silent pushes from a CKSubscription, so a relative learns of an ignored
         # warning without having to open the app.
         aps-environment: development
+        # Shared with the Safari extension: the device label lives here, and an
+        # access group needs no identifier registered anywhere (unlike an App
+        # Group), so it costs nothing to provision.
+        keychain-access-groups:
+          - $(AppIdentifierPrefix)com.ouweis.avert.shared
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.avert
@@ -130,6 +135,17 @@ targets:
         NSExtension:
           NSExtensionPointIdentifier: com.apple.Safari.web-extension
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).SafariWebExtensionHandler
+    entitlements:
+      path: Extension/AvertExtension.entitlements
+      properties:
+        # The extension publishes the family alert itself: it is the only place
+        # that knows the user went through with ignoring the warning.
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.com.ouweis.avert
+        com.apple.developer.icloud-services:
+          - CloudKit
+        keychain-access-groups:
+          - $(AppIdentifierPrefix)com.ouweis.avert.shared
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.avert.extension

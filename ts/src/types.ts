@@ -52,7 +52,10 @@ export type ContentToBackground =
   | { type: "jsError"; detail: string }
   // Subframe → top frame, relayed by the background (never postMessage: the
   // page could listen to that and learn Avert is installed). See frames.ts.
-  | { type: "frameCapture"; frameHost: string; kinds: CapturePointKind[] };
+  | { type: "frameCapture"; frameHost: string; kinds: CapturePointKind[] }
+  // The user held down "continue anyway" on an interstitial. Carries nothing:
+  // family mode reports THAT it happened, never where (Shared/Family/).
+  | { type: "warningIgnored" };
 
 export type NativeResponse =
   | { type: "verdict"; verdict: Verdict }
