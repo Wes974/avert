@@ -50,6 +50,12 @@ xcodebuild archive \
 echo "▸ Export et envoi"
 asc xcode export-options generate --archive-path "$ARCHIVE" --destination upload \
   --output-path "$OPTIONS" --overwrite >/dev/null
+# xcodebuild -exportArchive defaults manageAppVersionAndBuildNumber to YES and
+# silently renumbers the build on upload. That is how build 1 became build 2
+# without the archive changing — and it makes the archive on disk stop matching
+# what shipped, which cost an evening of confusion. We set the number ourselves.
+/usr/libexec/PlistBuddy -c "Add :manageAppVersionAndBuildNumber bool false" "$OPTIONS" 2>/dev/null \
+  || /usr/libexec/PlistBuddy -c "Set :manageAppVersionAndBuildNumber false" "$OPTIONS"
 asc xcode export --archive-path "$ARCHIVE" --export-options "$OPTIONS" \
   --ipa-path "$WORK/Avert.ipa" --xcodebuild-flag=-allowProvisioningUpdates \
   >"$WORK/export.log" 2>&1 || { tail -20 "$WORK/export.log"; exit 1; }

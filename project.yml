@@ -52,6 +52,11 @@ targets:
       path: App/Info.plist
       properties:
         CFBundleDisplayName: Avert
+        # XcodeGen écrit sinon « 1.0 » et « 1 » EN DUR, en ignorant
+        # MARKETING_VERSION / CURRENT_PROJECT_VERSION. Résultat constaté :
+        # l'app affichait 1.0 (1) quelle que soit la version réelle.
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         UILaunchScreen:
           UIColorName: LaunchBackground
         ITSAppUsesNonExemptEncryption: false
@@ -135,6 +140,11 @@ targets:
       path: Extension/Info.plist
       properties:
         CFBundleDisplayName: Avert
+        # XcodeGen écrit sinon « 1.0 » et « 1 » EN DUR, en ignorant
+        # MARKETING_VERSION / CURRENT_PROJECT_VERSION. Résultat constaté :
+        # l'app affichait 1.0 (1) quelle que soit la version réelle.
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         # XcodeGen ne génère pas le bloc NSExtension : obligatoire à la main.
         NSExtension:
           NSExtensionPointIdentifier: com.apple.Safari.web-extension
@@ -169,6 +179,11 @@ targets:
       path: ActionExtension/Info.plist
       properties:
         CFBundleDisplayName: Vérifier ce lien
+        # XcodeGen écrit sinon « 1.0 » et « 1 » EN DUR, en ignorant
+        # MARKETING_VERSION / CURRENT_PROJECT_VERSION. Résultat constaté :
+        # l'app affichait 1.0 (1) quelle que soit la version réelle.
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         # Declared here, not in a hand-written plist: XcodeGen *generates* the file
         # at info.path and silently overwrites anything committed there. Learned
         # twice now — same trap as AvertExtension above.
