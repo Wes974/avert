@@ -23,6 +23,16 @@ enum FamilyLinkState: Equatable, Sendable {
 }
 
 struct FamilyPeer: Identifiable, Equatable, Sendable {
+    /// Which way the link runs. Shown in both apps, always: the property worth
+    /// protecting is not symmetry, it is that nobody can be watched without
+    /// knowing it. An asymmetric link is fine — a hidden one is not.
+    enum Direction: Sendable {
+        /// They see my ignored warnings and can answer my questions.
+        case theyWatchMe
+        /// I see theirs.
+        case iWatchThem
+    }
+
     let id: String
     /// How they chose to be known. Their label, not one we assigned.
     let label: String
@@ -30,6 +40,7 @@ struct FamilyPeer: Identifiable, Equatable, Sendable {
     /// showing, because a link that has gone quiet may simply be broken, and a
     /// safety feature that has silently stopped working is worse than none.
     let lastHeardFrom: Date?
+    let direction: Direction
 }
 
 /// Everything the family feature needs from storage.
@@ -47,11 +58,43 @@ protocol FamilyStore: Sendable {
     func unlinkAll() async throws
     /// A pending invitation created on this device, if one exists.
     func invitationURL() async -> URL?
+
+    // "Ask someone you trust" — the deliberate half of the feature. Separate
+    // methods from the alert ones on purpose: the two carry different data under
+    // different consent, and merging them would blur exactly what must stay clear.
+    func ask(_ request: HelpRequest) async throws
+    /// Questions others asked me.
+    func incomingRequests(limit: Int) async throws -> [HelpRequest]
+    /// My own questions, so I can watch for the answers.
+    func myRequests(limit: Int) async throws -> [HelpRequest]
+    func answer(_ request: HelpRequest, with answer: HelpRequest.Answer, as label: String) async throws
 }
 
 extension FamilyStore {
     // Most stores have no notion of invitations; only the CloudKit one does.
     func invitationURL() async -> URL? { nil }
+}
+
+/// Everything the family screen needs in one value, so the view makes a single
+/// round trip instead of four.
+struct FamilySnapshot: Sendable {
+    var state: FamilyLinkState = .off
+    var alerts: [FamilyAlert] = []
+    var incoming: [HelpRequest] = []
+    var mine: [HelpRequest] = []
+    var invitation: URL?
+}
+
+extension FamilyStore {
+    func snapshot(limit: Int = 20) async -> FamilySnapshot {
+        FamilySnapshot(
+            state: await currentState(),
+            alerts: (try? await receivedAlerts(limit: limit)) ?? [],
+            incoming: (try? await incomingRequests(limit: limit)) ?? [],
+            mine: (try? await myRequests(limit: limit)) ?? [],
+            invitation: await invitationURL()
+        )
+    }
 }
 
 /// In-memory store used by the tests and by SwiftUI previews.
@@ -80,6 +123,34 @@ actor InMemoryFamilyStore: FamilyStore {
         state = .off
         published.removeAll()
         received.removeAll()
+        asked.removeAll()
+        incoming.removeAll()
+    }
+
+    // MARK: - Help requests
+
+    private(set) var asked: [HelpRequest] = []
+    private var incoming: [HelpRequest] = []
+
+    func seed(incoming requests: [HelpRequest]) { incoming = requests }
+
+    func ask(_ request: HelpRequest) async throws { asked.append(request) }
+
+    func incomingRequests(limit: Int) async throws -> [HelpRequest] {
+        Array(incoming.filter { !$0.isExpired() }.sorted { $0.askedAt > $1.askedAt }.prefix(limit))
+    }
+
+    func myRequests(limit: Int) async throws -> [HelpRequest] {
+        Array(asked.filter { !$0.isExpired() }.sorted { $0.askedAt > $1.askedAt }.prefix(limit))
+    }
+
+    func answer(_ request: HelpRequest, with answer: HelpRequest.Answer, as label: String) async throws {
+        guard let index = incoming.firstIndex(where: { $0.id == request.id }) else {
+            throw FamilyError.notLinked
+        }
+        incoming[index].answer = answer
+        incoming[index].answeredAt = Date()
+        incoming[index].answeredBy = label
     }
 }
 

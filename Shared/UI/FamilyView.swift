@@ -214,7 +214,7 @@ struct FamilyView: View {
 
 #Preview("Lié") {
     FamilyView(store: InMemoryFamilyStore(
-        state: .linked(peers: [FamilyPeer(id: "1", label: "iPhone de Papa", lastHeardFrom: nil)]),
+        state: .linked(peers: [FamilyPeer(id: "1", label: "iPhone de Papa", lastHeardFrom: nil, direction: .theyWatchMe)]),
         received: [FamilyAlert(occurredAt: .now.addingTimeInterval(-3600), deviceLabel: "iPhone de Papa")]
     ))
 }

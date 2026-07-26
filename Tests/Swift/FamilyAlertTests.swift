@@ -89,13 +89,13 @@ struct FamilyAlertTests {
         #expect(!FamilyLinkState.linked(peers: []).isActive)
         #expect(!FamilyLinkState.unavailable(reason: "conteneur absent").isActive)
         #expect(FamilyLinkState.linked(peers: [
-            FamilyPeer(id: "1", label: "Mamie", lastHeardFrom: nil)
+            FamilyPeer(id: "1", label: "Mamie", lastHeardFrom: nil, direction: .iWatchThem)
         ]).isActive)
     }
 
     @Test("Se délier efface aussi ce que cet appareil a publié")
     func unlinkErasesPublished() async throws {
-        let peer = FamilyPeer(id: "1", label: "Papa", lastHeardFrom: nil)
+        let peer = FamilyPeer(id: "1", label: "Papa", lastHeardFrom: nil, direction: .theyWatchMe)
         let store = InMemoryFamilyStore(state: .linked(peers: [peer]))
         try await store.publish(FamilyAlert(occurredAt: .now, deviceLabel: "moi"))
         #expect(await store.published.count == 1)
