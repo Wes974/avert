@@ -32,6 +32,12 @@ struct FamilyView: View {
                 }
             case .off:
                 setup
+            case .linked(let peers) where peers.isEmpty:
+                // A share exists but nobody has accepted it. The invitation must
+                // stay sendable here: creating one and then having no way to
+                // send it made the feature unusable.
+                setup
+                unlink
             case .linked(let peers):
                 linked(peers)
                 if !alerts.isEmpty { history }
@@ -88,7 +94,9 @@ struct FamilyView: View {
     private var setup: some View {
         AvertCard {
             VStack(alignment: .leading, spacing: 14) {
-                Text("Aucun proche n'est lié à cet appareil.")
+                Text(invitation == nil
+                     ? "Aucun proche n'est lié à cet appareil."
+                     : "Invitation prête. Personne ne l'a encore acceptée.")
                     .font(.subheadline)
                     .foregroundStyle(Color.avertInk)
 
@@ -182,6 +190,9 @@ struct FamilyView: View {
     private func refresh() async {
         state = await store.currentState()
         alerts = (try? await store.receivedAlerts(limit: 20)) ?? []
+        // Re-read rather than trust local state: the invitation has to survive
+        // leaving and reopening this screen.
+        invitation = await store.invitationURL()
     }
 
     private func invite() async {
@@ -190,6 +201,8 @@ struct FamilyView: View {
         guard let cloud = store as? CloudKitFamilyStore else { return }
         invitation = try? await cloud.createInvitation()
         await refresh()
+        // Never let refresh() blank an invitation we just created.
+        if invitation == nil { invitation = await store.invitationURL() }
     }
 
     private func unlinkAll() async {

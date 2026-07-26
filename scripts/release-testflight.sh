@@ -1,0 +1,59 @@
+#!/bin/bash
+# Archive, sign and upload the current tree to TestFlight.
+#
+#   ./scripts/release-testflight.sh
+#
+# Exists because doing this by hand went wrong twice in one evening: the build
+# number stayed pinned at 1 in project.yml (so a second upload would have been
+# rejected as a duplicate), and it was easy to lose track of what had actually
+# been *uploaded* versus merely installed on a device over USB. TestFlight only
+# ever knows what was pushed to it.
+#
+# The build number is read from App Store Connect rather than stored anywhere:
+# the server already knows the highest number it has accepted, so it is the only
+# source that cannot drift. It is passed on the xcodebuild command line, leaving
+# project.yml free of a value that would go stale the moment it is committed.
+set -euo pipefail
+
+APP_ID="${AVERT_APP_ID:-6794721645}"
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# Outside iCloud: codesign fails on the xattrs iCloud adds (see CLAUDE.md).
+WORK="${TMPDIR:-/tmp}/avert-release"
+ARCHIVE="$WORK/Avert.xcarchive"
+OPTIONS="$WORK/UploadExportOptions.plist"
+
+mkdir -p "$WORK"
+cd "$ROOT"
+
+echo "▸ Bundles JS (typecheck + tests + garde réseau)"
+./scripts/build-js.sh >/dev/null
+
+BUILD_NUMBER="$(asc builds next-build-number --app "$APP_ID" --output json \
+  | /usr/bin/python3 -c 'import json,sys; print(json.load(sys.stdin)["nextBuildNumber"])')"
+MARKETING="$(grep -m1 'MARKETING_VERSION:' project.yml | sed 's/.*"\(.*\)".*/\1/')"
+echo "▸ Version $MARKETING ($BUILD_NUMBER)"
+
+echo "▸ Projet"
+xcodegen generate >/dev/null
+
+echo "▸ Archive"
+rm -rf "$ARCHIVE"
+xcodebuild archive \
+  -project Avert.xcodeproj -scheme Avert \
+  -destination 'generic/platform=iOS' \
+  -archivePath "$ARCHIVE" \
+  -derivedDataPath "$WORK/dd" \
+  -allowProvisioningUpdates \
+  CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
+  >"$WORK/archive.log" 2>&1 || { tail -30 "$WORK/archive.log"; exit 1; }
+
+echo "▸ Export et envoi"
+asc xcode export-options generate --archive-path "$ARCHIVE" --destination upload \
+  --output-path "$OPTIONS" --overwrite >/dev/null
+asc xcode export --archive-path "$ARCHIVE" --export-options "$OPTIONS" \
+  --ipa-path "$WORK/Avert.ipa" --xcodebuild-flag=-allowProvisioningUpdates \
+  >"$WORK/export.log" 2>&1 || { tail -20 "$WORK/export.log"; exit 1; }
+
+echo "✓ Envoyé : $MARKETING ($BUILD_NUMBER)"
+echo "  Traitement Apple : quelques minutes. Suivre avec"
+echo "  asc builds list --app $APP_ID"

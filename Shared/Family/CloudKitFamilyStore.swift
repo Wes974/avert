@@ -106,9 +106,18 @@ actor CloudKitFamilyStore: FamilyStore {
         guard let share = try? await db.record(for: shareID) as? CKShare else { return [] }
 
         let me = try? await container.userRecordID()
+        let iAmOwner: Bool = if case .owner = role { true } else { false }
+
         return share.participants.compactMap { participant in
-            guard participant.userIdentity.userRecordID != me,
-                  participant.acceptanceStatus == .accepted else { return nil }
+            // Exclude myself. Comparing user record IDs is not enough on its
+            // own: on the owner's device `userIdentity.userRecordID` comes back
+            // nil, so `!= me` was true and I listed myself as a relative called
+            // "Un proche" the instant the share was created. When we own the
+            // share, the `.owner` participant *is* us — that check is reliable.
+            if iAmOwner, participant.role == .owner { return nil }
+            if let me, participant.userIdentity.userRecordID == me { return nil }
+            // Invited but not yet accepted is not a link yet.
+            guard participant.acceptanceStatus == .accepted else { return nil }
             let name = participant.userIdentity.nameComponents
                 .map { PersonNameComponentsFormatter().string(from: $0) }
             return FamilyPeer(
@@ -158,6 +167,19 @@ actor CloudKitFamilyStore: FamilyStore {
     }
 
     // MARK: - Setting up and tearing down
+
+    /// The share URL of an invitation already created on this device, if any.
+    ///
+    /// Needed because the invitation has to survive leaving and reopening the
+    /// screen: creating a share and then being unable to send it — which is what
+    /// happened before this existed — makes the whole feature unusable.
+    func invitationURL() async -> URL? {
+        guard let role = try? await resolveRole(), case .owner = role else { return nil }
+        let shareID = CKRecord.ID(recordName: CKRecordNameZoneWideShare, zoneID: zoneID)
+        guard let record = try? await container.privateCloudDatabase.record(for: shareID),
+              let share = record as? CKShare else { return nil }
+        return share.url
+    }
 
     /// Create the family zone and return a share URL to send to a relative.
     func createInvitation() async throws -> URL {

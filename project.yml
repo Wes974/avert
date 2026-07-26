@@ -18,6 +18,10 @@ settings:
     # À réessayer à chaque MAJ de Xcode.
     SWIFT_VERSION: "5.0"
     MARKETING_VERSION: "0.1.0"
+    # Valeur de repli uniquement : les envois TestFlight passent par
+    # scripts/release-testflight.sh, qui lit le prochain numéro auprès d'App Store
+    # Connect et le passe à xcodebuild. Un numéro figé ici serait périmé dès le
+    # premier envoi et ferait rejeter le suivant pour doublon.
     CURRENT_PROJECT_VERSION: "1"
     CODE_SIGN_STYLE: Automatic
     DEVELOPMENT_TEAM: LT9VN8QXU9

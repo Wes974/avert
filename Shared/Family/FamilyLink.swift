@@ -45,6 +45,13 @@ protocol FamilyStore: Sendable {
     func receivedAlerts(limit: Int) async throws -> [FamilyAlert]
     /// Break every link and delete what this device published.
     func unlinkAll() async throws
+    /// A pending invitation created on this device, if one exists.
+    func invitationURL() async -> URL?
+}
+
+extension FamilyStore {
+    // Most stores have no notion of invitations; only the CloudKit one does.
+    func invitationURL() async -> URL? { nil }
 }
 
 /// In-memory store used by the tests and by SwiftUI previews.
