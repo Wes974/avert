@@ -10,12 +10,40 @@
   "fallbackReason": {
     "message": "Cette page présente plusieurs caractéristiques de page de phishing. Vérifiez l'adresse avant de saisir quoi que ce soit."
   },
-  "dismiss": { "message": "Ignorer" },
-  "dismissAria": { "message": "Ignorer l’avertissement" },
-  "interstitialTitle": { "message": "Attention — page suspecte" },
-  "leavePage": { "message": "Quitter cette page" },
-  "proceed": { "message": "Continuer quand même" },
-  "proceedAria": { "message": "Continuer quand même — maintenir appuyé" },
-  "longPressHint": { "message": "Maintenez appuyé pour continuer" },
-  "confirmProceed": { "message": "Continuer vers cette page malgré l’avertissement ?" }
+  "dismiss": {
+    "message": "Ignorer"
+  },
+  "dismissAria": {
+    "message": "Ignorer l’avertissement"
+  },
+  "interstitialTitle": {
+    "message": "Attention — page suspecte"
+  },
+  "leavePage": {
+    "message": "Quitter cette page"
+  },
+  "proceed": {
+    "message": "Continuer quand même"
+  },
+  "proceedAria": {
+    "message": "Continuer quand même — maintenir appuyé"
+  },
+  "longPressHint": {
+    "message": "Maintenez appuyé pour continuer"
+  },
+  "confirmProceed": {
+    "message": "Continuer vers cette page malgré l’avertissement ?"
+  },
+  "askForHelp": {
+    "message": "Demander à un proche"
+  },
+  "askForHelpAria": {
+    "message": "Demander à un proche si ce site est fiable"
+  },
+  "askSent": {
+    "message": "Demande envoyée"
+  },
+  "askWhatIsShared": {
+    "message": "Votre proche verra uniquement l’adresse :"
+  }
 }

@@ -17,6 +17,10 @@ const FALLBACK_FR: Record<string, string> = {
   proceedAria: "Continuer quand même — maintenir appuyé",
   longPressHint: "Maintenez appuyé pour continuer",
   confirmProceed: "Continuer vers cette page malgré l’avertissement ?",
+  askForHelp: "Demander à un proche",
+  askForHelpAria: "Demander à un proche si ce site est fiable",
+  askSent: "Demande envoyée",
+  askWhatIsShared: "Votre proche verra uniquement l’adresse :",
 };
 
 export function t(key: keyof typeof FALLBACK_FR): string {

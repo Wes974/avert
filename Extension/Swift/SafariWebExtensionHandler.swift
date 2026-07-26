@@ -32,6 +32,13 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             let detail = (message?["detail"] as? String) ?? "?"
             Self.log.error("content script error: \(detail, privacy: .public)")
             Self.complete(ctx, with: ["ok": true])
+        case "askForHelp":
+            // The host travels here BECAUSE the user asked. Answer JS at once;
+            // the CloudKit write has no business in the tap's response time.
+            let host = (message?["host"] as? String) ?? ""
+            let reason = message?["reason"] as? String
+            Self.complete(ctx, with: ["ok": true])
+            Task { await Self.askRelatives(host: host, reason: reason) }
         case "warningIgnored":
             // Family mode. Answer JS immediately and publish in the background:
             // the user is already navigating to the page they chose, and a
@@ -69,6 +76,21 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             // Nothing set up: expected, not a failure.
         } catch {
             log.error("family alert failed: \(error.localizedDescription, privacy: .public)")
+        }
+    }
+
+    /// Publish a question about this page to the people who can answer it.
+    private static func askRelatives(host: String, reason: String?) async {
+        let label = FamilyDeviceLabel.current
+        guard !label.isEmpty, !host.isEmpty else { return }
+        let request = HelpRequest(
+            askedAt: Date(), askerLabel: label, host: host, verdictSummary: reason
+        )
+        do {
+            try await CloudKitFamilyStore().ask(request)
+            log.info("help request sent")
+        } catch {
+            log.error("help request failed: \(error.localizedDescription, privacy: .public)")
         }
     }
 
@@ -138,6 +160,11 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         }
 
         log.info("verdict: action=\(verdict.action.rawValue, privacy: .public) score=\(verdict.score) \(l3Debug, privacy: .public)")
+
+        // Offer "ask someone you trust" only when family mode is set up. A
+        // keychain read, so it costs nothing in this path — resolving the actual
+        // CloudKit link would mean a round trip the page is waiting on.
+        verdict.canAskForHelp = verdict.action == .interstitial && FamilyDeviceLabel.isEnabled
 
         guard let verdictData = try? JSONEncoder().encode(verdict),
               var verdictDict = try? JSONSerialization.jsonObject(with: verdictData) as? [String: Any]

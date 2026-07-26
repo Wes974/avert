@@ -53,4 +53,8 @@ struct Verdict: Codable, Sendable {
     let reason: String?
     /// Echoed back so the JS side can assert the round trip in M0 tests.
     let echoHost: String?
+    /// Whether to offer "ask someone you trust" on the interstitial. Decided
+    /// here rather than in JS so the button never appears when it would do
+    /// nothing. Cheap to compute: family mode is on iff a device label is set.
+    var canAskForHelp: Bool = false
 }

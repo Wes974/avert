@@ -549,6 +549,58 @@
         }
       }
     },
+    "family.answer.dangerous": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dangerous"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "dangereux"
+          }
+        }
+      }
+    },
+    "family.answer.trustworthy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "genuine"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "fiable"
+          }
+        }
+      }
+    },
+    "family.answer.unsure": {
+      "comment": "Reponse a part entiere : mieux vaut l'incertitude qu'un faux « c'est bon ».",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "not sure"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "je ne sais pas"
+          }
+        }
+      }
+    },
     "family.peer.unnamed": {
       "comment": "Nom de proche non communique par iCloud.",
       "extractionState": "manual",

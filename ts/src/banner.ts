@@ -82,6 +82,14 @@ const STYLE = `
   .imp-proceed .lbl { position: relative; text-decoration: underline; }
   .imp-hint { margin: .1rem 0 0; text-align: center; font-size: .8rem; color: var(--proceed); }
 
+  .imp-ask { margin-top: 1.1rem; padding-top: .9rem; border-top: 1px solid var(--card-line); }
+  .imp-ask-what { margin: 0 0 .5rem; font-size: .82rem; line-height: 1.4; color: var(--fg-dim); overflow-wrap: anywhere; }
+  .imp-ask-btn {
+    background: rgba(125,123,255,.16); color: var(--fg); font-size: 1rem;
+    min-height: 46px; font-weight: 600;
+  }
+  .imp-ask-btn:disabled { opacity: .6; }
+
   .imp-dbg { margin-top: 1rem; padding-top: .7rem; border-top: 1px solid var(--card-line); font: .72rem ui-monospace, monospace; color: var(--proceed); overflow-wrap: anywhere; }
 
   button:focus-visible { outline: 3px solid #7d7bff; outline-offset: 2px; }
@@ -235,6 +243,12 @@ export function showInterstitial(verdict: Verdict): void {
   hint.textContent = t("longPressHint");
 
   card.append(title, msg, leave, proceed, hint);
+
+  // "Ask someone you trust" — offered only when family mode is actually set up,
+  // decided natively, so the button is never a dead end. Placed after the two
+  // decisions rather than between them: it is a way out for someone who cannot
+  // judge, not a third opinion competing with "leave".
+  if (verdict.canAskForHelp) card.append(askBlock(verdict));
   if (verdict.debug) card.append(debugEl(verdict.debug));
   overlay.append(card);
   h.root.append(overlay);
@@ -246,6 +260,37 @@ export function showInterstitial(verdict: Verdict): void {
     if (e.key === "Escape") { e.preventDefault(); leavePage(); }
     else trap(e);
   });
+}
+
+/// Asking is a decision about *this* page, so the host is shown before it is
+/// sent. Nobody should learn afterwards what was shared on their behalf.
+function askBlock(verdict: Verdict): HTMLElement {
+  const wrap = document.createElement("div");
+  wrap.className = "imp-ask";
+
+  const shared = document.createElement("p");
+  shared.className = "imp-ask-what";
+  shared.textContent = `${t("askWhatIsShared")} ${window.location.hostname}`;
+
+  const btn = document.createElement("button");
+  btn.className = "imp-btn imp-ask-btn";
+  btn.type = "button";
+  btn.textContent = t("askForHelp");
+  btn.setAttribute("aria-label", t("askForHelpAria"));
+  btn.addEventListener("click", () => {
+    btn.disabled = true;
+    btn.textContent = t("askSent");
+    void browser.runtime
+      .sendMessage({
+        type: "askForHelp",
+        host: window.location.hostname,
+        reason: verdict.reason,
+      })
+      .catch(() => {});
+  });
+
+  wrap.append(shared, btn);
+  return wrap;
 }
 
 function leavePage(): void {

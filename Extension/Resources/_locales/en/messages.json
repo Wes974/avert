@@ -10,12 +10,40 @@
   "fallbackReason": {
     "message": "This page shows several characteristics of a phishing page. Check the address before typing anything."
   },
-  "dismiss": { "message": "Dismiss" },
-  "dismissAria": { "message": "Dismiss the warning" },
-  "interstitialTitle": { "message": "Careful — suspicious page" },
-  "leavePage": { "message": "Leave this page" },
-  "proceed": { "message": "Continue anyway" },
-  "proceedAria": { "message": "Continue anyway — press and hold" },
-  "longPressHint": { "message": "Press and hold to continue" },
-  "confirmProceed": { "message": "Continue to this page despite the warning?" }
+  "dismiss": {
+    "message": "Dismiss"
+  },
+  "dismissAria": {
+    "message": "Dismiss the warning"
+  },
+  "interstitialTitle": {
+    "message": "Careful — suspicious page"
+  },
+  "leavePage": {
+    "message": "Leave this page"
+  },
+  "proceed": {
+    "message": "Continue anyway"
+  },
+  "proceedAria": {
+    "message": "Continue anyway — press and hold"
+  },
+  "longPressHint": {
+    "message": "Press and hold to continue"
+  },
+  "confirmProceed": {
+    "message": "Continue to this page despite the warning?"
+  },
+  "askForHelp": {
+    "message": "Ask someone you trust"
+  },
+  "askForHelpAria": {
+    "message": "Ask someone you trust whether this site is genuine"
+  },
+  "askSent": {
+    "message": "Request sent"
+  },
+  "askWhatIsShared": {
+    "message": "Your relative will only see the address:"
+  }
 }

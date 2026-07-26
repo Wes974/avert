@@ -41,6 +41,9 @@ export interface Verdict {
   /** Diagnostic string (L3 state, score breakdown). Shown small in the UI
    *  during bring-up; removed in M6. */
   debug?: string | null;
+  /** Whether to offer "ask someone you trust". Decided natively (family mode is
+   *  on when a device label is set) so the button never appears dead. */
+  canAskForHelp?: boolean;
 }
 
 // Messages between content script and background.
@@ -55,7 +58,10 @@ export type ContentToBackground =
   | { type: "frameCapture"; frameHost: string; kinds: CapturePointKind[] }
   // The user held down "continue anyway" on an interstitial. Carries nothing:
   // family mode reports THAT it happened, never where (Shared/Family/).
-  | { type: "warningIgnored" };
+  | { type: "warningIgnored" }
+  // The user asked a relative about this page. Carries the host BECAUSE they
+  // asked — that is the question. See Shared/Family/HelpRequest.swift.
+  | { type: "askForHelp"; host: string; reason: string | null };
 
 export type NativeResponse =
   | { type: "verdict"; verdict: Verdict }
