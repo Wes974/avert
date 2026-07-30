@@ -27,7 +27,12 @@ struct OnboardingView: View {
                     activation.tag(1)
                     limits.tag(2)
                 }
+                // The paged style is iOS-only. On macOS the tabs keep their
+                // default appearance and the two buttons below still drive the
+                // sequence — swiping is not how anyone moves through a window.
+                #if !os(macOS)
                 .tabViewStyle(.page(indexDisplayMode: .never))
+                #endif
 
                 controls
             }

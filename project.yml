@@ -218,6 +218,110 @@ targets:
         # requirement). See design/ActionIcon.svg.
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
 
+  # --- macOS -----------------------------------------------------------------
+  #
+  # Separate targets rather than Mac Catalyst. Catalyst would have reused the
+  # UIKit surface unchanged, but that surface turned out to be one symbol
+  # (`UIApplication.openSettingsURLString`), so its main advantage was worth
+  # little — and it buys nothing on the part that actually differs: opening
+  # Safari's extension settings. `SFSafariSettings` lands on macOS and Catalyst
+  # alike only in 27.0, and `openExtensionsSettings` exists on neither. The Mac
+  # answer is `SFSafariApplication.showPreferencesForExtension`, available since
+  # 10.12 (see ActivationViews.swift).
+  #
+  # ActionExtension is deliberately absent: `com.apple.ui-services` is an iOS
+  # share-sheet point with no macOS equivalent worth faking.
+  AvertMac:
+    type: application
+    platform: macOS
+    deploymentTarget: "26.0"
+    sources:
+      - App
+      - Shared
+    dependencies:
+      - target: AvertMacExtension
+        embed: true
+      - sdk: AppIntents.framework
+    info:
+      path: App/InfoMac.plist
+      properties:
+        CFBundleDisplayName: Avert
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        ITSAppUsesNonExemptEncryption: false
+        # No UILaunchScreen and no orientations here: both are iOS keys, and a
+        # Mac app that declares them gets nothing but a warning.
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+    entitlements:
+      path: App/AvertMac.entitlements
+      properties:
+        # The Mac App Store requires the sandbox. Nothing here needs file or
+        # network access — the whole point of Avert — so the sandbox is declared
+        # with no exception at all beyond what family mode uses.
+        com.apple.security.app-sandbox: true
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.com.ouweis.avert
+        com.apple.developer.icloud-services:
+          - CloudKit
+        keychain-access-groups:
+          - $(AppIdentifierPrefix)com.ouweis.avert.shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.avert
+        # Without this the target name leaks into the product: the menu bar read
+        # "AvertMac", which is a build detail, not the name of the app.
+        PRODUCT_NAME: Avert
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+
+  AvertMacExtension:
+    type: app-extension
+    platform: macOS
+    deploymentTarget: "26.0"
+    sources:
+      - Extension/Swift
+      - path: Shared
+        excludes:
+          - "UI"
+          - "UI/**"
+      - path: Extension/Resources
+        buildPhase: resources
+        excludes:
+          - "_locales"
+          - "_locales/**"
+          - "images"
+          - "images/**"
+      - path: Extension/Resources/_locales
+        buildPhase: resources
+        type: folder
+      - path: Extension/Resources/images
+        buildPhase: resources
+        type: folder
+      - path: registry/brands.json
+        buildPhase: resources
+    info:
+      path: Extension/InfoMac.plist
+      properties:
+        CFBundleDisplayName: Avert
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.Safari.web-extension
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).SafariWebExtensionHandler
+    entitlements:
+      path: Extension/AvertMacExtension.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.com.ouweis.avert
+        com.apple.developer.icloud-services:
+          - CloudKit
+        keychain-access-groups:
+          - $(AppIdentifierPrefix)com.ouweis.avert.shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ouweis.avert.extension
+
   AvertTests:
     type: bundle.unit-test
     supportedDestinations: [iOS, visionOS]
@@ -242,4 +346,13 @@ schemes:
     test:
       targets:
         - AvertTests
+    run: {}
+
+  # No test target yet: AvertTests is an iOS/visionOS bundle. The engine it
+  # exercises is platform-free, so a Mac test bundle is worth adding — once the
+  # app itself is known to build and run.
+  AvertMac:
+    build:
+      targets:
+        AvertMac: all
     run: {}

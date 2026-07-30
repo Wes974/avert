@@ -84,6 +84,18 @@ struct OpenSettingsButton: View {
 
     @MainActor
     private func open() async {
+        #if os(macOS)
+        // macOS is the better-served platform here, by a decade: this has existed
+        // since 10.12, where iOS had to wait for 26.2. It opens Safari's own
+        // Extensions pane straight to this extension, so there is no fallback
+        // path to write and no version floor to guard.
+        // `try?`: the completion handler is imported as async throws. A failure
+        // here leaves the button apparently inert, but the three written steps
+        // above it still say where to go — same contract as the iOS fallback.
+        try? await SFSafariApplication.showPreferencesForExtension(
+            withIdentifier: Self.extensionBundleID
+        )
+        #else
         // visionOS is named explicitly. `*` means "every other platform, at its
         // own deployment target" — visionOS 26.0 here — while this API only
         // exists from visionOS 26.2, so the wildcard silently understated the
@@ -103,5 +115,6 @@ struct OpenSettingsButton: View {
         if let url = URL(string: UIApplication.openSettingsURLString) {
             openURL(url)
         }
+        #endif
     }
 }

@@ -16,9 +16,21 @@ struct ContentView: View {
                 .tabItem { Label("Réglages", systemImage: "gearshape") }
         }
         .tint(.avertIndigo)
+        // `fullScreenCover` does not exist on macOS, and would be wrong there
+        // anyway: taking over the whole window is a phone gesture. A sheet is
+        // the Mac equivalent, and it is modal all the same.
+        #if os(macOS)
+        .sheet(isPresented: $showOnboarding) {
+            // A sheet takes the size it is given. 460 pt cut the longest of the
+            // three pages in half — measured on screen, not guessed.
+            OnboardingView(isPresented: $showOnboarding)
+                .frame(width: 620, height: 660)
+        }
+        #else
         .fullScreenCover(isPresented: $showOnboarding) {
             OnboardingView(isPresented: $showOnboarding)
         }
+        #endif
         .onAppear {
             guard !hasSeenOnboarding else { return }
             showOnboarding = true
