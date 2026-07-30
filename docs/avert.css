@@ -19,11 +19,20 @@
 
 * { box-sizing: border-box; }
 
+/* The ground colour belongs on <html>, not only on <body>: it is what shows
+   through iOS's rubber-band overscroll, and what covers any area the body's
+   gradient does not reach. Without it that area falls back to white, which on a
+   dark page means unreadable text. */
+html { background: var(--ground); }
+
 body {
   margin: 0;
   padding: 2.5rem 1.25rem 5rem;
-  background: linear-gradient(175deg, var(--ground-2), var(--ground) 60%);
-  background-attachment: fixed;
+  /* No `background-attachment: fixed`: it paints only the viewport's height, so
+     everything below the first screen lost the gradient entirely — and iOS
+     Safari has never handled fixed attachment well during scroll anyway. */
+  background: linear-gradient(175deg, var(--ground-2), var(--ground) 60%) no-repeat;
+  min-height: 100vh;
   color: var(--ink);
   font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   -webkit-text-size-adjust: 100%;
