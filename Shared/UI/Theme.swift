@@ -283,33 +283,53 @@ struct MidnightScreen<Content: View>: View {
         ZStack {
             MidnightGround().ignoresSafeArea()
 
-            NavigationStack {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 18) {
-                        if let subtitle {
-                            Text(subtitle)
-                                .font(.callout)
-                                .foregroundStyle(Color.avertInkSoft)
-                                .fixedSize(horizontal: false, vertical: true)
-                                .padding(.horizontal, 4)
-                        }
-                        content()
-                    }
-                    .padding(.horizontal, 18)
-                    .padding(.top, 4)
-                    .padding(.bottom, 28)
-                }
-                .scrollContentBackground(.hidden)
-                // Painted a second time, inside the stack. Leaving it clear shows
-                // the navigation stack's own system background instead — an opaque
-                // white column with a hard vertical seam down each side of the
-                // capped width. Repeating it is safe precisely because the ground
-                // is a vertical gradient: it does not vary along x, so the column
-                // and the margins match exactly.
-                .background(MidnightGround())
+            #if os(macOS)
+            // No NavigationStack on macOS: this view is the detail pane of the
+            // window's NavigationSplitView, which already owns the navigation.
+            // Nesting a stack inside it would draw a second title bar under the
+            // real one. `.navigationTitle` still applies — on a Mac it names the
+            // window, which is where a title belongs.
+            scroll
                 .navigationTitle(title)
+            #else
+            NavigationStack {
+                scroll
+                    // Painted a second time, inside the stack. Leaving it clear
+                    // shows the navigation stack's own system background instead
+                    // — an opaque white column with a hard vertical seam down
+                    // each side of the capped width. Repeating it is safe
+                    // precisely because the ground is a vertical gradient: it
+                    // does not vary along x, so column and margins match exactly.
+                    .background(MidnightGround())
+                    .navigationTitle(title)
             }
             .readableWidth()
+            #endif
         }
+    }
+
+    private var scroll: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                if let subtitle {
+                    Text(subtitle)
+                        .font(.callout)
+                        .foregroundStyle(Color.avertInkSoft)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, 4)
+                }
+                content()
+            }
+            .padding(.horizontal, 18)
+            .padding(.top, 4)
+            .padding(.bottom, 28)
+            #if os(macOS)
+            // Applied to the content here rather than to a stack: the split
+            // view's detail pane is the full width of the window, and body text
+            // running the whole way across a 940 pt window is unreadable.
+            .readableWidth()
+            #endif
+        }
+        .scrollContentBackground(.hidden)
     }
 }

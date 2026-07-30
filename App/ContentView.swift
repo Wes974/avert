@@ -7,15 +7,8 @@ struct ContentView: View {
     @State private var showOnboarding = false
 
     var body: some View {
-        TabView {
-            HomeView()
-                .tabItem { Label("Accueil", systemImage: "house") }
-            LimitsView()
-                .tabItem { Label("Limites", systemImage: "eye.slash") }
-            SettingsView()
-                .tabItem { Label("Réglages", systemImage: "gearshape") }
-        }
-        .tint(.avertIndigo)
+        main
+            .tint(.avertIndigo)
         // `fullScreenCover` does not exist on macOS, and would be wrong there
         // anyway: taking over the whole window is a phone gesture. A sheet is
         // the Mac equivalent, and it is modal all the same.
@@ -41,6 +34,48 @@ struct ContentView: View {
             hasSeenOnboarding = true
         }
     }
+
+    #if os(macOS)
+    /// Sidebar, not tabs. A tab bar across the top of a resizable window is the
+    /// clearest sign of an iPhone layout that was stretched rather than
+    /// rewritten — and Settings does not belong in it at all on a Mac: it lives
+    /// in the app menu under ⌘, (see AvertApp).
+    @State private var section: Section? = .home
+
+    private enum Section: Hashable {
+        case home, limits
+    }
+
+    @ViewBuilder
+    private var main: some View {
+        NavigationSplitView {
+            List(selection: $section) {
+                Label("Accueil", systemImage: "house").tag(Section.home)
+                Label("Limites", systemImage: "eye.slash").tag(Section.limits)
+            }
+            .navigationSplitViewColumnWidth(min: 190, ideal: 210, max: 260)
+        } detail: {
+            switch section {
+            case .limits: LimitsView()
+            // `nil` happens when the selection is cleared; landing on Home beats
+            // showing an empty pane with no way back.
+            default: HomeView()
+            }
+        }
+    }
+    #else
+    @ViewBuilder
+    private var main: some View {
+        TabView {
+            HomeView()
+                .tabItem { Label("Accueil", systemImage: "house") }
+            LimitsView()
+                .tabItem { Label("Limites", systemImage: "eye.slash") }
+            SettingsView()
+                .tabItem { Label("Réglages", systemImage: "gearshape") }
+        }
+    }
+    #endif
 }
 
 private struct HomeView: View {
