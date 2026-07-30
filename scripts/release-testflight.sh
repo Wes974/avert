@@ -31,6 +31,32 @@ echo "▸ Bundles JS (typecheck + tests + garde réseau)"
 BUILD_NUMBER="$(asc builds next-build-number --app "$APP_ID" --output json \
   | /usr/bin/python3 -c 'import json,sys; print(json.load(sys.stdin)["nextBuildNumber"])')"
 MARKETING="$(grep -m1 'MARKETING_VERSION:' project.yml | sed 's/.*"\(.*\)".*/\1/')"
+
+# A marketing version must never go backwards. TestFlight groups builds by
+# marketing version and shows the highest one, so publishing under a lower
+# number makes the new build invisible to testers — while every check you would
+# think to run still says it shipped: VALID, attached to both groups, beta
+# review APPROVED. It happened (1.0 → 0.1.0, builds 3 and 4 lost behind build 1)
+# and nothing in the pipeline said a word.
+HIGHEST="$(asc builds list --app "$APP_ID" --output json 2>/dev/null | /usr/bin/python3 -c '
+import json, sys
+try:
+    d = json.load(sys.stdin)
+except Exception:
+    raise SystemExit
+print("\n".join(
+    i["attributes"].get("version", "")
+    for i in d.get("included", [])
+    if i.get("type") == "preReleaseVersions"
+))' | sort -V | tail -1)"
+if [ -n "$HIGHEST" ] && [ "$MARKETING" != "$HIGHEST" ] \
+   && [ "$(printf '%s\n%s\n' "$HIGHEST" "$MARKETING" | sort -V | tail -1)" != "$MARKETING" ]; then
+  echo "✗ MARKETING_VERSION vaut $MARKETING, or $HIGHEST est déjà publiée." >&2
+  echo "  TestFlight afficherait $HIGHEST comme la version la plus récente et" >&2
+  echo "  personne ne verrait ce build. Monter MARKETING_VERSION dans project.yml." >&2
+  exit 1
+fi
+
 echo "▸ Version $MARKETING ($BUILD_NUMBER)"
 
 echo "▸ Projet"
