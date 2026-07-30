@@ -76,3 +76,23 @@ jobs:
             -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
             -derivedDataPath "$RUNNER_TEMP/dd" \
             | xcbeautify
+
+      # visionOS can only be built on Apple silicon: the platform has no x86_64
+      # runtime, so `xcodebuild -downloadPlatform visionOS` answers "Could not
+      # find platform" on an Intel Mac and no Vision device type ever appears —
+      # which makes actool fail on the vision idiom before any Swift is compiled.
+      # These runners are ARM, so this is the only machine we have that can
+      # answer the question at all.
+      #
+      # `continue-on-error`: this is an exploration, not a promise. visionOS is
+      # not shipped, and a failure here must not paint the iOS pipeline red.
+      - name: Build for visionOS (exploratory)
+        continue-on-error: true
+        run: |
+          echo "runner: $(uname -m)"
+          xcrun simctl list devicetypes | grep -ci vision || echo "0 vision device type"
+          xcodebuild -project Avert.xcodeproj -scheme Avert \
+            -destination 'generic/platform=visionOS' \
+            -derivedDataPath "$RUNNER_TEMP/dd-xros" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+            build | xcbeautify
