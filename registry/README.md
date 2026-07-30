@@ -27,8 +27,7 @@ empreintes de référence. Il couvre le cas que `l2.borrowed-brand-assets` ne vo
 pas : le kit qui **recopie** le logo chez lui, où aucune heuristique d'URL ne
 peut rien.
 
-**La table est vide pour l'instant** → le signal est inerte, ce qui est le défaut
-voulu (mieux vaut muet que faire semblant de vérifier). Pour la remplir :
+Pour ajouter une empreinte :
 
 ```bash
 bun run scripts/hash-logos.ts --write "PayPal" ~/logos/paypal-*.png
@@ -53,4 +52,30 @@ Contraintes à connaître avant de générer :
   contamine le canvas, et la re-télécharger serait un appel réseau. Un logo
   hotlinké reste couvert par `l2.borrowed-brand-assets`.
 
+Deux empreintes de **marques différentes** à moins de 12 bits l'une de l'autre
+sont indistinguables : le linter refuse ce cas. Il ne vérifiait au départ que
+l'égalité exacte, ce qui laissait passer le seul cas qui compte — deux logos
+*voisins*, où l'ordre du fichier décidait silencieusement du gagnant.
+
 Une empreinte n'est pas une reproduction du logo : 64 bits, non inversibles.
+
+## « Banque Démo » : une marque qui n'existe pas
+
+La dernière entrée du registre est **fictive**, et c'est délibéré.
+
+`ScoreEngine` ne lève un interstitiel que si `identityMismatch` est vrai, ce qui
+exige une marque du registre. Toute page publique capable de déclencher l'alerte
+forte se fait donc nécessairement passer pour une marque tout en étant hébergée
+ailleurs — autrement dit, avec une vraie entreprise, c'est une page de phishing
+qui fonctionne, quel que soit l'avertissement affiché dessus. Ce n'est pas une
+chose à laisser sur une URL publique.
+
+D'où une banque inventée, dont le domaine est en `.example` (réservé par la
+RFC 2606, jamais enregistrable) et dont le logo est produit par le dépôt
+(`design/DemoBankLogo.svg`). `docs/demo/interstitiel/` l'affiche et déclenche
+exactement le même chemin de code, sans usurper personne.
+
+Risque de faux positif en production : nul en pratique. Le domaine ne peut pas
+exister, le nom n'apparaît sur aucun site réel, et l'empreinte est à plus de
+12 bits de toutes les autres (le linter le vérifie). Le seul déclenchement
+possible est une page affichant ce logo précis — c'est-à-dire la page de démo.

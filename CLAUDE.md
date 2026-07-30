@@ -42,6 +42,42 @@ xcodebuild -project Avert.xcodeproj -scheme Avert \
 - Seules les images **même origine** ou `data:` sont hachées (canvas contaminé sinon, et re-télécharger = appel réseau interdit). Le logo hotlinké reste couvert par `l2.borrowed-brand-assets`.
 - Table de référence **vide** pour l'instant → signal inerte (défaut voulu). Remplir avec `bun run scripts/hash-logos.ts --write <marque> <images…>`, cf. `registry/README.md`.
 
+## Site public et pages de démonstration (`docs/`)
+
+Servi par GitHub Pages depuis `docs/` sur `main` → **https://wes974.github.io/avert/**.
+Contient la landing, la politique de confidentialité (FR + EN, exigée par l'App
+Store) et deux pages piégées pour qu'un testeur puisse vérifier l'extension sans
+avoir à croiser du vrai phishing.
+
+- `docs/demo/alerte/` → **bandeau** : `cross-origin-form` (25) + `hidden-capture-field` (30) = 55. Aucune marque, donc pas de ×2 : l'interstitiel est hors d'atteinte par construction.
+- `docs/demo/interstitiel/` → **écran plein** : + `brand-logo-copy` (25) → 80 ×2 = 160.
+
+**Pourquoi une marque inventée.** Un interstitiel exige `identityMismatch`, donc
+une marque du registre. Une page publique qui déclenche l'alerte forte se fait
+donc forcément passer pour une marque depuis un hôte qu'elle ne possède pas —
+avec une vraie entreprise, c'est une page de phishing fonctionnelle, quel que
+soit l'avertissement affiché, sur une URL au nom de l'auteur. D'où « Banque
+Démo » (`registry/README.md`).
+
+**Dégradation volontaire** : sans reconnaissance du logo, la page 2 retombe sur
+un bandeau. Un testeur qui rapporte « bandeau au lieu d'écran plein » nous dit
+que l'empreinte n'a pas matché — pas que l'extension est morte. C'est le seul
+diagnostic disponible à distance.
+
+Pièges :
+
+- Le logo est rendu **sans coins arrondis** (`design/DemoBankLogo.svg`) : un
+  arrondi dans le PNG = pixels semi-transparents, et `sips` et le canvas de
+  Safari compositent l'alpha chacun de leur côté. L'arrondi est en CSS.
+- `ts/tests/demo-pages.test.ts` analyse les fichiers **réellement publiés** :
+  il n'injecte que le `<body>`, sinon happy-dom résout le `<link rel=stylesheet>`
+  et émet une requête réseau depuis la suite de tests de l'app qui promet de ne
+  jamais en faire.
+- `build-js.sh` recopie `docs/demo/` à côté du scratch, comme `Tests/corpus/`,
+  sinon le test ne trouve pas les pages.
+- Toute modification du registre **exige un nouveau build TestFlight** : il est
+  embarqué dans le bundle, pas téléchargé.
+
 ## Localisation
 
 - Langue source **fr** (`options.developmentLanguage`), EN traduit. Un seul catalogue `Shared/Localizable.xcstrings` compilé dans les **deux** bundles (l'app pour son UI, l'extension parce que le texte du verdict est produit par `ScoreEngine`).
