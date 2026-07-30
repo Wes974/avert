@@ -7,6 +7,7 @@ options:
   developmentLanguage: fr
   deploymentTarget:
     iOS: "26.0"
+    visionOS: "26.0"
 
 settings:
   base:
@@ -40,7 +41,7 @@ settings:
 targets:
   Avert:
     type: application
-    platform: iOS
+    supportedDestinations: [iOS, visionOS]
     sources:
       - App
       # Includes Shared/Localizable.xcstrings — every target needs it: the app for
@@ -114,7 +115,7 @@ targets:
 
   AvertExtension:
     type: app-extension
-    platform: iOS
+    supportedDestinations: [iOS, visionOS]
     sources:
       - Extension/Swift
       # Shared/UI excluded: this process is spawned for page it analyses, and it
@@ -173,7 +174,7 @@ targets:
 
   AvertAction:
     type: app-extension
-    platform: iOS
+    supportedDestinations: [iOS, visionOS]
     sources:
       - ActionExtension
       - Shared
@@ -219,7 +220,7 @@ targets:
 
   AvertTests:
     type: bundle.unit-test
-    platform: iOS
+    supportedDestinations: [iOS, visionOS]
     sources:
       - Tests/Swift
       # L1 corpus, shared with the bun tests: both engines assert against the
