@@ -1,0 +1,16 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    visionOS layered app icon, layer 2 of 3 — the CLAIMED identity.
+
+    Transform and coordinates copied verbatim from design/AppIcon.svg so the
+    three layers register exactly on top of one another. Change one, change all
+    four files.
+
+    Transparent everywhere else: this layer floats above the ground.
+  -->
+  <g transform="translate(-72.2,-88.3) scale(11.5)">
+    <rect x="38" y="26" width="40" height="40" rx="11" fill="none" stroke="#ffffff" stroke-opacity="0.5" stroke-width="3.1" stroke-dasharray="6 6"/>
+    <circle cx="58" cy="42" r="6.2" fill="none" stroke="#ffffff" stroke-opacity="0.5" stroke-width="2.6"/>
+    <path d="M47.6 59 a10.4 10.4 0 0 1 20.8 0" fill="none" stroke="#ffffff" stroke-opacity="0.5" stroke-width="2.6"/>
+  </g>
+</svg>

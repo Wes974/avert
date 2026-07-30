@@ -1,0 +1,27 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    visionOS layered app icon, layer 1 of 3 (see design/AppIcon.svg for the
+    canonical geometry — these three files must stay in step with it).
+
+    visionOS will not take a flat icon: it wants a `.solidimagestack` whose
+    layers it separates in depth for parallax. Rather than slicing the mark
+    arbitrarily, the split follows what the mark already means:
+
+      Back   → the ground
+      Middle → the CLAIMED identity (the dashed, ghosted card)
+      Front  → the REAL identity, and the warning
+
+    So the parallax says the thing the app is about: one identity floating
+    behind another that does not match it.
+
+    Back: the ground only. No transparency — this is the bottom layer.
+  -->
+  <defs>
+    <radialGradient id="bg" cx="30%" cy="18%" r="100%">
+      <stop offset="0%" stop-color="#5a57e0"/>
+      <stop offset="55%" stop-color="#3d3ab4"/>
+      <stop offset="100%" stop-color="#2b2888"/>
+    </radialGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+</svg>

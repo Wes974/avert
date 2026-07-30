@@ -272,26 +272,44 @@ struct MidnightScreen<Content: View>: View {
     @ViewBuilder var content: () -> Content
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
-                    if let subtitle {
-                        Text(subtitle)
-                            .font(.callout)
-                            .foregroundStyle(Color.avertInkSoft)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .padding(.horizontal, 4)
+        // The ground is painted behind the whole screen, and the readable width
+        // is applied to the NavigationStack rather than to its content.
+        //
+        // Capping the content alone leaves the large title where the navigation
+        // bar puts it — hard against the leading edge — while the cards sit
+        // centred 620 pt away from it. On an iPhone that is invisible (the screen
+        // is narrower than the cap), on a 13" iPad the two come apart completely.
+        // Constraining the stack moves the title with the content.
+        ZStack {
+            MidnightGround().ignoresSafeArea()
+
+            NavigationStack {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 18) {
+                        if let subtitle {
+                            Text(subtitle)
+                                .font(.callout)
+                                .foregroundStyle(Color.avertInkSoft)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .padding(.horizontal, 4)
+                        }
+                        content()
                     }
-                    content()
+                    .padding(.horizontal, 18)
+                    .padding(.top, 4)
+                    .padding(.bottom, 28)
                 }
-                .padding(.horizontal, 18)
-                .padding(.top, 4)
-                .padding(.bottom, 28)
-                .readableWidth()
+                .scrollContentBackground(.hidden)
+                // Painted a second time, inside the stack. Leaving it clear shows
+                // the navigation stack's own system background instead — an opaque
+                // white column with a hard vertical seam down each side of the
+                // capped width. Repeating it is safe precisely because the ground
+                // is a vertical gradient: it does not vary along x, so the column
+                // and the margins match exactly.
+                .background(MidnightGround())
+                .navigationTitle(title)
             }
-            .scrollContentBackground(.hidden)
-            .background(MidnightGround())
-            .navigationTitle(title)
+            .readableWidth()
         }
     }
 }

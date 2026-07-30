@@ -53,4 +53,22 @@ for s in 40 58 60 80 87 120 152 167 180 1024; do
     -o "ActionExtension/Assets.xcassets/AppIcon.appiconset/icon-$s.png"
 done
 
+echo "▸ Icône visionOS (pile à 3 couches)"
+# visionOS refuses a flat icon: it wants a .solidimagestack whose layers it
+# separates in depth. The split follows the mark's own meaning — ground, then the
+# CLAIMED identity, then the REAL one plus the warning — so the parallax states
+# what the app does. The three SVGs repeat AppIcon.svg's transform verbatim and
+# must be updated with it; rendering them here is what keeps that from drifting.
+VISION_STACK="App/Assets.xcassets/AppIcon.solidimagestack"
+for layer in Back Middle Front; do
+  rsvg-convert -w 1024 -h 1024 "design/AppIconVision-$layer.svg" \
+    -o "$VISION_STACK/$layer.solidimagestacklayer/Content.imageset/$layer.png"
+done
+# The bottom layer must be opaque: it is the ground, and a transparent one shows
+# the system's placeholder behind the icon.
+if [ "$(sips -g hasAlpha "$VISION_STACK/Back.solidimagestacklayer/Content.imageset/Back.png" | awk '/hasAlpha/{print $2}')" = "yes" ]; then
+  echo "  ✗ la couche Back a un canal alpha : elle doit être opaque" >&2
+  exit 1
+fi
+
 echo "✓ Icônes régénérées"

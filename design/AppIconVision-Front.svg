@@ -1,0 +1,16 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    visionOS layered app icon, layer 3 of 3 — the REAL identity, and the warning.
+
+    Transform and coordinates copied verbatim from design/AppIcon.svg. The badge
+    rides on this layer rather than with the ghost it overlaps: it is the alert,
+    and it should sit closest to the viewer.
+  -->
+  <g transform="translate(-72.2,-88.3) scale(11.5)">
+    <rect x="20" y="42" width="40" height="40" rx="11" fill="#ffffff"/>
+    <circle cx="40" cy="58" r="6.4" fill="#3d3ab4"/>
+    <path d="M29.6 75 a10.4 10.4 0 0 1 20.8 0 z" fill="#3d3ab4"/>
+    <circle cx="74" cy="30" r="7.6" fill="#ffce4a"/>
+    <path d="M74 25.8 v4.6 M74 33.2 v0.4" stroke="#2b2888" stroke-width="2.6" stroke-linecap="round"/>
+  </g>
+</svg>
