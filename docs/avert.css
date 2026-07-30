@@ -57,7 +57,9 @@ a { color: var(--accent); }
   align-items: baseline;
   margin: 0 0 1rem;
 }
-.step b {
+/* Direct child only. `.step b` also matched every <b> inside the step's text,
+   turning each emphasised word into a 1.7rem circle and shredding the layout. */
+.step > b {
   flex: none;
   width: 1.7rem; height: 1.7rem;
   border-radius: 50%;
@@ -65,6 +67,7 @@ a { color: var(--accent); }
   color: #06122e;
   display: grid; place-items: center;
   font-size: .85rem;
+  line-height: 1;
   align-self: flex-start;
 }
 
