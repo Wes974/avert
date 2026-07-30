@@ -17,7 +17,14 @@ settings:
     # non contournable proprement, reproduit avec Task et Task.detached.
     # À réessayer à chaque MAJ de Xcode.
     SWIFT_VERSION: "5.0"
-    MARKETING_VERSION: "0.1.0"
+    # Ne JAMAIS redescendre ce numéro. Les builds 1 et 2 sont partis en « 1.0 »
+    # (valeur figée en dur dans le plist par le bug XcodeGen, cf. plus bas), et
+    # les corriger a fait passer les builds suivants en « 0.1.0 » — donc une
+    # régression. TestFlight range les builds par version marketing : 1.0 étant
+    # supérieur à 0.1.0, il continuait de proposer le build 1 comme le plus
+    # récent, et les builds 3 et 4 restaient invisibles aux testeurs alors
+    # qu'ils étaient bien distribués et approuvés.
+    MARKETING_VERSION: "1.0.1"
     # Valeur de repli uniquement : les envois TestFlight passent par
     # scripts/release-testflight.sh, qui lit le prochain numéro auprès d'App Store
     # Connect et le passe à xcodebuild. Un numéro figé ici serait périmé dès le
