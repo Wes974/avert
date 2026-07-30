@@ -84,7 +84,12 @@ struct OpenSettingsButton: View {
 
     @MainActor
     private func open() async {
-        if #available(iOS 26.2, *) {
+        // visionOS is named explicitly. `*` means "every other platform, at its
+        // own deployment target" — visionOS 26.0 here — while this API only
+        // exists from visionOS 26.2, so the wildcard silently understated the
+        // requirement and the build failed the moment visionOS was added as a
+        // destination. iOS and visionOS happen to share the same 26.2 floor.
+        if #available(iOS 26.2, visionOS 26.2, *) {
             do {
                 try await SFSafariSettings.openExtensionsSettings(
                     forIdentifiers: [Self.extensionBundleID]
