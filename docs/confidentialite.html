@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Avert — Politique de confidentialité</title>
+<link rel="stylesheet" href="avert.css">
+</head>
+<body>
+<main>
+  <h1>Politique de confidentialité</h1>
+  <p class="lead">
+    Avert ne collecte aucune donnée personnelle. Il n'existe aucun serveur
+    Avert : rien n'est transmis à son auteur, ni à un tiers.
+  </p>
+  <p class="small dim">En vigueur le 30 juillet 2026.</p>
+
+  <h2>Ce qu'Avert lit</h2>
+  <p>
+    Pour repérer une page frauduleuse, l'extension doit la lire. Quand une page
+    contient un champ sensible (mot de passe, carte bancaire, code à usage
+    unique, phrase de récupération), Avert examine sur l'appareil son adresse,
+    sa structure, ses images et un extrait de son texte.
+  </p>
+  <p>
+    Ces éléments sont analysés en mémoire puis abandonnés. Ils ne sont ni
+    enregistrés, ni transmis. Sur une page sans champ sensible — l'écrasante
+    majorité — Avert ne lit rien du tout.
+  </p>
+
+  <h2>Ce qui sort de l'appareil</h2>
+  <p>
+    <b>Rien, sauf si vous activez le mode famille.</b> L'extension n'a aucune
+    capacité réseau : le code livré est vérifié à chaque compilation pour qu'il
+    ne contienne aucun moyen d'émettre une requête.
+  </p>
+  <p>
+    Il n'y a ni statistiques d'usage, ni rapports de plantage, ni publicité, ni
+    outil de mesure d'audience, ni identifiant unique.
+  </p>
+
+  <h2>Le mode famille, s'il est activé</h2>
+  <p>
+    Ce mode, désactivé par défaut, permet à un proche que vous avez explicitement
+    lié d'être prévenu. Il utilise <b>votre compte iCloud</b> : les données
+    passent par CloudKit, l'auteur d'Avert n'y a aucun accès.
+  </p>
+  <h3>Si vous passez outre un avertissement fort</h3>
+  <p>
+    Vos proches liés reçoivent <b>la date, et le nom que vous avez donné à votre
+    appareil</b>. Rien d'autre — ni l'adresse du site, ni la marque concernée, ni
+    le contenu de la page. Cette limite est inscrite dans le code et vérifiée par
+    des tests automatiques qui échouent si un champ supplémentaire est ajouté.
+  </p>
+  <h3>Si vous demandez l'avis d'un proche</h3>
+  <p>
+    Là, et là seulement, <b>l'adresse du site part</b> — c'est l'objet même de la
+    question. Sont transmis : le nom de l'hôte, le résumé de l'analyse, le nom de
+    votre appareil et la date. La demande est effacée au bout de 24 heures.
+  </p>
+  <h3>Réversibilité</h3>
+  <p>
+    Effacer le nom de votre appareil dans les réglages coupe l'envoi. Rompre un
+    lien familial supprime également ce que cet appareil avait publié.
+  </p>
+
+  <h2>Historique local, s'il est activé</h2>
+  <p>
+    Une option désactivée par défaut permet à Avert de signaler un formulaire de
+    connexion sur un domaine où vous ne vous êtes jamais connecté. Elle mémorise
+    pour cela une liste de noms de domaines dans le trousseau de l'appareil.
+    Cette liste ne quitte jamais l'iPhone et peut être effacée dans les réglages.
+  </p>
+
+  <h2>Intelligence artificielle</h2>
+  <p>
+    Avert utilise le modèle de langage intégré à iOS (Apple Intelligence), qui
+    s'exécute <b>sur l'appareil</b>. Le contenu des pages n'est envoyé à aucun
+    service d'IA, ni à Apple, ni à un tiers.
+  </p>
+
+  <h2>Enfants</h2>
+  <p>
+    Avert ne collecte aucune donnée, y compris celle des mineurs. Le mode famille
+    exige une action explicite des deux côtés du lien, et la personne surveillée
+    voit en permanence qui la suit — un lien ne peut pas être établi à son insu.
+  </p>
+
+  <h2>Modifications</h2>
+  <p>
+    Toute évolution de cette politique sera publiée sur cette page, avec sa date.
+    L'historique complet est consultable dans le
+    <a href="https://github.com/Wes974/avert">dépôt public</a>.
+  </p>
+
+  <h2>Contact</h2>
+  <p>
+    Questions et signalements :
+    <a href="https://github.com/Wes974/avert/issues">github.com/Wes974/avert/issues</a>.
+  </p>
+</main>
+
+<footer>
+  <a href="./">Avert</a> · <a href="privacy.html">English version</a>
+</footer>
+</body>
+</html>

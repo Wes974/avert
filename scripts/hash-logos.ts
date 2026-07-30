@@ -91,6 +91,22 @@ function pixels(path: string): { rgba: Uint8Array; width: number; height: number
   return { rgba, width: w, height: h };
 }
 
+/**
+ * One-line JSON with a space after every `:` and `,` — the style the registry is
+ * written in. `JSON.stringify` emits neither, so writing with it reformatted all
+ * 36 entries and turned a one-line addition into a whole-file diff, on the one
+ * file where a reviewer most needs to see exactly what changed.
+ */
+function inline(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(inline).join(", ")}]`;
+  if (value !== null && typeof value === "object") {
+    return `{${Object.entries(value)
+      .map(([k, v]) => `${JSON.stringify(k)}: ${inline(v)}`)
+      .join(", ")}}`;
+  }
+  return JSON.stringify(value);
+}
+
 function hashFile(path: string): string {
   const { rgba, width, height } = pixels(path);
   const gray = grayFromRGBA(rgba, width, height);
@@ -130,7 +146,7 @@ if (write) {
   const merged = [...new Set([...(entry.logo_hashes ?? []), ...hashes])].sort();
   entry.logo_hashes = merged;
   // Keep the one-entry-per-line formatting the registry uses (readable diffs).
-  const body = registry.map((e) => `  ${JSON.stringify(e)}`).join(",\n");
+  const body = registry.map((e) => `  ${inline(e)}`).join(",\n");
   writeFileSync(REGISTRY, `[\n${body}\n]\n`);
   console.log(`\n${entry.brand} : ${merged.length} empreinte(s) dans ${REGISTRY}`);
 } else {

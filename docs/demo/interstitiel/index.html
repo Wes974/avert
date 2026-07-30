@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Banque Démo — connexion à votre espace</title>
+<link rel="stylesheet" href="../../avert.css">
+<style>
+  .login { max-width: 22rem; margin: 0 auto; }
+  /* The rounding lives here, not in the PNG: rounded corners in the file would
+     mean partially transparent pixels, and the offline hasher (sips) and the
+     Safari canvas composite alpha independently. Opaque pixels, CSS corners. */
+  img.logo { display: block; width: 84px; height: 84px; border-radius: 22px; margin: 0 auto 1.25rem; }
+  label { display: block; margin: 1rem 0 .3rem; font-size: .9rem; color: var(--ink-dim); }
+  input[type=email], input[type=password] {
+    width: 100%; padding: .75rem .85rem; font-size: 1rem;
+    border-radius: 12px; border: 1px solid var(--line);
+    background: var(--ground-2); color: var(--ink);
+  }
+  button {
+    width: 100%; margin-top: 1.4rem; padding: .85rem;
+    font-size: 1rem; font-weight: 600;
+    border: 0; border-radius: 14px; background: var(--accent); color: #06122e;
+  }
+  #missing { color: var(--danger); font-size: .85rem; }
+</style>
+</head>
+<body>
+
+<!--
+  Demo page 2 of 2 — expects an INTERSTITIAL (Avert's strong alert).
+
+  "Banque Démo" is a brand that does not exist. It is in registry/brands.json
+  with `banque-demo.example` as its domain (`.example` is reserved by RFC 2606
+  and can never be registered) and the dHash of the logo below.
+
+  That fiction is the point. An interstitial requires `identityMismatch`, which
+  requires a registry brand — so a public page that triggers one necessarily
+  claims to be some brand while sitting on a host that brand does not own. With
+  a real company that is a working phishing page, whatever the disclaimer says,
+  and it does not belong on a URL with someone's name attached. With an invented
+  bank, the code path exercised is identical and nobody is impersonated.
+
+    l2.brand-logo-copy       25   the logo's pixels match Banque Démo's
+    l2.cross-origin-form     25   the form posts to another host
+    l2.hidden-capture-field  30   there is a second, hidden password field
+                             ──
+                             80  ×2 (identity claim contradicted by the domain)
+                            160   > 70 → interstitial
+
+  Note the graceful degradation, which doubles as remote diagnosis: if the
+  perceptual hash fails to match, the other two signals still total 55 and the
+  page falls back to a banner. Banner instead of interstitial therefore means
+  "the logo signal missed", not "the extension is dead".
+-->
+
+<div class="demo-band">
+  <b>Page de démonstration.</b> « Banque Démo » est une marque inventée pour ce
+  test. Ce formulaire est factice et n'envoie rien. Ne saisissez aucun véritable
+  identifiant.
+</div>
+
+<main class="login">
+  <img class="logo" src="logo.png" alt="Logo Banque Démo" width="84" height="84">
+  <h1 style="font-size:1.4rem; text-align:center">Banque Démo</h1>
+  <p class="dim small" style="text-align:center">Accédez à votre espace client.</p>
+
+  <form id="f" action="https://collect.invalid/auth" method="post" autocomplete="off">
+    <label for="u">Identifiant</label>
+    <input id="u" type="email" name="email" autocomplete="off" placeholder="vous@exemple.fr">
+
+    <label for="p">Code d'accès</label>
+    <input id="p" type="password" name="password" autocomplete="off" placeholder="••••••••">
+
+    <input type="password" name="pin" style="display:none" aria-hidden="true" tabindex="-1">
+
+    <button type="submit">Se connecter</button>
+  </form>
+
+  <p id="result" class="small" style="margin-top:1.2rem"></p>
+  <p id="missing"></p>
+
+  <hr>
+  <p class="small dim">
+    Attendu : un <b>écran d'avertissement plein écran</b>, qui nomme « Banque Démo ».
+    <a href="../">← retour aux tests</a>
+  </p>
+</main>
+
+<script>
+  document.getElementById("f").addEventListener("submit", (e) => {
+    e.preventDefault();
+    document.getElementById("result").textContent =
+      "Rien n'a été envoyé — cette page est une démonstration.";
+  });
+
+  // Fail loudly rather than silently testing nothing: without the logo the page
+  // degrades to a banner, which would look like an Avert bug rather than a
+  // missing file.
+  document.querySelector("img.logo").addEventListener("error", () => {
+    document.getElementById("missing").textContent =
+      "logo.png n'a pas pu être chargé : le test ne peut pas produire l'alerte forte.";
+  });
+</script>
+</body>
+</html>

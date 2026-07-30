@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Avert — repérer les sites qui mentent sur leur identité</title>
+<meta name="description" content="Extension Safari pour iPhone qui repère les pages de phishing. Toute l'analyse a lieu sur l'appareil : aucune adresse consultée n'est envoyée nulle part.">
+<link rel="stylesheet" href="avert.css">
+</head>
+<body>
+<main>
+  <h1>Avert</h1>
+  <p class="lead">
+    Une extension Safari qui repère les pages se faisant passer pour votre
+    banque, votre opérateur ou un service public — et vous prévient avant que
+    vous ne tapiez quoi que ce soit.
+  </p>
+
+  <div class="card">
+    <h3>Tout se passe sur votre iPhone</h3>
+    <p style="margin:0">
+      Avert n'envoie aucune adresse, aucun contenu de page, aucune statistique.
+      Il n'y a pas de serveur : l'analyse tourne dans votre téléphone, y compris
+      le modèle de langage. Les pages que vous consultez ne sont connues que de
+      vous.
+    </p>
+  </div>
+
+  <h2>Ce qu'il regarde</h2>
+  <p>
+    Pas une liste noire de sites signalés — elle arrive toujours après. Avert
+    cherche une <b>incohérence d'identité</b> : une page qui se présente comme
+    une marque tout en étant hébergée ailleurs que chez elle.
+  </p>
+  <ul>
+    <li>L'adresse : caractères trompeurs, marque glissée dans un sous-domaine,
+      fautes d'orthographe calculées.</li>
+    <li>La page : formulaire qui expédie le mot de passe vers un tiers, champs
+      dissimulés, cadres étrangers.</li>
+    <li>Les images : un logo copié au pixel près sur un domaine qui n'appartient
+      pas à la marque.</li>
+  </ul>
+  <p>
+    Un seul de ces indices ne déclenche jamais d'alerte forte. Il en faut
+    plusieurs qui concordent — et Avert vous dit toujours lesquels, pour que
+    vous puissiez juger vous-même.
+  </p>
+
+  <h2>Essayer</h2>
+  <a class="btn btn-primary" href="https://testflight.apple.com/join/cGHteQ9H">Installer via TestFlight</a>
+  <a class="btn btn-quiet" href="demo/">Pages de test</a>
+  <p class="small dim">
+    Bêta publique. iPhone sous iOS 26 ou plus récent.
+  </p>
+
+  <h2>Ce qu'il ne fait pas</h2>
+  <p>
+    Avert ne détecte pas tout, et le dire fait partie du produit. Il ne voit rien
+    d'une page dont l'apparence seule est trompeuse sans autre indice, rien
+    dans les applications hors Safari, et rien d'un site légitime qui a été
+    compromis. Il vous laisse toujours continuer si vous le décidez.
+  </p>
+</main>
+
+<footer>
+  <a href="confidentialite.html">Confidentialité</a> ·
+  <a href="https://github.com/Wes974/avert">Code source</a> ·
+  <a href="privacy.html">English</a>
+</footer>
+</body>
+</html>

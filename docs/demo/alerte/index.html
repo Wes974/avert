@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Connexion — page de démonstration Avert</title>
+<link rel="stylesheet" href="../../avert.css">
+<style>
+  .login { max-width: 22rem; margin: 0 auto; }
+  label { display: block; margin: 1rem 0 .3rem; font-size: .9rem; color: var(--ink-dim); }
+  input[type=email], input[type=password] {
+    width: 100%; padding: .75rem .85rem; font-size: 1rem;
+    border-radius: 12px; border: 1px solid var(--line);
+    background: var(--ground-2); color: var(--ink);
+  }
+  button {
+    width: 100%; margin-top: 1.4rem; padding: .85rem;
+    font-size: 1rem; font-weight: 600;
+    border: 0; border-radius: 14px; background: var(--accent); color: #06122e;
+  }
+</style>
+</head>
+<body>
+
+<!--
+  Demo page 1 of 2 — expects a BANNER (the weaker of Avert's two alerts).
+
+  Two signals fire here, and no brand is involved, which is the whole design of
+  this page:
+
+    l2.cross-origin-form     25   the form posts to another host
+    l2.hidden-capture-field  30   there is a second, hidden password field
+                             ──
+                             55   ≥ 40 → banner, and no ×2 (no identity claim)
+
+  An interstitial is deliberately out of reach: ScoreEngine only ever raises one
+  when `identityMismatch` is true, which requires a registry brand. Reaching it
+  from a public URL would mean impersonating a real company — see ../interstitiel/,
+  which uses a fictional brand instead.
+
+  Nothing is ever sent: the form action points at `.invalid`, a TLD RFC 2606
+  guarantees can never resolve, AND the submit handler cancels the event. Two
+  independent reasons, because one of them could be edited away by accident.
+-->
+
+<div class="demo-band">
+  <b>Page de démonstration.</b> Ce formulaire est factice et n'envoie rien nulle
+  part. Ne saisissez aucun véritable identifiant.
+</div>
+
+<main class="login">
+  <h1 style="font-size:1.4rem">Espace client</h1>
+  <p class="dim small">Connectez-vous pour accéder à votre compte.</p>
+
+  <form id="f" action="https://collect.invalid/session" method="post" autocomplete="off">
+    <label for="u">Adresse e-mail</label>
+    <input id="u" type="email" name="email" autocomplete="off" placeholder="vous@exemple.fr">
+
+    <label for="p">Mot de passe</label>
+    <input id="p" type="password" name="password" autocomplete="off" placeholder="••••••••">
+
+    <!-- The hidden capture field. A page that hides its own credential input has
+         no honest reason to; the ruse is the tell. Kept out of the accessibility
+         tree too, so it is invisible to VoiceOver rather than merely unpainted. -->
+    <input type="password" name="pin" style="display:none" aria-hidden="true" tabindex="-1">
+
+    <button type="submit">Se connecter</button>
+  </form>
+
+  <p id="result" class="small" style="margin-top:1.2rem"></p>
+
+  <hr>
+  <p class="small dim">
+    Attendu : un <b>bandeau d'avertissement</b> en haut de la page.
+    <a href="../">← retour aux tests</a>
+  </p>
+</main>
+
+<script>
+  // Belt and braces: even though `.invalid` can never resolve, never let the
+  // browser attempt a request with whatever someone typed.
+  document.getElementById("f").addEventListener("submit", (e) => {
+    e.preventDefault();
+    document.getElementById("result").textContent =
+      "Rien n'a été envoyé — cette page est une démonstration.";
+  });
+</script>
+</body>
+</html>

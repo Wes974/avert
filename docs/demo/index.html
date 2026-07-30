@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tester Avert</title>
+<link rel="stylesheet" href="../avert.css">
+</head>
+<body>
+<main>
+  <h1>Tester Avert</h1>
+  <p class="lead">
+    Deux pages piégées, volontairement. Ouvrez-les dans <b>Safari</b> sur
+    l'iPhone où Avert est installé : l'extension doit réagir sur chacune.
+  </p>
+
+  <div class="card">
+    <h3>Avant de commencer</h3>
+    <div class="step"><b>1</b><div>
+      Installez Avert depuis TestFlight, puis <b>ouvrez l'app une fois</b>.
+    </div></div>
+    <div class="step"><b>2</b><div>
+      Activez l'extension : <code>Réglages</code> → <code>Applications</code> →
+      <code>Safari</code> → <code>Extensions</code> → <b>Avert</b>. Mettez-la sur
+      <b>Autoriser</b> pour tous les sites — sinon Safari redemande à chaque page
+      et l'extension ne voit rien.
+    </div></div>
+    <div class="step"><b>3</b><div>
+      Si vous venez de mettre l'app à jour, <b>fermez complètement Safari</b>
+      (glissez-le hors du sélecteur d'apps) avant de tester : un onglet déjà
+      ouvert continue d'exécuter l'ancienne version de l'extension.
+    </div></div>
+  </div>
+
+  <h2>Test 1 — l'avertissement simple</h2>
+  <p>
+    Une page de connexion quelconque, qui envoie le mot de passe vers un autre
+    serveur et cache un second champ. Aucune marque n'est en jeu : Avert doit
+    afficher un <b>bandeau</b> en haut de la page, sans bloquer.
+  </p>
+  <p><span class="badge badge-warn">attendu : bandeau</span></p>
+  <a class="btn btn-primary" href="alerte/">Ouvrir le test 1</a>
+
+  <h2>Test 2 — l'alerte forte</h2>
+  <p>
+    La même chose, mais la page affiche le logo de « Banque Démo » — une banque
+    qui n'existe pas, inventée pour ce test — alors qu'elle est hébergée
+    ailleurs que sur le domaine de cette marque. Avert reconnaît le logo au
+    pixel près, constate que l'adresse ne correspond pas, et doit afficher un
+    <b>écran d'avertissement plein écran</b> qui nomme « Banque Démo ».
+  </p>
+  <p><span class="badge badge-danger">attendu : écran plein</span></p>
+  <a class="btn btn-primary" href="interstitiel/">Ouvrir le test 2</a>
+
+  <div class="card">
+    <h3>Si rien ne se passe</h3>
+    <ul>
+      <li>L'extension est-elle sur <b>Autoriser</b> pour ce site ? (icône
+        <code>ᴀA</code> dans la barre d'adresse → <code>Gérer les extensions</code>)</li>
+      <li>Safari a-t-il été relancé après l'installation ?</li>
+      <li>Sur le test 2, un <b>bandeau</b> au lieu de l'écran plein signifie que
+        le logo n'a pas été reconnu — c'est une information utile, signalez-la.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Ce qui est envoyé pendant ce test</h3>
+    <p class="small" style="margin:0">
+      Rien. Les deux formulaires sont désactivés et pointent vers un domaine en
+      <code>.invalid</code>, que la norme garantit non résoluble. Avert analyse
+      les pages sur l'appareil et n'émet aucune requête réseau.
+      <a href="../confidentialite.html">Détail</a>.
+    </p>
+  </div>
+</main>
+
+<footer>
+  <a href="../">Avert</a> · <a href="https://github.com/Wes974/avert">Code source</a>
+</footer>
+</body>
+</html>

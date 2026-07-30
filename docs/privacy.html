@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Avert — Privacy Policy</title>
+<link rel="stylesheet" href="avert.css">
+</head>
+<body>
+<main>
+  <h1>Privacy Policy</h1>
+  <p class="lead">
+    Avert collects no personal data. There is no Avert server: nothing is sent to
+    its author, or to anyone else.
+  </p>
+  <p class="small dim">Effective 30 July 2026.</p>
+
+  <h2>What Avert reads</h2>
+  <p>
+    To recognise a fraudulent page, the extension has to read it. When a page
+    contains a sensitive field (password, payment card, one-time code, recovery
+    phrase), Avert examines its address, structure, images and a short text
+    excerpt — on the device.
+  </p>
+  <p>
+    Those are analysed in memory and discarded. They are never stored and never
+    transmitted. On a page with no sensitive field — the overwhelming majority —
+    Avert reads nothing at all.
+  </p>
+
+  <h2>What leaves the device</h2>
+  <p>
+    <b>Nothing, unless you turn on family mode.</b> The extension has no network
+    capability: every build is checked to make sure the shipped code contains no
+    way to issue a request.
+  </p>
+  <p>
+    There are no usage analytics, no crash reports, no advertising, no
+    measurement tools and no unique identifier.
+  </p>
+
+  <h2>Family mode, if you enable it</h2>
+  <p>
+    This mode is off by default. It lets a relative you have explicitly linked be
+    notified. It runs on <b>your own iCloud account</b> through CloudKit; Avert's
+    author has no access to any of it.
+  </p>
+  <h3>If you dismiss a strong warning</h3>
+  <p>
+    Linked relatives receive <b>the date, and the name you gave your device</b>.
+    Nothing else — not the site's address, not the brand involved, not the page
+    content. That boundary is expressed in the code itself and enforced by tests
+    that fail if a field is added.
+  </p>
+  <h3>If you ask a relative for advice</h3>
+  <p>
+    Here, and only here, <b>the site's address is sent</b> — that is the question
+    being asked. Transmitted: the host name, a summary of the analysis, your
+    device name and the date. The request is deleted after 24 hours.
+  </p>
+  <h3>Undoing it</h3>
+  <p>
+    Clearing your device name in Settings stops all sending. Breaking a family
+    link also deletes what that device had published.
+  </p>
+
+  <h2>Local history, if you enable it</h2>
+  <p>
+    An option, off by default, lets Avert flag a login form on a domain you have
+    never signed in to before. To do so it remembers a list of domain names in
+    the device keychain. That list never leaves the iPhone and can be erased in
+    Settings.
+  </p>
+
+  <h2>Artificial intelligence</h2>
+  <p>
+    Avert uses the language model built into iOS (Apple Intelligence), which runs
+    <b>on the device</b>. Page content is not sent to any AI service, to Apple or
+    to anyone else.
+  </p>
+
+  <h2>Children</h2>
+  <p>
+    Avert collects no data, including from minors. Family mode requires an
+    explicit action on both sides of the link, and the person being watched can
+    always see who is watching — a link cannot be set up without their knowledge.
+  </p>
+
+  <h2>Changes</h2>
+  <p>
+    Any change to this policy will be published on this page, with its date. The
+    full history is available in the
+    <a href="https://github.com/Wes974/avert">public repository</a>.
+  </p>
+
+  <h2>Contact</h2>
+  <p>
+    Questions and reports:
+    <a href="https://github.com/Wes974/avert/issues">github.com/Wes974/avert/issues</a>.
+  </p>
+</main>
+
+<footer>
+  <a href="./">Avert</a> · <a href="confidentialite.html">Version française</a>
+</footer>
+</body>
+</html>

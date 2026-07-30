@@ -38,6 +38,12 @@ rsync -a --delete --exclude node_modules "$ROOT/ts/" "$SCRATCH/"
 mkdir -p "$SCRATCH/../Tests/corpus"
 rsync -a "$ROOT/Tests/corpus/" "$SCRATCH/../Tests/corpus/"
 
+# Same reason for the published demo pages: tests/demo-pages.test.ts analyses the
+# HTML that docs/ actually serves, so those files have to resolve from the
+# scratch too. (In CI there is no scratch and the repo-relative path just works.)
+mkdir -p "$SCRATCH/../docs/demo"
+rsync -a "$ROOT/docs/demo/" "$SCRATCH/../docs/demo/"
+
 cd "$SCRATCH"
 bun install --silent
 bunx tsc --noEmit

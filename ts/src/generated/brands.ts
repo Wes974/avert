@@ -34,6 +34,7 @@ export const BRANDS: BrandEntry[] = [
   {"brand": "Binance", "aliases": [], "domains": ["binance.com"], "auth_delegates": [], "sector": "crypto", "region": ["GLOBAL"]},
   {"brand": "Coinbase", "aliases": [], "domains": ["coinbase.com"], "auth_delegates": [], "sector": "crypto", "region": ["GLOBAL"]},
   {"brand": "Ledger", "aliases": ["Ledger Live"], "domains": ["ledger.com"], "auth_delegates": [], "sector": "crypto", "region": ["GLOBAL"]},
-  {"brand": "MetaMask", "aliases": [], "domains": ["metamask.io"], "auth_delegates": [], "sector": "crypto", "region": ["GLOBAL"]}
+  {"brand": "MetaMask", "aliases": [], "domains": ["metamask.io"], "auth_delegates": [], "sector": "crypto", "region": ["GLOBAL"]},
+  {"brand": "Banque Démo", "aliases": [], "domains": ["banque-demo.example"], "auth_delegates": [], "sector": "banking", "region": ["FR"], "logo_hashes": ["fffbd717072f0fff"]}
 ]
 ;

@@ -1,0 +1,37 @@
+<!--
+  Logo of "Banque Démo" — the fictional brand that exists so Avert can be
+  demonstrated without a page impersonating a real bank sitting on a public URL.
+
+  Drawn for perceptual entropy as much as for looks: dHash compares each sample
+  to its right-hand neighbour on a 9×8 grid, so a mark needs transitions that
+  fall at *different* horizontal positions on different rows. Bars of unequal
+  height plus a rising line give exactly that — a flat wordmark would hash to
+  something near-uniform and be rejected by `isDiscriminative`.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="ground" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1d2f66"/>
+      <stop offset="1" stop-color="#0a1029"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Deliberately NOT rounded here: rounded corners mean partially transparent
+       pixels, and the two rasterisers that must agree on this hash (sips
+       offline, the Safari canvas on device) composite alpha independently. The
+       page applies `border-radius` in CSS instead — same look, opaque pixels. -->
+  <rect width="512" height="512" fill="url(#ground)"/>
+
+  <g fill="#eef3ff">
+    <rect x="86"  y="304" width="48" height="118" rx="15"/>
+    <rect x="156" y="212" width="48" height="210" rx="15"/>
+    <rect x="226" y="268" width="48" height="154" rx="15"/>
+    <rect x="296" y="146" width="48" height="276" rx="15"/>
+    <rect x="366" y="238" width="48" height="184" rx="15"/>
+  </g>
+
+  <path d="M104 268 L214 170 L286 210 L398 100"
+        stroke="#5c9bff" stroke-width="28" fill="none"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="398" cy="100" r="31" fill="#5c9bff"/>
+</svg>

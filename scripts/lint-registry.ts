@@ -9,7 +9,7 @@
 // --strict turns them into errors.
 
 import registry from "../registry/brands.json" with { type: "json" };
-import { isDiscriminative } from "../ts/src/dhash";
+import { MATCH_THRESHOLD, hamming, isDiscriminative } from "../ts/src/dhash";
 
 const STRICT = process.argv.includes("--strict");
 const SECTORS = new Set([
@@ -110,9 +110,21 @@ for (const [i, entry] of entries.entries()) {
     if (!isDiscriminative(hash)) {
       errors.push(`${at}: empreinte « ${hash} » trop uniforme — image quasi vide, elle matcherait n'importe quoi`);
     }
-    const seen = logoHashes.get(hash);
-    if (seen && seen !== at) {
-      errors.push(`${at}: empreinte « ${hash} » déjà déclarée par ${seen} (marques indistinguables)`);
+    // Equality is not the bar — `matchLogo` accepts anything within
+    // MATCH_THRESHOLD bits, so two *near* hashes belonging to different brands
+    // are just as indistinguishable, and whichever entry comes first in the file
+    // wins. Checking only for exact duplicates let that through silently.
+    let clash: string | null = null;
+    for (const [other, owner] of logoHashes) {
+      if (owner === at) continue;
+      const distance = hamming(hash, other);
+      if (distance !== null && distance <= MATCH_THRESHOLD) {
+        clash = `${owner} (« ${other} », distance ${distance} ≤ ${MATCH_THRESHOLD})`;
+        break;
+      }
+    }
+    if (clash) {
+      errors.push(`${at}: empreinte « ${hash} » indistinguable de celle de ${clash}`);
     } else {
       logoHashes.set(hash, at);
     }
