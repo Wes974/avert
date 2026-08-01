@@ -29,6 +29,30 @@ mkdir -p "$ROOT/ts/src/generated"
   echo ';'
 } > "$ROOT/ts/src/generated/brands.ts"
 
+# Same treatment for the calibration. It used to live in three places at once —
+# ScoreEngine.swift, the mirror at the top of corpus-negative.test.ts, and the
+# reasoning of several other tests — and that test said so itself: "Weights
+# mirror ScoreEngine.swift §5. Keep in sync". A calibration three files have to
+# agree on cannot be measured.
+{
+  echo "// GENERATED from registry/scoring.json by scripts/build-js.sh — do not edit."
+  echo 'export interface ScoringPolicy {'
+  # The file documents itself, like the L1 corpus does. Swift's Codable ignores
+  # unknown keys; TypeScript does not, so the field has to be declared.
+  echo '  _doc?: string[];'
+  echo '  weights: Record<string, number>;'
+  echo '  thresholds: { banner: number; interstitial: number; l3Wake: number };'
+  echo '  identitySignals: string[];'
+  echo '  identityMultiplier: number;'
+  echo '  minimumConvergingSignals: number;'
+  echo '}'
+  printf 'export const SCORING: ScoringPolicy = '
+  cat "$ROOT/registry/scoring.json"
+  echo ';'
+  echo 'export const WEIGHTS: Record<string, number> = SCORING.weights;'
+  echo 'export const IDENTITY_SIGNALS = new Set<string>(SCORING.identitySignals);'
+} > "$ROOT/ts/src/generated/scoring.ts"
+
 mkdir -p "$SCRATCH"
 rsync -a --delete --exclude node_modules "$ROOT/ts/" "$SCRATCH/"
 

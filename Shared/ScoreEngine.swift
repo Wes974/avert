@@ -1,50 +1,82 @@
 import Foundation
+import os.log
 
 /// Cumulative scoring engine (PLAN.md §5).
 ///
 /// Never all-or-nothing: weighted signals, an identity multiplier, and two
 /// thresholds. A strong alert always requires convergence of several signals —
 /// a single signal can never cross the banner threshold on its own weight.
-struct ScoreEngine {
-    /// Indicative weights from PLAN.md §5; the M6 corpus calibrates them.
-    static let weights: [String: Int] = [
-        "l1.homograph": 35,
-        "l1.punycode": 15,
-        "l1.mixed-script": 20,
-        "l1.typosquat": 30,
-        "l1.combosquat": 20,
-        "l1.brand-subdomain": 25,
-        "l1.ip-literal": 15,
-        "l1.exotic-port": 10,
-        "l1.subdomain-depth": 10,
-        "l1.low-rep-tld": 5,
-        "l2.cross-origin-form": 25,
-        "l2.hidden-capture-field": 30,
-        "l2.thirdparty-iframe": 10,
-        // A secret typed into a foreign frame. Deliberately light: embedded
-        // payment fields are legitimate and common, so this must never be
-        // enough to alert by itself (see ts/src/frames.ts).
-        "l2.capture-in-thirdparty-iframe": 15,
-        "l2.anti-inspection": 10,
-        "l2.borrowed-brand-assets": 25,
-        // A brand's logo copied pixel-for-pixel onto a host it doesn't own. Same
-        // weight as a hotlinked one: the claim is identical, only the delivery
-        // differs — and a self-hosted copy is if anything more deliberate.
-        "l2.brand-logo-copy": 25,
-        "history.unseen-domain": 10,
-    ]
+/// The calibration, as read from registry/scoring.json.
+///
+/// Its own type rather than loose constants: the values now come from a file,
+/// so the decode can fail, and a silently-empty calibration would disable every
+/// alert — the worst possible failure mode, and an invisible one.
+struct ScoringPolicy: Codable, Sendable {
+    let weights: [String: Int]
+    let thresholds: Thresholds
+    let identitySignals: Set<String>
+    let identityMultiplier: Int
+    let minimumConvergingSignals: Int
 
-    static let bannerThreshold = 40
-    static let interstitialThreshold = 70
+    struct Thresholds: Codable, Sendable {
+        let banner: Int
+        let interstitial: Int
+        let l3Wake: Int
+    }
+
+    /// Compiled-in fallback, identical to the shipped file. Used only if the
+    /// bundle resource is missing or malformed — the alternative is an engine
+    /// that scores everything at zero and never warns anyone.
+    static let fallback = ScoringPolicy(
+        weights: [
+            "l1.homograph": 35, "l1.punycode": 15, "l1.mixed-script": 20,
+            "l1.typosquat": 30, "l1.combosquat": 20, "l1.brand-subdomain": 25,
+            "l1.ip-literal": 15, "l1.exotic-port": 10, "l1.subdomain-depth": 10,
+            "l1.low-rep-tld": 5, "l2.cross-origin-form": 25,
+            "l2.hidden-capture-field": 30, "l2.thirdparty-iframe": 10,
+            "l2.capture-in-thirdparty-iframe": 15, "l2.anti-inspection": 10,
+            "l2.borrowed-brand-assets": 25, "l2.brand-logo-copy": 25,
+            "history.unseen-domain": 10,
+        ],
+        thresholds: Thresholds(banner: 40, interstitial: 70, l3Wake: 20),
+        identitySignals: [
+            "l1.homograph", "l1.typosquat", "l1.brand-subdomain",
+            "l2.borrowed-brand-assets", "l2.brand-logo-copy",
+        ],
+        identityMultiplier: 2,
+        minimumConvergingSignals: 2
+    )
+
+    static let shared: ScoringPolicy = {
+        guard let url = Bundle.main.url(forResource: "scoring", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let policy = try? JSONDecoder().decode(ScoringPolicy.self, from: data),
+              !policy.weights.isEmpty
+        else {
+            Logger(subsystem: "com.ouweis.avert", category: "scoring")
+                .fault("scoring.json missing or malformed — falling back to compiled defaults")
+            assertionFailure("scoring.json failed to load")
+            return fallback
+        }
+        return policy
+    }()
+}
+
+struct ScoreEngine {
+    /// Indicative weights (PLAN.md §5), now data rather than code — see
+    /// registry/scoring.json. They stay indicative until the evaluation harness
+    /// measures their effect on a real corpus: moving them here does not
+    /// validate them, it makes them measurable.
+    static var weights: [String: Int] { ScoringPolicy.shared.weights }
+
+    static var bannerThreshold: Int { ScoringPolicy.shared.thresholds.banner }
+    static var interstitialThreshold: Int { ScoringPolicy.shared.thresholds.interstitial }
     /// Below this base score, L3 never wakes up (PLAN.md §3: cost control).
-    static let l3WakeThreshold = 20
+    static var l3WakeThreshold: Int { ScoringPolicy.shared.thresholds.l3Wake }
 
     /// Signals that implicate a brand by construction on a non-owned host:
     /// they are themselves an identity claim contradicted by the domain.
-    static let identitySignalIds: Set<String> = [
-        "l1.homograph", "l1.typosquat", "l1.brand-subdomain",
-        "l2.borrowed-brand-assets", "l2.brand-logo-copy",
-    ]
+    static var identitySignalIds: Set<String> { ScoringPolicy.shared.identitySignals }
 
     static func signalIdentityMismatch(_ dossier: PageDossier) -> Bool {
         dossier.l1Signals.contains { $0.brand != nil && identitySignalIds.contains($0.id) }
@@ -87,13 +119,13 @@ struct ScoreEngine {
         }
 
         if identityMismatch {
-            score *= 2
+            score *= ScoringPolicy.shared.identityMultiplier
         }
 
         // Convergence rule: a single signal never raises an alert, whatever
         // its weight (PLAN.md §5 « jamais d'alerte forte sur un signal unique »).
         let action: VerdictAction
-        if contributing.count < 2 {
+        if contributing.count < ScoringPolicy.shared.minimumConvergingSignals {
             action = .silent
         } else if score > Self.interstitialThreshold, identityMismatch {
             action = .interstitial

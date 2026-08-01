@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "enabledPlugins": {
+    "asc@rorkai": true,
+    "swift-engineering@claude-swift-engineering": true
+  },
+  "skillOverrides": {
+    "swiftui-whats-new-27": "on",
+    "audit-xcode-security-settings": "on",
+    "ios-debugger-agent": "on",
+    "axe": "on",
+    "app-store-changelog": "on",
+    "test-modernizer": "on",
+    "c-bounds-safety": "on"
+  }
+}

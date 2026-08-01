@@ -47,6 +47,16 @@ targets:
       # Includes Shared/Localizable.xcstrings — every target needs it: the app for
       # its own UI, the extensions because the verdict text is produced there.
       - Shared
+      # CheckLinkIntent runs IN THIS PROCESS and calls LinkChecker, which reads
+      # BrandRegistry.shared. Without these two here the registry loads empty and
+      # every link checked from Siri, Spotlight or Shortcuts comes back "nothing
+      # found" — the most reassuring verdict possible, and the most dangerous.
+      # The comment warning about exactly this was on AvertAction only; the app
+      # itself was missed.
+      - path: registry/brands.json
+        buildPhase: resources
+      - path: registry/scoring.json
+        buildPhase: resources
     dependencies:
       - target: AvertExtension
         embed: true
@@ -144,6 +154,8 @@ targets:
         type: folder
       - path: registry/brands.json
         buildPhase: resources
+      - path: registry/scoring.json
+        buildPhase: resources
     info:
       path: Extension/Info.plist
       properties:
@@ -182,6 +194,8 @@ targets:
       # in this bundle, every link would come back "nothing found", the most
       # dangerous possible failure. BrandRegistry logs .fault if it's missing.
       - path: registry/brands.json
+        buildPhase: resources
+      - path: registry/scoring.json
         buildPhase: resources
     info:
       path: ActionExtension/Info.plist
@@ -238,6 +252,12 @@ targets:
     sources:
       - App
       - Shared
+      # Same reason as the iOS app: CheckLinkIntent runs in this process and
+      # reads BrandRegistry.shared.
+      - path: registry/brands.json
+        buildPhase: resources
+      - path: registry/scoring.json
+        buildPhase: resources
     dependencies:
       - target: AvertMacExtension
         embed: true
@@ -298,6 +318,8 @@ targets:
         buildPhase: resources
         type: folder
       - path: registry/brands.json
+        buildPhase: resources
+      - path: registry/scoring.json
         buildPhase: resources
     info:
       path: Extension/InfoMac.plist

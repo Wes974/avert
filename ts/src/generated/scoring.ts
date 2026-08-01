@@ -1,0 +1,69 @@
+// GENERATED from registry/scoring.json by scripts/build-js.sh — do not edit.
+export interface ScoringPolicy {
+  _doc?: string[];
+  weights: Record<string, number>;
+  thresholds: { banner: number; interstitial: number; l3Wake: number };
+  identitySignals: string[];
+  identityMultiplier: number;
+  minimumConvergingSignals: number;
+}
+export const SCORING: ScoringPolicy = {
+  "_doc": [
+    "Source UNIQUE de la calibration du moteur de décision.",
+    "",
+    "Ces valeurs vivaient en trois copies : ScoreEngine.swift, le miroir en tête de",
+    "ts/tests/corpus-negative.test.ts, et le raisonnement de plusieurs autres tests.",
+    "Le commentaire du test l'annonçait lui-même : « Weights mirror ScoreEngine.swift",
+    "§5. Keep in sync ». Une calibration que trois fichiers doivent s'accorder à",
+    "décrire n'est pas mesurable — d'où ce fichier.",
+    "",
+    "Consommé comme registry/brands.json : généré vers ts/src/generated/scoring.ts au",
+    "build, lu depuis le bundle côté Swift. Linté par scripts/lint-scoring.ts.",
+    "",
+    "Les poids restent indicatifs tant que le harnais d'évaluation n'a pas mesuré",
+    "leur effet sur un corpus réel : les déplacer ici ne les valide pas, ça les rend",
+    "vérifiables."
+  ],
+
+  "weights": {
+    "l1.homograph": 35,
+    "l1.punycode": 15,
+    "l1.mixed-script": 20,
+    "l1.typosquat": 30,
+    "l1.combosquat": 20,
+    "l1.brand-subdomain": 25,
+    "l1.ip-literal": 15,
+    "l1.exotic-port": 10,
+    "l1.subdomain-depth": 10,
+    "l1.low-rep-tld": 5,
+    "l2.cross-origin-form": 25,
+    "l2.hidden-capture-field": 30,
+    "l2.thirdparty-iframe": 10,
+    "l2.capture-in-thirdparty-iframe": 15,
+    "l2.anti-inspection": 10,
+    "l2.borrowed-brand-assets": 25,
+    "l2.brand-logo-copy": 25,
+    "history.unseen-domain": 10
+  },
+
+  "thresholds": {
+    "banner": 40,
+    "interstitial": 70,
+    "l3Wake": 20
+  },
+
+  "identitySignals": [
+    "l1.homograph",
+    "l1.typosquat",
+    "l1.brand-subdomain",
+    "l2.borrowed-brand-assets",
+    "l2.brand-logo-copy"
+  ],
+
+  "identityMultiplier": 2,
+
+  "minimumConvergingSignals": 2
+}
+;
+export const WEIGHTS: Record<string, number> = SCORING.weights;
+export const IDENTITY_SIGNALS = new Set<string>(SCORING.identitySignals);

@@ -6,22 +6,14 @@ import { analyzeUrl } from "../src/l1";
 import { analyzePage } from "../src/l2";
 import { BRANDS } from "../src/generated/brands";
 
-// Weights mirror ScoreEngine.swift §5. Keep in sync (M6 will move both to a
-// shared registry/weights.json). The test's real job is the signal set, not
-// the exact arithmetic.
-const WEIGHTS: Record<string, number> = {
-  "l1.homograph": 35, "l1.punycode": 15, "l1.mixed-script": 20,
-  "l1.typosquat": 30, "l1.combosquat": 20, "l1.brand-subdomain": 25,
-  "l1.ip-literal": 15, "l1.exotic-port": 10, "l1.subdomain-depth": 10,
-  "l1.low-rep-tld": 5,
-  "l2.cross-origin-form": 25, "l2.hidden-capture-field": 30,
-  "l2.thirdparty-iframe": 10, "l2.anti-inspection": 10,
-  "l2.borrowed-brand-assets": 25,
-};
-const BANNER_THRESHOLD = 40;
-const IDENTITY_SIGNALS = new Set([
-  "l1.homograph", "l1.typosquat", "l1.brand-subdomain", "l2.borrowed-brand-assets",
-]);
+// Read from registry/scoring.json, the single source the Swift engine reads too.
+// This block used to be a hand-kept copy, with a comment admitting as much
+// ("Keep in sync"), and it had already drifted: l2.brand-logo-copy and
+// l2.capture-in-thirdparty-iframe were missing from both the weights and the
+// identity set, so every case here was scored against a stale calibration.
+import { IDENTITY_SIGNALS, SCORING, WEIGHTS } from "../src/generated/scoring";
+
+const BANNER_THRESHOLD = SCORING.thresholds.banner;
 
 /** Build the dossier the way content.ts does, then score it the way Swift does. */
 function assess(url: string, html: string) {

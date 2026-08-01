@@ -73,6 +73,12 @@ xcodebuild archive \
   CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
   >"$WORK/archive.log" 2>&1 || { tail -30 "$WORK/archive.log"; exit 1; }
 
+# Checked on the archive, not on the sources: the app once shipped without
+# brands.json while containing CheckLinkIntent, and nothing said a word — it
+# compiles, and the unit tests inject their own registry on purpose.
+echo "▸ Ressources embarquées"
+"$ROOT/scripts/check-bundled-resources.sh" "$ARCHIVE"
+
 echo "▸ Export et envoi"
 asc xcode export-options generate --archive-path "$ARCHIVE" --destination upload \
   --output-path "$OPTIONS" --overwrite >/dev/null
